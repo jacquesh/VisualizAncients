@@ -1,1 +1,1 @@
-javac -cp .;.\deps\* Reparser.java
+javac -cp .;.\deps\* -d .\classfiles Reparser.java
