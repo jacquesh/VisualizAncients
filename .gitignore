@@ -1,4 +1,12 @@
+# Vim files
 *.swp
+
+# Java files
 *.class
+
+# Dota 2 replay files
 *.dem
 *.dem.bz2
+
+# Temporary files used for the visualization
+*.visdata

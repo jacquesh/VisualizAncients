@@ -123,7 +123,7 @@ public class Reparser
         Reparser parser = new Reparser();
         runner.runWith(parser);
 
-        java.io.File outFile = new java.io.File("out.log");
+        java.io.File outFile = new java.io.File("out.visdata");
         java.io.FileWriter out = new java.io.FileWriter(outFile);
         for(int i=0; i<parser.snapshotList.size(); ++i)
         {
