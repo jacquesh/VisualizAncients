@@ -1,6 +1,8 @@
 (function ($) {
   'use strict';
 
+  var playerData = undefined;
+
   var mapManager = {
     $map: $('#dota-map'),
 
@@ -24,9 +26,10 @@
     }
   };
 
-  var setupPlayerData = function () {
-    var $timeSlider = $("#time-slider");
+  var setupPlayerData = function (data) {
+    playerData = JSON.parse(data);
 
+    var $timeSlider = $("#time-slider");
     $timeSlider.slider({
       value: 0,
       min: 0,
@@ -43,6 +46,10 @@
     $("#amount").text("Time: " + $timeSlider.slider("value"));
   };
 
-  $(document).ready(setupPlayerData);
+  var loadPlayerData = function() {
+    $.get("static/data.json", setupPlayerData);
+  }
+
+  $(document).ready(loadPlayerData);
 
 })(jQuery);
