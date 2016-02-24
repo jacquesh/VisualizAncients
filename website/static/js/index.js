@@ -8,8 +8,10 @@
 
     drawMapPoint: function(x, y, colour) {
       // * 3 because the map is smaller than canvas
-      x = (x - 60) * 3;
-      y = 420 - ((y - 55) * 3);
+      var width = this.$map.width();
+      var scalef = width / 127;
+      x = (x - 64) * scalef;
+      y = width - ((y - 64) * scalef);
       this.$map.drawArc({
         fillStyle: '#FFF',
         x: x, y: y,
