@@ -9,7 +9,7 @@
     drawMapPoint: function(x, y, colour) {
       // * 3 because the map is smaller than canvas
       x = (x - 60) * 3;
-      y = 420 - ((y - 50) * 3);
+      y = 420 - ((y - 55) * 3);
       this.$map.drawArc({
         fillStyle: '#FFF',
         x: x, y: y,
@@ -27,7 +27,7 @@
   };
 
   var setupPlayerData = function (data) {
-    playerData = JSON.parse(data);
+    playerData = data;
 
     var $timeSlider = $("#time-slider");
     $timeSlider.slider({
@@ -47,7 +47,7 @@
   };
 
   var loadPlayerData = function() {
-    $.get("static/data.json", setupPlayerData);
+    $.get("/static/data.json", setupPlayerData);
   }
 
   $(document).ready(loadPlayerData);
