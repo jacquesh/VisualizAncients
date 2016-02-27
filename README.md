@@ -38,4 +38,11 @@ This is currently a prospective list and may contain some really bad (or really 
 - How does the positioning of roaming heroes (such as Bounty Hunter or Nyx, who might be particularly likely to kill couriers) differ from that of normal heroes and where might be a good ward spot to catch them?
 - What are common positions for people to stand just before a teamfight (e.g in Dire jungle just before fighting at Dire's top t2 tower)
 - Is there some relation between TPs and kills? Or carrying of TPs and positioning? IE are heroes carrying a TP significantly more likely to move further out than those that are not?
+- Does stacking jungle lead to more aggressive warding. (show stacked jungle creeps)
+- Are heroes moving forward with creep waves early game. (show creep wave positions (aprox): can be less accurate than heroe positions)
+- Does Rosh being up affect team/ward positioning (show if rosh is up)
+- Do certain items influence team positioning (eg. boots of travel, gem of truesight)
+- Not a query specifically but need to show whether towers are up. let's people check for tower diving etc.
+- How often are runes being used (show these when present)
+- Linked to the smoke thing, a way in general to show if a heroe is invis since this sort of clouds map control.
 
