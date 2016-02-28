@@ -13,6 +13,8 @@ import skadistats.clarity.processor.runner.SimpleRunner;
 import skadistats.clarity.processor.gameevents.OnGameEvent;
 import skadistats.clarity.processor.reader.OnTickStart;
 import skadistats.clarity.processor.reader.OnTickEnd;
+import skadistats.clarity.processor.entities.Entities;
+import skadistats.clarity.processor.entities.UsesEntities;
 import skadistats.clarity.processor.entities.OnEntityCreated;
 import skadistats.clarity.processor.entities.OnEntityUpdated;
 import skadistats.clarity.processor.entities.OnEntityDeleted;
@@ -25,14 +27,16 @@ public class Reparser
     private ArrayList<Snapshot> snapshotList;
     private Snapshot currentSnapshot;
 
-    private int coordCounter;
-
-    private int updatesThisTick;
+    private Entity playerResource;
+    private Entity[] heroEntities;
 
     public Reparser()
     {
         snapshotList = new ArrayList<Snapshot>(1024);
-        coordCounter = 0;
+        currentSnapshot = new Snapshot();
+
+        playerResource = null;
+        heroEntities = new Entity[10];
     }
 
     @OnGameEvent
@@ -41,29 +45,113 @@ public class Reparser
         //System.out.println(evt.toString());
     }
 
+    @UsesEntities
     @OnTickStart
     public void onTickStart(Context ctx, boolean synthetic)
     {
-        updatesThisTick = 0;
-        currentSnapshot = new Snapshot();
+        Snapshot newSnapshot = new Snapshot();
+        //newSnapshot.copyFrom(currentSnapshot);
+        currentSnapshot = newSnapshot;
+
+        if(playerResource == null)
+        {
+            playerResource = ctx.getProcessor(Entities.class).getByDtName("CDOTA_PlayerResource");
+            if(playerResource == null)
+                return;
+            else
+                System.out.printf("PlayerResource search result: %s\n", playerResource.toString());
+        }
+
+        for(int i=0; i<1; ++i)
+        {
+            System.out.printf("Player %d", i);
+            Entity hero = heroEntities[i];
+            if(hero == null)
+            {
+                System.out.printf(" has no hero currently");
+                String handlePropName = String.format("m_vecPlayerTeamData.%04d.m_hSelectedHero", i);
+                int heroHandle = playerResource.getProperty(handlePropName);
+                hero = ctx.getProcessor(Entities.class).getByHandle(heroHandle);
+
+                if(hero != null)
+                {
+                    System.out.printf(", but we him a %s", hero.getDtClass().getDtName());
+                    heroEntities[i] = hero;
+                }
+            }
+
+            if(hero != null)
+            {
+                int lifeState = hero.getProperty("m_lifeState");
+                boolean isAlive = (lifeState == 0);
+                int cellX = hero.getProperty("CBodyComponent.m_cellX");
+                int cellY = hero.getProperty("CBodyComponent.m_cellY");
+                float subCellX = hero.getProperty("CBodyComponent.m_vecX");
+                float subCellY = hero.getProperty("CBodyComponent.m_vecY");
+
+                // TODO: Check that this is correct from:
+                //       https://github.com/skadistats/skadi/wiki/DT_DOTA_BaseNPC
+                long unitState = hero.getProperty("m_nUnitState64");
+                boolean isInvis = ((unitState & (1 << 8)) != 0);
+
+                if(isAlive)
+                {
+                    currentSnapshot.heroes[i].alive = true;
+                    currentSnapshot.heroes[i].x = (float)cellX + (subCellX/128.0f);
+                    currentSnapshot.heroes[i].y = (float)cellY + (subCellY/128.0f);
+                    currentSnapshot.heroes[i].invisible = isInvis;
+                }
+                else
+                {
+                    if(lifeState > 2)
+                    {
+                        System.out.printf("ERROR: Unexpected lifeState: %d\n", lifeState);
+                    }
+                    currentSnapshot.heroes[i].alive = false;
+                    currentSnapshot.heroes[i].x = 0.0f;
+                    currentSnapshot.heroes[i].y = 0.0f;
+                    currentSnapshot.heroes[i].invisible = false;
+                }
+                System.out.printf(" @ (%.2f, %.2f)", currentSnapshot.heroes[i].x, currentSnapshot.heroes[i].y);
+            }
+            System.out.printf("\n");
+        }
     }
 
     @OnTickEnd
     public void onTickEnd(Context ctx, boolean synthetic)
     {
-        if(updatesThisTick > 0)
-        {
-            snapshotList.add(currentSnapshot);
-        }
-
-        //System.out.printf("We parsed %d updates this tick\n", updatesThisTick);
-        updatesThisTick = 0;
-        //TODO: Write out the data for this tick
+        snapshotList.add(currentSnapshot);
     }
 
-    // TODO: Does this run only once per frame? Can we get multiple runs of this for each updated property?
-    // The point is really that we need some sort of correlation in time between the updates on different entities
-    // If we can't do that like this then we need some other way of running through time and collecting data
+
+    /*
+    // TODO: Its important to check that the entity is NOT an illusion here
+    //       Because otherwise we'll get a boatload of extra spawn/death/updates
+    @OnEntityCreated
+    public void onEntityCreated(Context ctx, Entity ent)
+    {
+        String className = ent.getDtClass().getDtName();
+        if(className.startsWith("CDOTA_Unit_Hero"))
+        {
+            int playerID = ent.getProperty("m_iPlayerID");
+            System.out.printf("%s (%d) spawned\n", className, playerID);
+            currentSnapshot.heroes[playerID].alive = true;
+        }
+    }
+
+    @OnEntityDeleted
+    public void onEntityDeleted(Context ctx, Entity ent)
+    {
+        String className = ent.getDtClass().getDtName();
+        if(className.startsWith("CDOTA_Unit_Hero"))
+        {
+            int playerID = ent.getProperty("m_iPlayerID");
+            System.out.printf("%s (%d) died\n", className, playerID);
+            currentSnapshot.heroes[playerID].alive = false;
+        }
+    }
+
     @OnEntityUpdated
     public void onEntityUpdated(Context ctx, Entity ent, FieldPath[] something, int somethingElse)
     {
@@ -74,14 +162,9 @@ public class Reparser
         if(entName.startsWith("CDOTA_Unit_Hero"))
         {
             //System.out.printf("Hero DTName: %s\n", entName);
-        }
-        if(entName.equals("CDOTA_Unit_Hero_Lion"))
-        {
-            updatesThisTick += 1;
             //System.out.println(ent.toString());
             int playerID = ent.getProperty("m_iPlayerID");
 
-            //System.out.printf("Lion: %d\n", something.length);
             int cellX = ent.getProperty("CBodyComponent.m_cellX");
             float subCellX = ent.getProperty("CBodyComponent.m_vecX");
             int cellY = ent.getProperty("CBodyComponent.m_cellY");
@@ -90,45 +173,63 @@ public class Reparser
             float xLoc = (float)cellX + subCellX/128.0f;
             float yLoc = (float)cellY + subCellY/128.0f;
 
-            coordCounter += 1;
-            if(coordCounter == 1)
-            {
-                currentSnapshot.heroX[0] = xLoc;
-                currentSnapshot.heroY[0] = yLoc;
-                coordCounter = 0;
-            }
+            currentSnapshot.heroes[playerID].x = xLoc;
+            currentSnapshot.heroes[playerID].y = yLoc;
         }
     }
+    */
 
     public static void main(String[] args) throws Exception
     {
-        String inputFile = "test.dem";
+        // TODO: Maybe we should just add some sort of check for the consistency of the playerID
+        //       that is reported by entity updates/creations etc, so that we can just ignore matches
+        //       where its inconsistent
+        String inputFile = "test2.dem";
         MappedFileSource source = new MappedFileSource(inputFile);
         CDemoFileInfo info = Clarity.infoForSource(source);
-        System.out.println(info);
         CDotaGameInfo dota = info.getGameInfo().getDota();
 
-        int endTime = dota.getEndTime();
-        System.out.printf("Game ends at time %d\n", endTime);
-
         List<CPlayerInfo> playerList = dota.getPlayerInfoList();
-        for(CPlayerInfo player : playerList)
+        if(playerList.size() != 10)
         {
-            System.out.println(player);
-            System.out.printf("%s is playing %s on %s\n", player.getPlayerName(), player.getHeroName(), player.getGameTeam());
+            System.out.println("ERROR: Expected 10 players, got "+playerList.size());
+        }
+        for(int playerIndex=0; playerIndex<10; playerIndex++)
+        {
+            CPlayerInfo player = playerList.get(playerIndex);
+            if(playerIndex == 0)
+            {
+                System.out.printf("Radiant:\n");
+            }
+            else if(playerIndex == 5)
+            {
+                System.out.printf("Dire:\n");
+            }
+            System.out.printf("Player %d - %s is playing %s\n", playerIndex, player.getPlayerName(), player.getHeroName());
         }
         source.setPosition(0); // Reset the source buffer to the beginning so we can read through it again
 
+        long startTime = System.currentTimeMillis();
         SimpleRunner runner = new SimpleRunner(source);
         Reparser parser = new Reparser();
         runner.runWith(parser);
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        System.out.printf("Processing took %fs\n", duration/1000.0f);
 
         java.io.File outFile = new java.io.File("out.visdata");
         java.io.FileWriter out = new java.io.FileWriter(outFile);
+        out.write("[\n");
         for(int i=0; i<parser.snapshotList.size(); ++i)
         {
             parser.snapshotList.get(i).write(out);
+            if(i < parser.snapshotList.size()-1)
+            {
+                out.write(",");
+            }
+            out.write("\n");
         }
+        out.write("]\n");
         out.close();
     }
 }
