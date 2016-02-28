@@ -10,3 +10,6 @@
 
 # Temporary files used for the visualization
 *.visdata
+
+# Data files
+*.json
