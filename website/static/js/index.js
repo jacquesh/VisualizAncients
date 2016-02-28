@@ -52,6 +52,16 @@
                 mapManager.drawMapPoint(64, 64, "#000");
             }
         }
+
+        var courierData = replayData[ui.value].courierData;
+        for(var i=0; i<courierData.length; i++)
+        {
+            var courier = courierData[i];
+            if(courier.alive)
+            {
+                mapManager.drawMapPoint(courier.x, courier.y, "#FFF");
+            }
+        }
       }
     });
     //$timeSlider.slider('option', 'slide').call($timeSlider);

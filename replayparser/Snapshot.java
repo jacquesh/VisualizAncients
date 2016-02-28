@@ -26,16 +26,45 @@ class HeroState
     }
 }
 
+class CourierState
+{
+    public boolean alive;
+    public float x;
+    public float y;
+
+    public CourierState()
+    {
+        alive = true;
+        x = 0.0f;
+        y = 0.0f;
+    }
+
+    public void write(FileWriter out) throws IOException
+    {
+        out.write("{");
+        out.write(String.format("\"alive\":%b,", alive));
+        out.write(String.format("\"x\":%.2f,\"y\":%.2f", x,y));
+        out.write("}");
+    }
+}
+
 public class Snapshot
 {
     public HeroState[] heroes;
+    public CourierState[] couriers;
 
-    public Snapshot()
+    public Snapshot(int courierCount)
     {
         heroes = new HeroState[10];
         for(int i=0; i<10; ++i)
         {
             heroes[i] = new HeroState();
+        }
+
+        couriers = new CourierState[courierCount];
+        for(int i=0; i<courierCount; ++i)
+        {
+            couriers[i] = new CourierState();
         }
     }
 
@@ -53,11 +82,22 @@ public class Snapshot
     {
         out.write("{");
 
-        out.write("\"heroData\": [");
+        out.write("\"heroData\":[");
         for(int i=0; i<10; ++i)
         {
             heroes[i].write(out);
-            if(i != 9)
+            if(i < 9)
+            {
+                out.write(",");
+            }
+        }
+        out.write("],");
+
+        out.write("\"courierData\":[");
+        for(int i=0; i<couriers.length; ++i)
+        {
+            couriers[i].write(out);
+            if(i < couriers.length-1)
             {
                 out.write(",");
             }

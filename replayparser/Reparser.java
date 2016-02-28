@@ -10,7 +10,6 @@ import skadistats.clarity.wire.common.proto.Demo.CGameInfo.CDotaGameInfo.CPlayer
 import skadistats.clarity.processor.runner.Context;
 import skadistats.clarity.processor.runner.SimpleRunner;
 
-import skadistats.clarity.processor.gameevents.OnGameEvent;
 import skadistats.clarity.processor.reader.OnTickStart;
 import skadistats.clarity.processor.reader.OnTickEnd;
 import skadistats.clarity.processor.entities.Entities;
@@ -18,7 +17,6 @@ import skadistats.clarity.processor.entities.UsesEntities;
 import skadistats.clarity.processor.entities.OnEntityCreated;
 import skadistats.clarity.processor.entities.OnEntityUpdated;
 import skadistats.clarity.processor.entities.OnEntityDeleted;
-import skadistats.clarity.model.GameEvent;
 import skadistats.clarity.model.Entity;
 import skadistats.clarity.model.FieldPath;
 
@@ -29,27 +27,23 @@ public class Reparser
 
     private Entity playerResource;
     private Entity[] heroEntities;
+    private ArrayList<Entity> courierList;
 
     public Reparser()
     {
         snapshotList = new ArrayList<Snapshot>(1024);
-        currentSnapshot = new Snapshot();
+        currentSnapshot = new Snapshot(0);
 
         playerResource = null;
         heroEntities = new Entity[10];
-    }
-
-    @OnGameEvent
-    public void onGameEvent(Context ctx, GameEvent evt)
-    {
-        //System.out.println(evt.toString());
+        courierList = new ArrayList<Entity>(2);
     }
 
     @UsesEntities
     @OnTickStart
     public void onTickStart(Context ctx, boolean synthetic)
     {
-        Snapshot newSnapshot = new Snapshot();
+        Snapshot newSnapshot = new Snapshot(courierList.size());
         //newSnapshot.copyFrom(currentSnapshot);
         currentSnapshot = newSnapshot;
 
@@ -104,6 +98,27 @@ public class Reparser
                 currentSnapshot.heroes[i].invisible = isInvis;
             }
         }
+
+        // NOTE: Couriers get added to the list by the onEntityCreated event,
+        //       we assume here that all events trigger between onTickStart and onTickEnd,
+        //       so courierList will have the same size as the array in the currentSnapshot
+        for(int i=0; i<courierList.size(); ++i)
+        {
+            Entity courier = courierList.get(i);
+
+            // TODO: Check that this actually works for couriers
+            int lifeState = courier.getProperty("m_lifeState");
+            boolean isAlive = (lifeState == 0);
+
+            int cellX = courier.getProperty("CBodyComponent.m_cellX");
+            int cellY = courier.getProperty("CBodyComponent.m_cellY");
+            float subCellX = courier.getProperty("CBodyComponent.m_vecX");
+            float subCellY = courier.getProperty("CBodyComponent.m_vecY");
+
+            currentSnapshot.couriers[i].alive = isAlive;
+            currentSnapshot.couriers[i].x = (float)cellX + (subCellX/128.0f);
+            currentSnapshot.couriers[i].y = (float)cellY + (subCellY/128.0f);
+        }
     }
 
     @OnTickEnd
@@ -112,6 +127,22 @@ public class Reparser
         snapshotList.add(currentSnapshot);
     }
 
+    @OnEntityCreated
+    public void onEntityCreated(Context ctx, Entity ent)
+    {
+        String className = ent.getDtClass().getDtName();
+        if(className.equals("CDOTA_Unit_Courier"))
+        {
+            for(int i=0; i<courierList.size(); ++i)
+            {
+                if(courierList.get(i).getHandle() == ent.getHandle())
+                {
+                    return;
+                }
+            }
+            courierList.add(ent);
+        }
+    }
 
     /*
     // TODO: Its important to check that the entity is NOT an illusion here
