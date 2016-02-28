@@ -18,14 +18,11 @@ class HeroState
 
     public void write(FileWriter out) throws IOException
     {
-        if(!alive)
-        {
-            out.write("\"x\":64.00, \"y\":64.00");
-        }
-        else
-        {
-            out.write(String.format("\"x\":%.2f, \"y\":%.2f", x, y));
-        }
+        out.write("{");
+        out.write(String.format("\"alive\":%b,", alive));
+        out.write(String.format("\"x\":%.2f,\"y\":%.2f,", x, y));
+        out.write(String.format("\"invis\":%b", invisible));
+        out.write("}");
     }
 }
 
@@ -55,10 +52,18 @@ public class Snapshot
     public void write(FileWriter out) throws IOException
     {
         out.write("{");
+
+        out.write("\"heroData\": [");
         for(int i=0; i<10; ++i)
         {
             heroes[i].write(out);
+            if(i != 9)
+            {
+                out.write(",");
+            }
         }
+        out.write("]");
+
         out.write("}");
     }
 }

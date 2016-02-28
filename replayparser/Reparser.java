@@ -62,20 +62,17 @@ public class Reparser
                 System.out.printf("PlayerResource search result: %s\n", playerResource.toString());
         }
 
-        for(int i=0; i<1; ++i)
+        for(int i=0; i<10; ++i)
         {
-            System.out.printf("Player %d", i);
             Entity hero = heroEntities[i];
             if(hero == null)
             {
-                System.out.printf(" has no hero currently");
                 String handlePropName = String.format("m_vecPlayerTeamData.%04d.m_hSelectedHero", i);
                 int heroHandle = playerResource.getProperty(handlePropName);
                 hero = ctx.getProcessor(Entities.class).getByHandle(heroHandle);
 
                 if(hero != null)
                 {
-                    System.out.printf(", but we him a %s", hero.getDtClass().getDtName());
                     heroEntities[i] = hero;
                 }
             }
@@ -84,6 +81,11 @@ public class Reparser
             {
                 int lifeState = hero.getProperty("m_lifeState");
                 boolean isAlive = (lifeState == 0);
+                if(lifeState > 2)
+                {
+                    System.out.printf("ERROR: Unexpected lifeState: %d\n", lifeState);
+                }
+
                 int cellX = hero.getProperty("CBodyComponent.m_cellX");
                 int cellY = hero.getProperty("CBodyComponent.m_cellY");
                 float subCellX = hero.getProperty("CBodyComponent.m_vecX");
@@ -94,27 +96,11 @@ public class Reparser
                 long unitState = hero.getProperty("m_nUnitState64");
                 boolean isInvis = ((unitState & (1 << 8)) != 0);
 
-                if(isAlive)
-                {
-                    currentSnapshot.heroes[i].alive = true;
-                    currentSnapshot.heroes[i].x = (float)cellX + (subCellX/128.0f);
-                    currentSnapshot.heroes[i].y = (float)cellY + (subCellY/128.0f);
-                    currentSnapshot.heroes[i].invisible = isInvis;
-                }
-                else
-                {
-                    if(lifeState > 2)
-                    {
-                        System.out.printf("ERROR: Unexpected lifeState: %d\n", lifeState);
-                    }
-                    currentSnapshot.heroes[i].alive = false;
-                    currentSnapshot.heroes[i].x = 0.0f;
-                    currentSnapshot.heroes[i].y = 0.0f;
-                    currentSnapshot.heroes[i].invisible = false;
-                }
-                System.out.printf(" @ (%.2f, %.2f)", currentSnapshot.heroes[i].x, currentSnapshot.heroes[i].y);
+                currentSnapshot.heroes[i].alive = isAlive;
+                currentSnapshot.heroes[i].x = (float)cellX + (subCellX/128.0f);
+                currentSnapshot.heroes[i].y = (float)cellY + (subCellY/128.0f);
+                currentSnapshot.heroes[i].invisible = isInvis;
             }
-            System.out.printf("\n");
         }
     }
 
