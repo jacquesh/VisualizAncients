@@ -59,7 +59,9 @@ public class Reparser
             if(playerResource == null)
                 return;
             else
-                System.out.printf("PlayerResource search result: %s\n", playerResource.toString());
+            {
+                //System.out.printf("PlayerResource search result: %s\n", playerResource.toString());
+            }
         }
 
         for(int i=0; i<10; ++i)
@@ -203,6 +205,7 @@ public class Reparser
         long duration = endTime - startTime;
         System.out.printf("Processing took %fs\n", duration/1000.0f);
 
+        startTime = System.currentTimeMillis();
         java.io.File outFile = new java.io.File("out.visdata");
         java.io.FileWriter out = new java.io.FileWriter(outFile);
         out.write("[\n");
@@ -217,5 +220,8 @@ public class Reparser
         }
         out.write("]\n");
         out.close();
+        endTime = System.currentTimeMillis();
+        duration = endTime - startTime;
+        System.out.printf("Writing took %fs\n", duration/1000.0f);
     }
 }
