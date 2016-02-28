@@ -1,13 +1,12 @@
 (function ($) {
   'use strict';
 
-  var playerData = undefined;
+  var replayData = undefined;
 
   var mapManager = {
     $map: $('#dota-map'),
 
     drawMapPoint: function(x, y, colour) {
-      // * 3 because the map is smaller than canvas
       var width = this.$map.width();
       var scalef = width / 127;
       x = (x - 64) * scalef;
@@ -29,19 +28,30 @@
   };
 
   var setupPlayerData = function (data) {
-    playerData = data;
+    replayData = JSON.parse(data);
 
     var $timeSlider = $("#time-slider");
     $timeSlider.slider({
       value: 0,
       min: 0,
-      max: playerData.length - 1,
-      step: 1,
+      max: replayData.length - 1,
+      step: 10,
       slide: function(event, ui) {
         $("#amount").text("Time: " + ui.value );
-        var points = playerData[ui.value];
         mapManager.resetMap();
-        mapManager.drawMapPoint(points.x, points.y, "#000");
+        var heroData = replayData[ui.value].heroData;
+        for(var i=0; i<10; i++)
+        {
+            var hero = heroData[i];
+            if(hero.alive)
+            {
+                mapManager.drawMapPoint(hero.x, hero.y, "#000");
+            }
+            else
+            {
+                mapManager.drawMapPoint(64, 64, "#000");
+            }
+        }
       }
     });
     //$timeSlider.slider('option', 'slide').call($timeSlider);
@@ -49,7 +59,7 @@
   };
 
   var loadPlayerData = function() {
-    $.get("/static/data.json", setupPlayerData);
+    $.get("/static/data_large.json", setupPlayerData);
   }
 
   $(document).ready(loadPlayerData);
