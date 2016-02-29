@@ -22,6 +22,38 @@
     - http://charles.perin.free.fr/data/pub/soccerstories.pdf
     - http://map.norsecorp.com/
 
+### Stuff we want to show
+- Hero positions
+- Couriers position
+- Lane creeps
+- Roshan?
+- Neutrals? (probably not? I dunno)
+- Wards
+- Smoke locations
+- Runes?
+- Some hero state (e.g are they invis? what items do they have etc)
+- Towers
+- Runes
+
+### TODO THINGS:
+- Check that we ignore illusions
+- Check that we dont break things with meepo
+- Check how the invis state interacts with invis/smoke (check buffs?)
+- 
+
+### Actual Visual Queries
+An actually used list of the things we actually want to actually know
+- Where are heroes standing/running generally?
+- What ward spots are most effective?
+- Is this hero out of position or not at this time in this match?
+- How effective are counter-wards (or similarly, how frequently do wards in a particular position get dewarded vs how frequently do they timeout)
+- How does the presence of wards affect player's positioning? IE is there a noticeable difference in where a player tends to move when they do/don't have wards in a particular location?
+- What are common routes that people take while smoked or, similarly, where are the common locations for people to pop smokes
+- Are heroes carrying a TP (or TP boots) significantly more likely to move further out than those that are not?
+- Are heroes moving forward with creep waves early game. (show creep wave positions (aprox): can be less accurate than heroe positions)
+- Does Rosh being up affect team/ward positioning (show if rosh is up)
+- How often are runes being used (show these when present)
+
 ### Visual Queries
 This is currently a prospective list and may contain some really bad (or really good!) ideas, but for now its essentially just a list of possibilities.
 - Where are heroes standing/running generally?
