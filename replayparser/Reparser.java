@@ -28,9 +28,12 @@ public class Reparser
     private ArrayList<Snapshot> snapshotList;
     private Snapshot currentSnapshot;
 
+    private Entity gameRules;
     private Entity playerResource;
     private Entity[] heroEntities;
     private ArrayList<Entity> courierList;
+
+    private float startTime;
 
     public Reparser()
     {
@@ -40,6 +43,8 @@ public class Reparser
         playerResource = null;
         heroEntities = new Entity[10];
         courierList = new ArrayList<Entity>(2);
+
+        startTime = 0.0f;
     }
 
     @UsesEntities
@@ -55,6 +60,29 @@ public class Reparser
             playerResource = ctx.getProcessor(Entities.class).getByDtName("CDOTA_PlayerResource");
             if(playerResource == null)
                 return;
+        }
+        if(gameRules == null)
+        {
+            gameRules = ctx.getProcessor(Entities.class).getByDtName("CDOTAGamerulesProxy");
+            if(gameRules == null)
+                return;
+        }
+        float gameTime = gameRules.getProperty("m_pGameRules.m_fGameTime");
+        currentSnapshot.time = gameTime - startTime;
+        if(startTime == 0.0f)
+        {
+            // When we find out what the start time is, we need to go through and adjust
+            // the timestamp on all the previous snapshots
+            float startTimeCheck = gameRules.getProperty("m_pGameRules.m_flGameStartTime");
+            if(startTimeCheck > 0.0f)
+            {
+                startTime = startTimeCheck;
+                for(int i=0; i<snapshotList.size(); ++i)
+                {
+                    snapshotList.get(i).time -= startTime;
+                }
+                currentSnapshot.time -= startTime;
+            }
         }
 
         for(int i=0; i<10; ++i)

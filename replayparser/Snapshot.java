@@ -50,6 +50,7 @@ class CourierState
 
 public class Snapshot
 {
+    public float time;
     public HeroState[] heroes;
     public CourierState[] couriers;
 
@@ -81,6 +82,7 @@ public class Snapshot
     public void write(FileWriter out) throws IOException
     {
         out.write("{");
+        out.write(String.format("\"time\":%.1f,", time));
 
         out.write("\"heroData\":[");
         for(int i=0; i<10; ++i)
