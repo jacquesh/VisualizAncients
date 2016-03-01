@@ -3,6 +3,7 @@ import java.util.ArrayList;
 
 import skadistats.clarity.Clarity;
 import skadistats.clarity.source.MappedFileSource;
+import skadistats.clarity.wire.common.proto.DotaUserMessages;
 import skadistats.clarity.wire.common.proto.Demo.CDemoFileInfo;
 import skadistats.clarity.wire.common.proto.Demo.CGameInfo.CDotaGameInfo;
 import skadistats.clarity.wire.common.proto.Demo.CGameInfo.CDotaGameInfo.CPlayerInfo;
@@ -17,8 +18,10 @@ import skadistats.clarity.processor.entities.UsesEntities;
 import skadistats.clarity.processor.entities.OnEntityCreated;
 import skadistats.clarity.processor.entities.OnEntityUpdated;
 import skadistats.clarity.processor.entities.OnEntityDeleted;
+import skadistats.clarity.processor.gameevents.OnCombatLogEntry;
 import skadistats.clarity.model.Entity;
 import skadistats.clarity.model.FieldPath;
+import skadistats.clarity.model.CombatLogEntry;
 
 public class Reparser
 {
@@ -95,6 +98,13 @@ public class Reparser
             }
         }
 
+        // TODO: Lane creeps
+        // TODO: Roshan
+        // TODO: Wards
+        // TODO: Smoke uses
+        // TODO: Towers
+        // TODO: Runes
+
         // NOTE: Couriers get added to the list by the onEntityCreated event,
         //       we assume here that all events trigger between onTickStart and onTickEnd,
         //       so courierList will have the same size as the array in the currentSnapshot
@@ -138,6 +148,11 @@ public class Reparser
             }
             courierList.add(ent);
         }
+    }
+
+    @OnCombatLogEntry
+    public void onCombatLogEntry(Context ctx, CombatLogEntry entry)
+    {
     }
 
     public static void main(String[] args) throws Exception
