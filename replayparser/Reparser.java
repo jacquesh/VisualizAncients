@@ -52,10 +52,6 @@ public class Reparser
             playerResource = ctx.getProcessor(Entities.class).getByDtName("CDOTA_PlayerResource");
             if(playerResource == null)
                 return;
-            else
-            {
-                //System.out.printf("PlayerResource search result: %s\n", playerResource.toString());
-            }
         }
 
         for(int i=0; i<10; ++i)
@@ -143,60 +139,6 @@ public class Reparser
             courierList.add(ent);
         }
     }
-
-    /*
-    // TODO: Its important to check that the entity is NOT an illusion here
-    //       Because otherwise we'll get a boatload of extra spawn/death/updates
-    @OnEntityCreated
-    public void onEntityCreated(Context ctx, Entity ent)
-    {
-        String className = ent.getDtClass().getDtName();
-        if(className.startsWith("CDOTA_Unit_Hero"))
-        {
-            int playerID = ent.getProperty("m_iPlayerID");
-            System.out.printf("%s (%d) spawned\n", className, playerID);
-            currentSnapshot.heroes[playerID].alive = true;
-        }
-    }
-
-    @OnEntityDeleted
-    public void onEntityDeleted(Context ctx, Entity ent)
-    {
-        String className = ent.getDtClass().getDtName();
-        if(className.startsWith("CDOTA_Unit_Hero"))
-        {
-            int playerID = ent.getProperty("m_iPlayerID");
-            System.out.printf("%s (%d) died\n", className, playerID);
-            currentSnapshot.heroes[playerID].alive = false;
-        }
-    }
-
-    @OnEntityUpdated
-    public void onEntityUpdated(Context ctx, Entity ent, FieldPath[] something, int somethingElse)
-    {
-        int currentTick = ctx.getTick();
-
-        String entName = ent.getDtClass().getDtName();
-        //System.out.printf("Entity %s updated\n", entName);
-        if(entName.startsWith("CDOTA_Unit_Hero"))
-        {
-            //System.out.printf("Hero DTName: %s\n", entName);
-            //System.out.println(ent.toString());
-            int playerID = ent.getProperty("m_iPlayerID");
-
-            int cellX = ent.getProperty("CBodyComponent.m_cellX");
-            float subCellX = ent.getProperty("CBodyComponent.m_vecX");
-            int cellY = ent.getProperty("CBodyComponent.m_cellY");
-            float subCellY = ent.getProperty("CBodyComponent.m_vecY");
-
-            float xLoc = (float)cellX + subCellX/128.0f;
-            float yLoc = (float)cellY + subCellY/128.0f;
-
-            currentSnapshot.heroes[playerID].x = xLoc;
-            currentSnapshot.heroes[playerID].y = yLoc;
-        }
-    }
-    */
 
     public static void main(String[] args) throws Exception
     {
