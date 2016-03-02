@@ -25,6 +25,8 @@ import skadistats.clarity.model.CombatLogEntry;
 
 public class Reparser
 {
+    private static int HERO_COUNT;
+
     private ArrayList<Snapshot> snapshotList;
     private Snapshot currentSnapshot;
 
@@ -44,8 +46,9 @@ public class Reparser
         currentSnapshot = new Snapshot(0, 0);
 
         playerResource = null;
-        heroEntities = new Entity[10];
+        heroEntities = new Entity[HERO_COUNT];
         courierList = new ArrayList<Entity>(2);
+        wardList = new ArrayList<Entity>(10);
 
         startTime = 0.0f;
         roshAlive = false;
@@ -90,7 +93,7 @@ public class Reparser
         }
         currentSnapshot.roshAlive = roshAlive;
 
-        for(int i=0; i<10; ++i)
+        for(int i=0; i<HERO_COUNT; ++i)
         {
             Entity hero = heroEntities[i];
             if(hero == null)
@@ -226,6 +229,23 @@ public class Reparser
         {
             roshAlive = false;
         }
+        else if(className.equals("CDOTA_BaseNPC_Tower"))
+        {
+            int cellX = ent.getProperty("CBodyComponent.m_cellX");
+            int cellY = ent.getProperty("CBodyComponent.m_cellY");
+            float subCellX = ent.getProperty("CBodyComponent.m_vecX");
+            float subCellY = ent.getProperty("CBodyComponent.m_vecY");
+            float locX = (float)cellX + (subCellX/128.0f);
+            float locY = (float)cellY + (subCellY/128.0f);
+
+            int teamNumber = ent.getProperty("m_iTeamNum");
+            String teamName = (teamNumber == 2) ? "Radiant" : "Dire";
+
+            int maxHealth = ent.getProperty("m_iMaxHealth");
+            int minDmg = ent.getProperty("m_iDamageMin");
+
+            System.out.printf("%s lost a tower with %dhp and %d damage at (%.2f, %.2f)\n", teamName, maxHealth, minDmg, locX, locY);
+        }
     }
 
     @OnCombatLogEntry
@@ -238,17 +258,18 @@ public class Reparser
         // TODO: Maybe we should just add some sort of check for the consistency of the playerID
         //       that is reported by entity updates/creations etc, so that we can just ignore matches
         //       where its inconsistent
-        String inputFile = "test2.dem";
+        String inputFile = "testdedtowers-dire.dem";
         MappedFileSource source = new MappedFileSource(inputFile);
         CDemoFileInfo info = Clarity.infoForSource(source);
         CDotaGameInfo dota = info.getGameInfo().getDota();
 
         List<CPlayerInfo> playerList = dota.getPlayerInfoList();
-        if(playerList.size() != 10)
+        HERO_COUNT = playerList.size();
+        if(HERO_COUNT != 10)
         {
             System.out.println("ERROR: Expected 10 players, got "+playerList.size());
         }
-        for(int playerIndex=0; playerIndex<10; playerIndex++)
+        for(int playerIndex=0; playerIndex<HERO_COUNT; playerIndex++)
         {
             CPlayerInfo player = playerList.get(playerIndex);
             if(playerIndex == 0)
