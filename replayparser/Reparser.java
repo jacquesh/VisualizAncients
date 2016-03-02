@@ -30,11 +30,13 @@ public class Reparser
 
     private Entity gameRules;
     private Entity playerResource;
+
     private Entity[] heroEntities;
     private ArrayList<Entity> courierList;
     private ArrayList<Entity> wardList;
 
     private float startTime;
+    private boolean roshAlive;
 
     public Reparser()
     {
@@ -46,6 +48,7 @@ public class Reparser
         courierList = new ArrayList<Entity>(2);
 
         startTime = 0.0f;
+        roshAlive = false;
     }
 
     @UsesEntities
@@ -85,6 +88,7 @@ public class Reparser
                 currentSnapshot.time -= startTime;
             }
         }
+        currentSnapshot.roshAlive = roshAlive;
 
         for(int i=0; i<10; ++i)
         {
@@ -128,7 +132,6 @@ public class Reparser
         }
 
         // TODO: Lane creeps
-        // TODO: Roshan
         // TODO: Smoke uses
         // TODO: Towers
         // TODO: Runes
@@ -208,6 +211,20 @@ public class Reparser
                 || className.equals("CDOTA_NPC_Observer_Ward_TrueSight"))
         {
             wardList.add(ent);
+        }
+        else if(className.equals("CDOTA_Unit_Roshan"))
+        {
+            roshAlive = true;
+        }
+    }
+
+    @OnEntityDeleted
+    public void onEntityDeleted(Context ctx, Entity ent)
+    {
+        String className = ent.getDtClass().getDtName();
+        if(className.equals("CDOTA_Unit_Roshan"))
+        {
+            roshAlive = false;
         }
     }
 

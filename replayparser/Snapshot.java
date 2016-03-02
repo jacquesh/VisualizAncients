@@ -73,6 +73,8 @@ class WardState
 public class Snapshot
 {
     public float time;
+    public boolean roshAlive;
+
     public HeroState[] heroes;
     public CourierState[] couriers;
     public WardState[] wards;
@@ -112,6 +114,7 @@ public class Snapshot
     {
         out.write("{");
         out.write(String.format("\"time\":%.1f,", time));
+        out.write(String.format("\"roshAlive\":%b,", roshAlive));
 
         out.write("\"heroData\":[");
         for(int i=0; i<10; ++i)
