@@ -48,13 +48,36 @@ class CourierState
     }
 }
 
+class WardState
+{
+    public float x;
+    public float y;
+    public boolean isSentry;
+
+    public WardState()
+    {
+        x = 0.0f;
+        y = 0.0f;
+        isSentry = false;
+    }
+
+    public void write(FileWriter out) throws IOException
+    {
+        out.write("{");
+        out.write(String.format("\"x\":%.2f,\"y\":%.2f", x,y));
+        out.write(String.format("\"isSentry\":%b,", isSentry));
+        out.write("}");
+    }
+}
+
 public class Snapshot
 {
     public float time;
     public HeroState[] heroes;
     public CourierState[] couriers;
+    public WardState[] wards;
 
-    public Snapshot(int courierCount)
+    public Snapshot(int courierCount, int wardCount)
     {
         heroes = new HeroState[10];
         for(int i=0; i<10; ++i)
@@ -66,6 +89,12 @@ public class Snapshot
         for(int i=0; i<courierCount; ++i)
         {
             couriers[i] = new CourierState();
+        }
+
+        wards = new WardState[wardCount];
+        for(int i=0; i<wardCount; ++i)
+        {
+            wards[i] = new WardState();
         }
     }
 
@@ -100,6 +129,17 @@ public class Snapshot
         {
             couriers[i].write(out);
             if(i < couriers.length-1)
+            {
+                out.write(",");
+            }
+        }
+        out.write("]");
+
+        out.write("\"wardData\":[");
+        for(int i=0; i<wards.length; ++i)
+        {
+            wards[i].write(out);
+            if(i < wards.length-1)
             {
                 out.write(",");
             }

@@ -32,13 +32,14 @@ public class Reparser
     private Entity playerResource;
     private Entity[] heroEntities;
     private ArrayList<Entity> courierList;
+    private ArrayList<Entity> wardList;
 
     private float startTime;
 
     public Reparser()
     {
         snapshotList = new ArrayList<Snapshot>(1024);
-        currentSnapshot = new Snapshot(0);
+        currentSnapshot = new Snapshot(0, 0);
 
         playerResource = null;
         heroEntities = new Entity[10];
@@ -51,7 +52,7 @@ public class Reparser
     @OnTickStart
     public void onTickStart(Context ctx, boolean synthetic)
     {
-        Snapshot newSnapshot = new Snapshot(courierList.size());
+        Snapshot newSnapshot = new Snapshot(courierList.size(), wardList.size());
         //newSnapshot.copyFrom(currentSnapshot);
         currentSnapshot = newSnapshot;
 
@@ -128,7 +129,6 @@ public class Reparser
 
         // TODO: Lane creeps
         // TODO: Roshan
-        // TODO: Wards
         // TODO: Smoke uses
         // TODO: Towers
         // TODO: Runes
@@ -153,6 +153,34 @@ public class Reparser
             currentSnapshot.couriers[i].x = (float)cellX + (subCellX/128.0f);
             currentSnapshot.couriers[i].y = (float)cellY + (subCellY/128.0f);
         }
+
+        ArrayList<Integer> deadWards = new ArrayList<Integer>();
+        for(int i=0; i<wardList.size(); ++i)
+        {
+            Entity ward = wardList.get(i);
+
+            int lifeState = ward.getProperty("m_lifeState");
+            boolean isAlive = (lifeState == 0);
+            if(!isAlive)
+            {
+                deadWards.add(i);
+            }
+
+            int cellX = ward.getProperty("CBodyComponent.m_cellX");
+            int cellY = ward.getProperty("CBodyComponent.m_cellY");
+            float subCellX = ward.getProperty("CBodyComponent.m_vecX");
+            float subCellY = ward.getProperty("CBodyComponent.m_vecY");
+            boolean isSentry = ward.getDtClass().getDtName().endsWith("TrueSight");
+
+            currentSnapshot.wards[i].x = (float)cellX + (subCellX/128.0f);
+            currentSnapshot.wards[i].y = (float)cellY + (subCellY/128.0f);
+            currentSnapshot.wards[i].isSentry = isSentry;
+        }
+        for(int i=deadWards.size()-1; i>=0; --i)
+        {
+            wardList.remove(deadWards.get(i));
+        }
+
     }
 
     @OnTickEnd
@@ -175,6 +203,11 @@ public class Reparser
                 }
             }
             courierList.add(ent);
+        }
+        else if(className.equals("CDOTA_NPC_Observer_Ward")
+                || className.equals("CDOTA_NPC_Observer_Ward_TrueSight"))
+        {
+            wardList.add(ent);
         }
     }
 
