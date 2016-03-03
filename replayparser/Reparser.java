@@ -23,10 +23,18 @@ import skadistats.clarity.model.Entity;
 import skadistats.clarity.model.FieldPath;
 import skadistats.clarity.model.CombatLogEntry;
 
+// TODO: Lane creeps
+// TODO: Smoke uses
+// TODO: Towers
+// TODO: Runes
+// TODO: Gold/XP Advantage
+// TODO: Heroes/items
+
 public class Reparser
 {
     private static int HERO_COUNT;
 
+    private float[] towerDeathTimes;
     private ArrayList<Snapshot> snapshotList;
     private Snapshot currentSnapshot;
 
@@ -42,6 +50,7 @@ public class Reparser
 
     public Reparser()
     {
+        towerDeathTimes = new float[22];
         snapshotList = new ArrayList<Snapshot>(1024);
         currentSnapshot = new Snapshot(0, 0);
 
@@ -133,11 +142,6 @@ public class Reparser
                 currentSnapshot.heroes[i].invisible = isInvis;
             }
         }
-
-        // TODO: Lane creeps
-        // TODO: Smoke uses
-        // TODO: Towers
-        // TODO: Runes
 
         // NOTE: Couriers get added to the list by the onEntityCreated event,
         //       we assume here that all events trigger between onTickStart and onTickEnd,
@@ -233,18 +237,16 @@ public class Reparser
         {
             int cellX = ent.getProperty("CBodyComponent.m_cellX");
             int cellY = ent.getProperty("CBodyComponent.m_cellY");
-            float subCellX = ent.getProperty("CBodyComponent.m_vecX");
-            float subCellY = ent.getProperty("CBodyComponent.m_vecY");
-            float locX = (float)cellX + (subCellX/128.0f);
-            float locY = (float)cellY + (subCellY/128.0f);
 
             int teamNumber = ent.getProperty("m_iTeamNum");
             String teamName = (teamNumber == 2) ? "Radiant" : "Dire";
+            int towerIndex = (teamNumber-2)*11; // TODO
 
-            int maxHealth = ent.getProperty("m_iMaxHealth");
-            int minDmg = ent.getProperty("m_iDamageMin");
+            // NOTE: We're assuming here that no tower dies before 0:00, else this will be wrong
+            //       since it won't have been re-adjusted to match in-game time
+            towerDeathTimes = currentSnapshot.time;
 
-            System.out.printf("%s lost a tower with %dhp and %d damage at (%.2f, %.2f)\n", teamName, maxHealth, minDmg, locX, locY);
+            System.out.printf("%s lost a tower at (%d, %d)\n", teamName, cellX, cellY);
         }
     }
 
