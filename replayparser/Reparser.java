@@ -1,3 +1,5 @@
+import java.io.File;
+import java.io.FileWriter;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -32,35 +34,37 @@ import skadistats.clarity.model.CombatLogEntry;
 
 public class Reparser
 {
-    private static int HERO_COUNT;
-
-    private float[] towerDeathTimes;
     private ArrayList<Snapshot> snapshotList;
     private Snapshot currentSnapshot;
 
     private Entity gameRules;
     private Entity playerResource;
 
+    public String[] playerHeroes;
     private Entity[] heroEntities;
     private ArrayList<Entity> courierList;
     private ArrayList<Entity> wardList;
 
+    private int heroCount;
     private float startTime;
     private boolean roshAlive;
 
-    public Reparser()
+    public Reparser(int numHeroes)
     {
-        towerDeathTimes = new float[22];
+        heroCount = numHeroes;
+        startTime = 0.0f;
+        roshAlive = false;
+
         snapshotList = new ArrayList<Snapshot>(1024);
         currentSnapshot = new Snapshot(0, 0);
 
+        gameRules = null;
         playerResource = null;
-        heroEntities = new Entity[HERO_COUNT];
+
+        playerHeroes = new String[heroCount];
+        heroEntities = new Entity[heroCount];
         courierList = new ArrayList<Entity>(2);
         wardList = new ArrayList<Entity>(10);
-
-        startTime = 0.0f;
-        roshAlive = false;
     }
 
     @UsesEntities
@@ -102,18 +106,19 @@ public class Reparser
         }
         currentSnapshot.roshAlive = roshAlive;
 
-        for(int i=0; i<HERO_COUNT; ++i)
+        for(int heroIndex=0; heroIndex<heroCount; ++heroIndex)
         {
-            Entity hero = heroEntities[i];
+            Entity hero = heroEntities[heroIndex];
             if(hero == null)
             {
-                String handlePropName = String.format("m_vecPlayerTeamData.%04d.m_hSelectedHero", i);
+                String handlePropName = String.format("m_vecPlayerTeamData.%04d.m_hSelectedHero", heroIndex);
                 int heroHandle = playerResource.getProperty(handlePropName);
                 hero = ctx.getProcessor(Entities.class).getByHandle(heroHandle);
 
                 if(hero != null)
                 {
-                    heroEntities[i] = hero;
+                    heroEntities[heroIndex] = hero;
+                    playerHeroes[heroIndex] = hero.getDtClass().getDtName();
                 }
             }
 
@@ -136,10 +141,22 @@ public class Reparser
                 long unitState = hero.getProperty("m_nUnitState64");
                 boolean isInvis = ((unitState & (1 << 8)) != 0);
 
-                currentSnapshot.heroes[i].alive = isAlive;
-                currentSnapshot.heroes[i].x = (float)cellX + (subCellX/128.0f);
-                currentSnapshot.heroes[i].y = (float)cellY + (subCellY/128.0f);
-                currentSnapshot.heroes[i].invisible = isInvis;
+                currentSnapshot.heroes[heroIndex].alive = isAlive;
+                currentSnapshot.heroes[heroIndex].x = (float)cellX + (subCellX/128.0f);
+                currentSnapshot.heroes[heroIndex].y = (float)cellY + (subCellY/128.0f);
+                currentSnapshot.heroes[heroIndex].invisible = isInvis;
+
+                for(int itemIndex=0; itemIndex<6; itemIndex++)
+                {
+                    String itemPropName = String.format("m_hItems.%04d", itemIndex);
+                    int itemHandle = hero.getProperty(itemPropName);
+                    if(itemHandle != 16777215)
+                    {
+                        Entity item = ctx.getProcessor(Entities.class).getByHandle(itemHandle);
+                        //System.out.println(item);
+                        currentSnapshot.heroes[heroIndex].items[itemIndex] = item.getDtClass().getDtName();
+                    }
+                }
             }
         }
 
@@ -242,10 +259,6 @@ public class Reparser
             String teamName = (teamNumber == 2) ? "Radiant" : "Dire";
             int towerIndex = (teamNumber-2)*11; // TODO
 
-            // NOTE: We're assuming here that no tower dies before 0:00, else this will be wrong
-            //       since it won't have been re-adjusted to match in-game time
-            towerDeathTimes = currentSnapshot.time;
-
             System.out.printf("%s lost a tower at (%d, %d)\n", teamName, cellX, cellY);
         }
     }
@@ -253,6 +266,28 @@ public class Reparser
     @OnCombatLogEntry
     public void onCombatLogEntry(Context ctx, CombatLogEntry entry)
     {
+    }
+
+    public void write(String fileName) throws Exception
+    {
+        for(int i=0; i<heroCount; ++i)
+        {
+            System.out.println(playerHeroes[i]);
+        }
+        File outFile = new File(fileName);
+        FileWriter out = new java.io.FileWriter(outFile);
+        out.write("[\n");
+        for(int i=0; i<snapshotList.size(); ++i)
+        {
+            snapshotList.get(i).write(out);
+            if(i < snapshotList.size()-1)
+            {
+                out.write(",");
+            }
+            out.write("\n");
+        }
+        out.write("]\n");
+        out.close();
     }
 
     public static void main(String[] args) throws Exception
@@ -266,49 +301,23 @@ public class Reparser
         CDotaGameInfo dota = info.getGameInfo().getDota();
 
         List<CPlayerInfo> playerList = dota.getPlayerInfoList();
-        HERO_COUNT = playerList.size();
-        if(HERO_COUNT != 10)
+        int heroCount = playerList.size();
+        Reparser parser = new Reparser(heroCount);
+        if(heroCount != 10)
         {
             System.out.println("ERROR: Expected 10 players, got "+playerList.size());
-        }
-        for(int playerIndex=0; playerIndex<HERO_COUNT; playerIndex++)
-        {
-            CPlayerInfo player = playerList.get(playerIndex);
-            if(playerIndex == 0)
-            {
-                System.out.printf("Radiant:\n");
-            }
-            else if(playerIndex == 5)
-            {
-                System.out.printf("Dire:\n");
-            }
-            System.out.printf("Player %d - %s is playing %s\n", playerIndex, player.getPlayerName(), player.getHeroName());
         }
         source.setPosition(0); // Reset the source buffer to the beginning so we can read through it again
 
         long startTime = System.currentTimeMillis();
         SimpleRunner runner = new SimpleRunner(source);
-        Reparser parser = new Reparser();
         runner.runWith(parser);
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
         System.out.printf("Processing took %fs\n", duration/1000.0f);
 
         startTime = System.currentTimeMillis();
-        java.io.File outFile = new java.io.File("out.visdata");
-        java.io.FileWriter out = new java.io.FileWriter(outFile);
-        out.write("[\n");
-        for(int i=0; i<parser.snapshotList.size(); ++i)
-        {
-            parser.snapshotList.get(i).write(out);
-            if(i < parser.snapshotList.size()-1)
-            {
-                out.write(",");
-            }
-            out.write("\n");
-        }
-        out.write("]\n");
-        out.close();
+        parser.write("out.visdata");
         endTime = System.currentTimeMillis();
         duration = endTime - startTime;
         System.out.printf("Writing took %fs\n", duration/1000.0f);
