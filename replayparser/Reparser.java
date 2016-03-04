@@ -36,6 +36,13 @@ import skadistats.clarity.model.StringTable;
 // TODO: Runes
 // TODO: Gold/XP Advantage
 
+class Hero
+{
+    public Entity entity;
+    public String heroName;
+    public String className;
+}
+
 public class Reparser
 {
     private ArrayList<Snapshot> snapshotList;
@@ -45,8 +52,7 @@ public class Reparser
     private Entity playerResource;
     private StringTable entityNames;
 
-    public String[] playerHeroes;
-    private Entity[] heroEntities;
+    public Hero[] heroes;
     private ArrayList<Entity> courierList;
 
     private ArrayList<WardEvent> wardEvents;
@@ -68,14 +74,16 @@ public class Reparser
         gameRules = null;
         playerResource = null;
 
-        playerHeroes = new String[heroCount];
-        heroEntities = new Entity[heroCount];
+        heroes = new Hero[heroCount];
         courierList = new ArrayList<Entity>(2);
 
         wardEvents = new ArrayList<WardEvent>();
         roshEvents = new ArrayList<RoshanEvent>();
         towerDeaths = new ArrayList<TowerEvent>();
         smokeUses = new ArrayList<SmokeEvent>();
+
+        for(int i=0; i<heroCount; ++i)
+            heroes[i] = new Hero();
     }
 
     @UsesEntities
@@ -112,7 +120,7 @@ public class Reparser
 
         for(int heroIndex=0; heroIndex<heroCount; ++heroIndex)
         {
-            Entity hero = heroEntities[heroIndex];
+            Entity hero = heroes[heroIndex].entity;
             if(hero == null)
             {
                 String handlePropName = String.format("m_vecPlayerTeamData.%04d.m_hSelectedHero", heroIndex);
@@ -121,8 +129,8 @@ public class Reparser
 
                 if(hero != null)
                 {
-                    heroEntities[heroIndex] = hero;
-                    playerHeroes[heroIndex] = hero.getDtClass().getDtName();
+                    heroes[heroIndex].entity = hero;
+                    heroes[heroIndex].className = hero.getDtClass().getDtName();
                 }
             }
 
@@ -290,6 +298,35 @@ public class Reparser
     @OnCombatLogEntry
     public void onCombatLogEntry(Context ctx, CombatLogEntry entry)
     {
+        if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_ITEM)
+        {
+            String heroName = entry.getAttackerName();
+            String itemName = entry.getInflictorName();
+            int playerIndex = -1;
+            if(itemName.equals("item_smoke_of_deceit"))
+            {
+                for(int i=0; i<heroCount; ++i)
+                {
+                    if(heroName.equals(heroes[i].heroName))
+                    {
+                        playerIndex = i;
+                        break;
+                    }
+                }
+
+                if(playerIndex == -1)
+                {
+                    System.out.printf("ERROR: Unable to find hero %s that used smoke\n", heroName);
+                    return;
+                }
+
+                SmokeEvent evt = new SmokeEvent();
+                evt.time = currentSnapshot.time;
+                evt.x = currentSnapshot.heroes[playerIndex].x;
+                evt.y = currentSnapshot.heroes[playerIndex].y;
+                smokeUses.add(evt);
+            }
+        }
     }
 
     public void write(String fileName) throws Exception
@@ -302,7 +339,7 @@ public class Reparser
         out.write("\"playerHeroes\":[");
         for(int i=0; i<heroCount; ++i)
         {
-            out.write(String.format("\"%s\"", playerHeroes[i]));
+            out.write(String.format("\"%s\"", heroes[i].className));
             if(i < heroCount-1)
                 out.write(",");
         }
@@ -327,7 +364,15 @@ public class Reparser
         out.write("],\n");
 
         out.write("\"towerDeaths\":[],\n"); // TODO
-        out.write("\"smokeUses\":[],\n"); // TODO
+
+        out.write("\"smokeUses\":[");
+        for(int i=0; i<smokeUses.size(); ++i)
+        {
+            smokeUses.get(i).write(out);
+            if(i < smokeUses.size()-1)
+                out.write(",");
+        }
+        out.write("],\n");
 
         out.write("\"snapshots\":[\n");
         for(int i=0; i<snapshotList.size(); ++i)
@@ -362,6 +407,11 @@ public class Reparser
         if(heroCount != 10)
         {
             System.out.println("ERROR: Expected 10 players, got "+playerList.size());
+        }
+        for(int playerIndex=0; playerIndex<heroCount; playerIndex++)
+        {
+            CPlayerInfo player = playerList.get(playerIndex);
+            parser.heroes[playerIndex].heroName = player.getHeroName();
         }
         source.setPosition(0); // Reset the source buffer to the beginning so we can read through it again
 
