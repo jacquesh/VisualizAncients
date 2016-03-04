@@ -35,7 +35,6 @@ import skadistats.clarity.model.StringTable;
 // TODO: Towers
 // TODO: Runes
 // TODO: Gold/XP Advantage
-// TODO: Heroes/items
 
 public class Reparser
 {
@@ -49,20 +48,17 @@ public class Reparser
     public String[] playerHeroes;
     private Entity[] heroEntities;
     private ArrayList<Entity> courierList;
-    private ArrayList<Entity> wardList;
 
     private int heroCount;
     private float startTime;
-    private boolean roshAlive;
 
     public Reparser(int numHeroes)
     {
         heroCount = numHeroes;
         startTime = 0.0f;
-        roshAlive = false;
 
         snapshotList = new ArrayList<Snapshot>(1024);
-        currentSnapshot = new Snapshot(0, 0);
+        currentSnapshot = new Snapshot(0);
 
         gameRules = null;
         playerResource = null;
@@ -70,7 +66,6 @@ public class Reparser
         playerHeroes = new String[heroCount];
         heroEntities = new Entity[heroCount];
         courierList = new ArrayList<Entity>(2);
-        wardList = new ArrayList<Entity>(10);
     }
 
     @UsesEntities
@@ -78,8 +73,7 @@ public class Reparser
     @OnTickStart
     public void onTickStart(Context ctx, boolean synthetic)
     {
-        Snapshot newSnapshot = new Snapshot(courierList.size(), wardList.size());
-        //newSnapshot.copyFrom(currentSnapshot);
+        Snapshot newSnapshot = new Snapshot(courierList.size());
         currentSnapshot = newSnapshot;
 
         if(playerResource == null)
@@ -105,7 +99,6 @@ public class Reparser
 
         float gameTime = gameRules.getProperty("m_pGameRules.m_fGameTime");
         currentSnapshot.time = gameTime;
-        currentSnapshot.roshAlive = roshAlive;
 
         for(int heroIndex=0; heroIndex<heroCount; ++heroIndex)
         {
@@ -183,34 +176,6 @@ public class Reparser
             currentSnapshot.couriers[i].x = (float)cellX + (subCellX/128.0f);
             currentSnapshot.couriers[i].y = (float)cellY + (subCellY/128.0f);
         }
-
-        ArrayList<Integer> deadWards = new ArrayList<Integer>();
-        for(int i=0; i<wardList.size(); ++i)
-        {
-            Entity ward = wardList.get(i);
-
-            int lifeState = ward.getProperty("m_lifeState");
-            boolean isAlive = (lifeState == 0);
-            if(!isAlive)
-            {
-                deadWards.add(i);
-            }
-
-            int cellX = ward.getProperty("CBodyComponent.m_cellX");
-            int cellY = ward.getProperty("CBodyComponent.m_cellY");
-            float subCellX = ward.getProperty("CBodyComponent.m_vecX");
-            float subCellY = ward.getProperty("CBodyComponent.m_vecY");
-            boolean isSentry = ward.getDtClass().getDtName().endsWith("TrueSight");
-
-            currentSnapshot.wards[i].x = (float)cellX + (subCellX/128.0f);
-            currentSnapshot.wards[i].y = (float)cellY + (subCellY/128.0f);
-            currentSnapshot.wards[i].isSentry = isSentry;
-        }
-        for(int i=deadWards.size()-1; i>=0; --i)
-        {
-            wardList.remove(deadWards.get(i));
-        }
-
     }
 
     @OnTickEnd
@@ -237,11 +202,9 @@ public class Reparser
         else if(className.equals("CDOTA_NPC_Observer_Ward")
                 || className.equals("CDOTA_NPC_Observer_Ward_TrueSight"))
         {
-            wardList.add(ent);
         }
         else if(className.equals("CDOTA_Unit_Roshan"))
         {
-            roshAlive = true;
         }
     }
 
@@ -251,7 +214,6 @@ public class Reparser
         String className = ent.getDtClass().getDtName();
         if(className.equals("CDOTA_Unit_Roshan"))
         {
-            roshAlive = false;
         }
         else if(className.equals("CDOTA_BaseNPC_Tower"))
         {
@@ -283,19 +245,15 @@ public class Reparser
 
     public void write(String fileName) throws Exception
     {
-        for(int i=0; i<heroCount; ++i)
-        {
-            System.out.println(playerHeroes[i]);
-        }
         File outFile = new File(fileName);
         FileWriter out = new java.io.FileWriter(outFile);
         out.write("{\n");
 
-        out.write(String.format("\"startTime\":%.2f,\n", startTime));
+        out.write(String.format("\"startTime\":%.1f,\n", startTime));
         out.write("\"playerHeroes\":[");
         for(int i=0; i<heroCount; ++i)
         {
-            out.write(playerHeroes[i]);
+            out.write(String.format("\"%s\"", playerHeroes[i]));
             if(i < heroCount-1)
                 out.write(",");
         }

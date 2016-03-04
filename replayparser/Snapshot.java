@@ -77,13 +77,11 @@ class WardState
 public class Snapshot
 {
     public float time;
-    public boolean roshAlive;
 
     public HeroState[] heroes;
     public CourierState[] couriers;
-    public WardState[] wards;
 
-    public Snapshot(int courierCount, int wardCount)
+    public Snapshot(int courierCount)
     {
         heroes = new HeroState[10];
         for(int i=0; i<10; ++i)
@@ -96,29 +94,14 @@ public class Snapshot
         {
             couriers[i] = new CourierState();
         }
-
-        wards = new WardState[wardCount];
-        for(int i=0; i<wardCount; ++i)
-        {
-            wards[i] = new WardState();
-        }
-    }
-
-    public void copyFrom(Snapshot old)
-    {
-        for(int i=0; i<10; ++i)
-        {
-            heroes[i].alive = old.heroes[i].alive;
-            heroes[i].x = old.heroes[i].x;
-            heroes[i].y = old.heroes[i].y;
-        }
     }
 
     public void write(FileWriter out) throws IOException
     {
         out.write("{");
         out.write(String.format("\"time\":%.1f,", time));
-        out.write(String.format("\"roshAlive\":%b,", roshAlive));
+
+        out.write("\"teamStats\": [],"); // TODO
 
         out.write("\"heroData\":[");
         for(int i=0; i<10; ++i)
@@ -140,18 +123,10 @@ public class Snapshot
                 out.write(",");
             }
         }
-        out.write("]");
+        out.write("],");
 
-        out.write("\"wardData\":[");
-        for(int i=0; i<wards.length; ++i)
-        {
-            wards[i].write(out);
-            if(i < wards.length-1)
-            {
-                out.write(",");
-            }
-        }
-        out.write("]");
+        out.write("\"laneCreepData\": [],"); // TODO
+        out.write("\"runeData\": []"); // TODO
 
         out.write("}");
     }
