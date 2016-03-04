@@ -30,10 +30,8 @@ import skadistats.clarity.model.FieldPath;
 import skadistats.clarity.model.CombatLogEntry;
 import skadistats.clarity.model.StringTable;
 
-// TODO: Lane creeps
 // TODO: Towers
 // TODO: Runes
-// TODO: Gold/XP Advantage
 
 class Hero
 {
@@ -55,6 +53,7 @@ public class Reparser
 
     public Hero[] heroes;
     private ArrayList<Entity> courierList;
+    private ArrayList<Entity> laneCreepList;
 
     private ArrayList<WardEvent> wardEvents;
     private ArrayList<RoshanEvent> roshEvents;
@@ -79,6 +78,7 @@ public class Reparser
 
         heroes = new Hero[heroCount];
         courierList = new ArrayList<Entity>(2);
+        laneCreepList = new ArrayList<Entity>(64);
 
         wardEvents = new ArrayList<WardEvent>();
         roshEvents = new ArrayList<RoshanEvent>();
@@ -207,6 +207,46 @@ public class Reparser
             currentSnapshot.couriers[i].x = (float)cellX + (subCellX/128.0f);
             currentSnapshot.couriers[i].y = (float)cellY + (subCellY/128.0f);
         }
+
+        //System.out.printf("There are currently %d lane creeps\n", laneCreepList.size());
+        ArrayList<LaneCreepData> creepData = new ArrayList<LaneCreepData>(100);
+        for(int i=0; i<laneCreepList.size(); ++i)
+        {
+            Entity creep = laneCreepList.get(i);
+            int cellX = creep.getProperty("CBodyComponent.m_cellX");
+            int cellY = creep.getProperty("CBodyComponent.m_cellY");
+            float subCellX = creep.getProperty("CBodyComponent.m_vecX");
+            float subCellY = creep.getProperty("CBodyComponent.m_vecY");
+            float creepX = (float)cellX + (subCellX/128.0f);
+            float creepY = (float)cellY + (subCellY/128.0f);
+            boolean isDire = (creep.getProperty("m_iTeamNum") == 3);
+
+            boolean newDataNeeded = true;
+            for(int dataIndex=0; dataIndex<creepData.size(); ++dataIndex)
+            {
+                LaneCreepData lcd = creepData.get(dataIndex);
+                float dx = creepX - lcd.x;
+                float dy = creepY - lcd.y;
+
+                float searchRadius = 6.0f;
+                if((dx*dx + dy*dy < searchRadius*searchRadius) && (isDire == lcd.isDire))
+                {
+                    newDataNeeded = false;
+                    lcd.creepCount += 1;
+                    break;
+                }
+            }
+            if(newDataNeeded)
+            {
+                LaneCreepData lcd = new LaneCreepData();
+                lcd.x = creepX;
+                lcd.y = creepY;
+                lcd.creepCount = 1;
+                lcd.isDire = isDire;
+                laneCreepList.add(lcd);
+            }
+        }
+        currentSnapshot.laneCreeps = creepData;
     }
 
     @OnTickEnd
@@ -219,7 +259,12 @@ public class Reparser
     public void onEntityCreated(Context ctx, Entity ent)
     {
         String className = ent.getDtClass().getDtName();
-        if(className.equals("CDOTA_Unit_Courier"))
+        if(className.equals("CDOTA_BaseNPC_Creep_Lane")
+                || className.equals("CDOTA_BaseNPC_Creep_Siege"))
+        {
+            laneCreepList.add(ent);
+        }
+        else if(className.equals("CDOTA_Unit_Courier"))
         {
             for(int i=0; i<courierList.size(); ++i)
             {
@@ -285,6 +330,19 @@ public class Reparser
     public void onEntityDeleted(Context ctx, Entity ent)
     {
         String className = ent.getDtClass().getDtName();
+        if(className.equals("CDOTA_BaseNPC_Creep_Lane")
+                || className.equals("CDOTA_BaseNPC_Creep_Siege"))
+        {
+            int entityHandle = ent.getHandle();
+            for(int i=0; i<laneCreepList.size(); ++i)
+            {
+                if(laneCreepList.get(i).getHandle() == entityHandle)
+                {
+                    laneCreepList.remove(i);
+                    break;
+                }
+            }
+        }
         if(className.equals("CDOTA_Unit_Roshan"))
         {
             RoshanEvent evt = new RoshanEvent();
