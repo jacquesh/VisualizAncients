@@ -21,9 +21,14 @@ import skadistats.clarity.processor.entities.OnEntityCreated;
 import skadistats.clarity.processor.entities.OnEntityUpdated;
 import skadistats.clarity.processor.entities.OnEntityDeleted;
 import skadistats.clarity.processor.gameevents.OnCombatLogEntry;
+import skadistats.clarity.processor.stringtables.StringTables;
+import skadistats.clarity.processor.stringtables.UsesStringTable;
+import skadistats.clarity.processor.stringtables.OnStringTableCreated;
+
 import skadistats.clarity.model.Entity;
 import skadistats.clarity.model.FieldPath;
 import skadistats.clarity.model.CombatLogEntry;
+import skadistats.clarity.model.StringTable;
 
 // TODO: Lane creeps
 // TODO: Smoke uses
@@ -39,6 +44,7 @@ public class Reparser
 
     private Entity gameRules;
     private Entity playerResource;
+    private StringTable entityNames;
 
     public String[] playerHeroes;
     private Entity[] heroEntities;
@@ -68,6 +74,7 @@ public class Reparser
     }
 
     @UsesEntities
+    @UsesStringTable("EntityNames")
     @OnTickStart
     public void onTickStart(Context ctx, boolean synthetic)
     {
@@ -87,6 +94,7 @@ public class Reparser
             if(gameRules == null)
                 return;
         }
+
         float gameTime = gameRules.getProperty("m_pGameRules.m_fGameTime");
         currentSnapshot.time = gameTime - startTime;
         if(startTime == 0.0f)
@@ -154,7 +162,9 @@ public class Reparser
                     {
                         Entity item = ctx.getProcessor(Entities.class).getByHandle(itemHandle);
                         //System.out.println(item);
-                        currentSnapshot.heroes[heroIndex].items[itemIndex] = item.getDtClass().getDtName();
+                        int itemStrTableIndex = item.getProperty("m_pEntity.m_nameStringableIndex");
+                        String itemName = entityNames.getNameByIndex(itemStrTableIndex);
+                        currentSnapshot.heroes[heroIndex].items[itemIndex] = itemName;
                     }
                 }
             }
@@ -263,6 +273,16 @@ public class Reparser
         }
     }
 
+    @OnStringTableCreated
+    public void onStringTableCreated(Context ctx, int intArg, StringTable newTable)
+    {
+        //System.out.printf("Created %d:\n%s\n", intArg, newTable.toString());
+        if(newTable.getName().equals("EntityNames"))
+        {
+            entityNames = newTable;
+        }
+    }
+
     @OnCombatLogEntry
     public void onCombatLogEntry(Context ctx, CombatLogEntry entry)
     {
@@ -296,6 +316,7 @@ public class Reparser
         //       that is reported by entity updates/creations etc, so that we can just ignore matches
         //       where its inconsistent
         String inputFile = "testdedtowers-dire.dem";
+        inputFile = "test2.dem";
         MappedFileSource source = new MappedFileSource(inputFile);
         CDemoFileInfo info = Clarity.infoForSource(source);
         CDotaGameInfo dota = info.getGameInfo().getDota();
