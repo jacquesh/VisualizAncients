@@ -5,11 +5,16 @@ public class Snapshot
 {
     public float time;
 
+    public TeamData[] teams;
     public HeroState[] heroes;
     public CourierState[] couriers;
 
     public Snapshot(int courierCount)
     {
+        teams = new TeamData[2];
+        teams[0] = new TeamData();
+        teams[1] = new TeamData();
+
         heroes = new HeroState[10];
         for(int i=0; i<10; ++i)
         {
@@ -28,7 +33,11 @@ public class Snapshot
         out.write("{");
         out.write(String.format("\"time\":%.1f,", time));
 
-        out.write("\"teamStats\": [],"); // TODO
+        out.write("\"teamStats\": [");
+        teams[0].write(out);
+        out.write(",");
+        teams[1].write(out);
+        out.write("],");
 
         out.write("\"heroData\":[");
         for(int i=0; i<10; ++i)

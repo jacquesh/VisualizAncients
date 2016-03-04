@@ -42,9 +42,9 @@
             "time": float,
             "teamStats" [
                 {
-                    "gold": int,
-                    "xp": int,
-                    "deaths": int,
+                    "netWorth": int,
+                    "totalXP": int,
+                    "score": int,
                 }
             ],
             "heroData": [

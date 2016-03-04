@@ -49,6 +49,8 @@ public class Reparser
 
     private Entity gameRules;
     private Entity playerResource;
+    private Entity dataSpectator;
+    private Entity[] teamEntities;
     private StringTable entityNames;
 
     public Hero[] heroes;
@@ -72,6 +74,8 @@ public class Reparser
 
         gameRules = null;
         playerResource = null;
+        dataSpectator = null;
+        teamEntities = new Entity[2];
 
         heroes = new Hero[heroCount];
         courierList = new ArrayList<Entity>(2);
@@ -93,18 +97,10 @@ public class Reparser
         Snapshot newSnapshot = new Snapshot(courierList.size());
         currentSnapshot = newSnapshot;
 
-        if(playerResource == null)
-        {
-            playerResource = ctx.getProcessor(Entities.class).getByDtName("CDOTA_PlayerResource");
-            if(playerResource == null)
-                return;
-        }
-        if(gameRules == null)
-        {
-            gameRules = ctx.getProcessor(Entities.class).getByDtName("CDOTAGamerulesProxy");
-            if(gameRules == null)
-                return;
-        }
+        if((playerResource == null) || (gameRules == null) || (dataSpectator == null)
+                || (teamEntities[0] == null) || (teamEntities[1] == null))
+            return;
+
         if(startTime == 0.0f)
         {
             float startTimeCheck = gameRules.getProperty("m_pGameRules.m_flGameStartTime");
@@ -116,6 +112,24 @@ public class Reparser
 
         float gameTime = gameRules.getProperty("m_pGameRules.m_fGameTime");
         currentSnapshot.time = gameTime;
+
+        int teamIndex = 0;
+        for(int i=0; i<10; ++i)
+        {
+            if(i == 5)
+                teamIndex += 1;
+
+            // TODO: This is VERY wrong
+            String netWorthName = String.format("m_iNetWorth.%04d", i);
+            int playerNetWorth = dataSpectator.getProperty(netWorthName);
+            int playerXP = 0;
+            if(heroes[i].entity != null)
+                playerXP = heroes[i].entity.getProperty("m_iCurrentXP");
+            currentSnapshot.teams[teamIndex].netWorth += playerNetWorth;
+            currentSnapshot.teams[teamIndex].totalXP += playerXP;
+        }
+        currentSnapshot.teams[0].score = teamEntities[0].getProperty("m_iScore");
+        currentSnapshot.teams[1].score = teamEntities[1].getProperty("m_iScore");
 
         for(int heroIndex=0; heroIndex<heroCount; ++heroIndex)
         {
@@ -243,6 +257,27 @@ public class Reparser
             evt.time = currentSnapshot.time;
             evt.died = false;
             roshEvents.add(evt);
+        }
+        else if(className.equals("CDOTA_PlayerResource"))
+        {
+            playerResource = ent;
+        }
+        else if(className.equals("CDOTAGamerulesProxy"))
+        {
+            gameRules = ent;
+        }
+        else if(className.equals("CDOTA_DataSpectator"))
+        {
+            dataSpectator = ent;
+            // TODO: "CDOTA_DataSpectator" (has "PrimaryRune", "SecondaryRune", "NetWorth"
+        }
+        else if(className.equals("CDOTATeam"))
+        {
+            int teamNumber = ent.getProperty("m_iTeamNum");
+            if(teamNumber == 2)
+                teamEntities[0] = ent;
+            else if(teamNumber == 3)
+                teamEntities[1] = ent;
         }
     }
 
