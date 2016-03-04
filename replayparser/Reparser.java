@@ -49,6 +49,11 @@ public class Reparser
     private Entity[] heroEntities;
     private ArrayList<Entity> courierList;
 
+    private ArrayList<WardEvent> wardEvents;
+    private ArrayList<RoshanEvent> roshEvents;
+    private ArrayList<TowerEvent> towerDeaths;
+    private ArrayList<SmokeEvent> smokeUses;
+
     private int heroCount;
     private float startTime;
 
@@ -66,6 +71,11 @@ public class Reparser
         playerHeroes = new String[heroCount];
         heroEntities = new Entity[heroCount];
         courierList = new ArrayList<Entity>(2);
+
+        wardEvents = new ArrayList<WardEvent>();
+        roshEvents = new ArrayList<RoshanEvent>();
+        towerDeaths = new ArrayList<TowerEvent>();
+        smokeUses = new ArrayList<SmokeEvent>();
     }
 
     @UsesEntities
@@ -205,6 +215,10 @@ public class Reparser
         }
         else if(className.equals("CDOTA_Unit_Roshan"))
         {
+            RoshanEvent evt = new RoshanEvent();
+            evt.time = currentSnapshot.time;
+            evt.died = false;
+            roshEvents.add(evt);
         }
     }
 
@@ -214,6 +228,10 @@ public class Reparser
         String className = ent.getDtClass().getDtName();
         if(className.equals("CDOTA_Unit_Roshan"))
         {
+            RoshanEvent evt = new RoshanEvent();
+            evt.time = currentSnapshot.time;
+            evt.died = true;
+            roshEvents.add(evt);
         }
         else if(className.equals("CDOTA_BaseNPC_Tower"))
         {
@@ -260,7 +278,16 @@ public class Reparser
         out.write("],\n");
 
         out.write("\"wardEvents\":[],\n"); // TODO
-        out.write("\"roshEvents\":[],\n"); // TODO
+
+        out.write("\"roshEvents\":[");
+        for(int i=0; i<roshEvents.size(); ++i)
+        {
+            roshEvents.get(i).write(out);
+            if(i != roshEvents.size()-1)
+                out.write(",");
+        }
+        out.write("],\n"); // TODO
+
         out.write("\"towerDeaths\":[],\n"); // TODO
         out.write("\"smokeUses\":[],\n"); // TODO
 
