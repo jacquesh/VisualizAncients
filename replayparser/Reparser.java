@@ -212,6 +212,23 @@ public class Reparser
         else if(className.equals("CDOTA_NPC_Observer_Ward")
                 || className.equals("CDOTA_NPC_Observer_Ward_TrueSight"))
         {
+            int cellX = ent.getProperty("CBodyComponent.m_cellX");
+            int cellY = ent.getProperty("CBodyComponent.m_cellY");
+            float subCellX = ent.getProperty("CBodyComponent.m_vecX");
+            float subCellY = ent.getProperty("CBodyComponent.m_vecY");
+
+            float x = (float)cellX + (subCellX/128.0f);
+            float y = (float)cellY + (subCellY/128.0f);
+            boolean isSentry = className.endsWith("TrueSight");
+
+            WardEvent evt = new WardEvent();
+            evt.time = currentSnapshot.time;
+            evt.x = x;
+            evt.y = y;
+            evt.entityHandle = ent.getHandle();
+            evt.isSentry = isSentry;
+            evt.died = false;
+            wardEvents.add(evt);
         }
         else if(className.equals("CDOTA_Unit_Roshan"))
         {
@@ -232,6 +249,20 @@ public class Reparser
             evt.time = currentSnapshot.time;
             evt.died = true;
             roshEvents.add(evt);
+        }
+        else if(className.equals("CDOTA_NPC_Observer_Ward")
+                || className.equals("CDOTA_NPC_Observer_Ward_TrueSight"))
+        {
+            boolean isSentry = className.endsWith("TrueSight");
+
+            WardEvent evt = new WardEvent();
+            evt.time = currentSnapshot.time;
+            evt.x = 0.0f;
+            evt.y = 0.0f;
+            evt.entityHandle = ent.getHandle();
+            evt.isSentry = isSentry;
+            evt.died = true;
+            wardEvents.add(evt);
         }
         else if(className.equals("CDOTA_BaseNPC_Tower"))
         {
@@ -277,16 +308,23 @@ public class Reparser
         }
         out.write("],\n");
 
-        out.write("\"wardEvents\":[],\n"); // TODO
+        out.write("\"wardEvents\":[");
+        for(int i=0; i<wardEvents.size(); ++i)
+        {
+            wardEvents.get(i).write(out);
+            if(i < wardEvents.size()-1)
+                out.write(",");
+        }
+        out.write("],\n");
 
         out.write("\"roshEvents\":[");
         for(int i=0; i<roshEvents.size(); ++i)
         {
             roshEvents.get(i).write(out);
-            if(i != roshEvents.size()-1)
+            if(i < roshEvents.size()-1)
                 out.write(",");
         }
-        out.write("],\n"); // TODO
+        out.write("],\n");
 
         out.write("\"towerDeaths\":[],\n"); // TODO
         out.write("\"smokeUses\":[],\n"); // TODO
