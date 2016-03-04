@@ -9,6 +9,7 @@
             "time": float,
             "x": float,
             "y": float,
+            "entityHandle": int,
             "isSentry": bool,
             "died": bool
         },
