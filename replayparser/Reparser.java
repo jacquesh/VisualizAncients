@@ -94,24 +94,17 @@ public class Reparser
             if(gameRules == null)
                 return;
         }
-
-        float gameTime = gameRules.getProperty("m_pGameRules.m_fGameTime");
-        currentSnapshot.time = gameTime - startTime;
         if(startTime == 0.0f)
         {
-            // When we find out what the start time is, we need to go through and adjust
-            // the timestamp on all the previous snapshots
             float startTimeCheck = gameRules.getProperty("m_pGameRules.m_flGameStartTime");
             if(startTimeCheck > 0.0f)
             {
                 startTime = startTimeCheck;
-                for(int i=0; i<snapshotList.size(); ++i)
-                {
-                    snapshotList.get(i).time -= startTime;
-                }
-                currentSnapshot.time -= startTime;
             }
         }
+
+        float gameTime = gameRules.getProperty("m_pGameRules.m_fGameTime");
+        currentSnapshot.time = gameTime;
         currentSnapshot.roshAlive = roshAlive;
 
         for(int heroIndex=0; heroIndex<heroCount; ++heroIndex)
@@ -296,7 +289,24 @@ public class Reparser
         }
         File outFile = new File(fileName);
         FileWriter out = new java.io.FileWriter(outFile);
-        out.write("[\n");
+        out.write("{\n");
+
+        out.write(String.format("\"startTime\":%.2f,\n", startTime));
+        out.write("\"playerHeroes\":[");
+        for(int i=0; i<heroCount; ++i)
+        {
+            out.write(playerHeroes[i]);
+            if(i < heroCount-1)
+                out.write(",");
+        }
+        out.write("],\n");
+
+        out.write("\"wardEvents\":[],\n"); // TODO
+        out.write("\"roshEvents\":[],\n"); // TODO
+        out.write("\"towerDeaths\":[],\n"); // TODO
+        out.write("\"smokeUses\":[],\n"); // TODO
+
+        out.write("\"snapshots\":[\n");
         for(int i=0; i<snapshotList.size(); ++i)
         {
             snapshotList.get(i).write(out);
@@ -307,6 +317,8 @@ public class Reparser
             out.write("\n");
         }
         out.write("]\n");
+
+        out.write("}");
         out.close();
     }
 
