@@ -20,8 +20,18 @@ class HeroState
         out.write(String.format("\"alive\":%b,", alive));
         out.write(String.format("\"x\":%.2f,\"y\":%.2f,", x, y));
         out.write(String.format("\"invis\":%b,", invisible));
-        out.write(String.format("\"items\":[\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]",
-                    items[0], items[1], items[2], items[3], items[4], items[5]));
+        out.write("\"items\":[");
+        for(int i=0; i<6; ++i)
+        {
+            if(items[i] == null)
+                out.write("\"\"");
+            else
+                out.write(String.format("\"%s\"", items[i]));
+
+            if(i < 5)
+                out.write(",");
+        }
+        out.write("]");
         out.write("}");
     }
 }

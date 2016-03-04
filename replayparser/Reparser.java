@@ -31,7 +31,6 @@ import skadistats.clarity.model.CombatLogEntry;
 import skadistats.clarity.model.StringTable;
 
 // TODO: Lane creeps
-// TODO: Smoke uses
 // TODO: Towers
 // TODO: Runes
 // TODO: Gold/XP Advantage
