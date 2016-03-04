@@ -42,6 +42,11 @@ class Hero
 
 public class Reparser
 {
+    private final float[][][] towerPositions = {
+        {{97.749268f,80.249512f},{92.004395f,96.000000f},{76.250244f,101.999268f},{123.639893f,80.366699f},{166.492432f,80.482178f},{100.566895f,106.304688f},{80.000244f,121.491455f},{80.375244f,142.366455f},{83.629395f,89.875000f},{85.879395f,87.625000f},{115.348145f,116.250000f}},
+        {{166.765625f,165.374756f},{128.000000f,174.999756f},{91.000000f,174.999756f},{147.500000f,144.499756f},{135.999756f,130.499756f},{176.500000f,114.999756f},{177.000000f,130.999756f},{177.031250f,151.312256f},{155.375000f,173.124756f},{161.000000f,156.991943f},{169.250000f,162.624756f}}
+    };
+
     private ArrayList<Snapshot> snapshotList;
     private Snapshot currentSnapshot;
 
@@ -243,7 +248,7 @@ public class Reparser
                 lcd.y = creepY;
                 lcd.creepCount = 1;
                 lcd.isDire = isDire;
-                laneCreepList.add(lcd);
+                creepData.add(lcd);
             }
         }
         currentSnapshot.laneCreeps = creepData;
@@ -368,12 +373,34 @@ public class Reparser
         {
             int cellX = ent.getProperty("CBodyComponent.m_cellX");
             int cellY = ent.getProperty("CBodyComponent.m_cellY");
+            float subCellX = ent.getProperty("CBodyComponent.m_vecX");
+            float subCellY = ent.getProperty("CBodyComponent.m_vecY");
+            float x = (float)cellX + (subCellX/128.0f);
+            float y = (float)cellY + (subCellY/128.0f);
 
             int teamNumber = ent.getProperty("m_iTeamNum");
-            String teamName = (teamNumber == 2) ? "Radiant" : "Dire";
-            int towerIndex = (teamNumber-2)*11; // TODO
+            int teamIndex = teamNumber - 2;
+            int towerIndex = -1;
+            for(int i=0; i<towerPositions[teamIndex].length; ++i)
+            {
+                float dx = towerPositions[teamIndex][i][0] - x;
+                float dy = towerPositions[teamIndex][i][1] - y;
+                if(dx*dx + dy*dy < 0.1f)
+                {
+                    towerIndex = i;
+                    break;
+                }
+            }
+            if(towerIndex == -1)
+            {
+                System.out.printf("ERROR: Unknown tower at (%f,%f)\n", x,y);
+            }
 
-            System.out.printf("%s lost a tower at (%d, %d)\n", teamName, cellX, cellY);
+            TowerEvent evt = new TowerEvent();
+            evt.time = currentSnapshot.time;
+            evt.teamIndex = teamIndex;
+            evt.towerIndex = towerIndex;
+            towerDeaths.add(evt);
         }
     }
 

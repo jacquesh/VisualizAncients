@@ -4,14 +4,15 @@ import java.io.IOException;
 public class TowerEvent
 {
     public float time;
-    public float x;
-    public float y;
+    public int teamIndex;
+    public int towerIndex;
 
     public void write(FileWriter out) throws IOException
     {
         out.write("{");
         out.write(String.format("\"time\":%.1f,", time));
-        out.write(String.format("\"x\":%.2f,\"y\":%.2f", x, y));
+        out.write(String.format("\"teamIndex\":%d," teamIndex));
+        out.write(String.format("\"towerIndex\":%d", towerIndex));
         out.write("}");
     }
 }

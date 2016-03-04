@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -8,6 +9,7 @@ public class Snapshot
     public TeamData[] teams;
     public HeroState[] heroes;
     public CourierState[] couriers;
+    public ArrayList<LaneCreepData> laneCreeps;
 
     public Snapshot(int courierCount)
     {
