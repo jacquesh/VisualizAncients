@@ -63,7 +63,15 @@ public class Snapshot
         }
         out.write("],");
 
-        out.write("\"laneCreepData\": [],"); // TODO
+        out.write("\"laneCreepData\": [");
+        for(int i=0; i<laneCreeps.size(); ++i)
+        {
+            laneCreeps.get(i).write(out);
+            if(i < laneCreeps.size()-1)
+                out.write(",");
+        }
+        out.write("],");
+
         out.write("\"runeData\": []"); // TODO
 
         out.write("}");
