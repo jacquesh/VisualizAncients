@@ -25,7 +25,9 @@
     "towerDeaths": [
         {
             "time": float,
-            "towerIndex": int
+            "teamIndex": int,
+            "towerIndex": int,
+            "isBarracks": boolean
         },
         ...
     ],
@@ -69,6 +71,7 @@
                 {
                     "x": float,
                     "y": float,
+                    "creepCount": int,
                     "isDire": bool
                 },
                 ...
