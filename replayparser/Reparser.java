@@ -30,7 +30,6 @@ import skadistats.clarity.model.FieldPath;
 import skadistats.clarity.model.CombatLogEntry;
 import skadistats.clarity.model.StringTable;
 
-// TODO: Towers
 // TODO: Runes
 
 class Hero
@@ -45,6 +44,11 @@ public class Reparser
     private final float[][][] towerPositions = {
         {{97.749268f,80.249512f},{92.004395f,96.000000f},{76.250244f,101.999268f},{123.639893f,80.366699f},{166.492432f,80.482178f},{100.566895f,106.304688f},{80.000244f,121.491455f},{80.375244f,142.366455f},{83.629395f,89.875000f},{85.879395f,87.625000f},{115.348145f,116.250000f}},
         {{166.765625f,165.374756f},{128.000000f,174.999756f},{91.000000f,174.999756f},{147.500000f,144.499756f},{135.999756f,130.499756f},{176.500000f,114.999756f},{177.000000f,130.999756f},{177.031250f,151.312256f},{155.375000f,173.124756f},{161.000000f,156.991943f},{169.250000f,162.624756f}}
+    };
+
+    private final float[][][] barracksPositions = {
+        {{91.375000f, 92.632568f},{88.593750f, 95.390381f},{94.937500f, 78.281006f},{94.945068f, 82.241943f},{78.250000f, 99.015625f},{74.281250f, 99.007568f}},
+        {{179.062256f, 154.125000f},{174.937500f, 153.999756f},{161.499756f, 160.304443f},{164.359375f, 157.500000f},{158.078125f, 171.062256f},{158.046875f, 175.195068f}}
     };
 
     private ArrayList<Snapshot> snapshotList;
@@ -369,7 +373,8 @@ public class Reparser
             evt.died = true;
             wardEvents.add(evt);
         }
-        else if(className.equals("CDOTA_BaseNPC_Tower"))
+        else if(className.equals("CDOTA_BaseNPC_Tower")
+                || className.equals("CDOTA_BaseNPC_Barracks"))
         {
             int cellX = ent.getProperty("CBodyComponent.m_cellX");
             int cellY = ent.getProperty("CBodyComponent.m_cellY");
@@ -377,14 +382,18 @@ public class Reparser
             float subCellY = ent.getProperty("CBodyComponent.m_vecY");
             float x = (float)cellX + (subCellX/128.0f);
             float y = (float)cellY + (subCellY/128.0f);
+            boolean isRax = className.equals("CDOTA_BaseNPC_Barracks");
+            float[][][] buildings = towerPositions;
+            if(isRax)
+                buildings = barracksPositions;
 
             int teamNumber = ent.getProperty("m_iTeamNum");
             int teamIndex = teamNumber - 2;
             int towerIndex = -1;
-            for(int i=0; i<towerPositions[teamIndex].length; ++i)
+            for(int i=0; i<buildings[teamIndex].length; ++i)
             {
-                float dx = towerPositions[teamIndex][i][0] - x;
-                float dy = towerPositions[teamIndex][i][1] - y;
+                float dx = buildings[teamIndex][i][0] - x;
+                float dy = buildings[teamIndex][i][1] - y;
                 if(dx*dx + dy*dy < 0.1f)
                 {
                     towerIndex = i;
@@ -400,6 +409,7 @@ public class Reparser
             evt.time = currentSnapshot.time;
             evt.teamIndex = teamIndex;
             evt.towerIndex = towerIndex;
+            evt.isBarracks = isRax;
             towerDeaths.add(evt);
         }
     }
@@ -482,7 +492,14 @@ public class Reparser
         }
         out.write("],\n");
 
-        out.write("\"towerDeaths\":[],\n"); // TODO
+        out.write("\"towerDeaths\":[");
+        for(int i=0; i<towerDeaths.size(); ++i)
+        {
+            towerDeaths.get(i).write(out);
+            if(i < towerDeaths.size()-1)
+                out.write(",");
+        }
+        out.write("],\n");
 
         out.write("\"smokeUses\":[");
         for(int i=0; i<smokeUses.size(); ++i)
