@@ -108,7 +108,11 @@ public class Reparser
 
         if((playerResource == null) || (gameRules == null) || (dataSpectator == null)
                 || (teamEntities[0] == null) || (teamEntities[1] == null))
+        {
+            // Initialize any snapshot data that would otherwise only be initialized further down, to prevent special cases in the snapshot writing code
+            currentSnapshot.laneCreeps = new ArrayList<LaneCreepData>();
             return;
+        }
 
         if(startTime == 0.0f)
         {
