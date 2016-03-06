@@ -10,6 +10,7 @@ public class Snapshot
     public HeroState[] heroes;
     public CourierState[] couriers;
     public ArrayList<LaneCreepData> laneCreeps;
+    public int[] runes;
 
     public Snapshot(int courierCount)
     {
@@ -28,6 +29,8 @@ public class Snapshot
         {
             couriers[i] = new CourierState();
         }
+
+        runes = new int[2];
     }
 
     public void write(FileWriter out) throws IOException
@@ -72,7 +75,7 @@ public class Snapshot
         }
         out.write("],");
 
-        out.write("\"runeData\": []"); // TODO
+        out.write("\"runeData\":["+runes[0]+","+runes[1]+"]");
 
         out.write("}");
     }

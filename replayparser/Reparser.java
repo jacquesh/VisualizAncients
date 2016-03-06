@@ -30,13 +30,17 @@ import skadistats.clarity.model.FieldPath;
 import skadistats.clarity.model.CombatLogEntry;
 import skadistats.clarity.model.StringTable;
 
-// TODO: Runes
-
 class Hero
 {
     public Entity entity;
     public String heroName;
     public String className;
+}
+
+class Rune
+{
+    public int entityHandle;
+    public int type;
 }
 
 public class Reparser
@@ -54,7 +58,7 @@ public class Reparser
     };
 
     // String.format is slow, but StringBuilder is fast and javac optimizes String+ to StringBuilder code, so we precompute these and just use +
-    private final String[] int4Str = {"0000", "0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009"}; 
+    private final String[] int4Str = {"0000", "0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009"};
 
     private ArrayList<Snapshot> snapshotList;
     private Snapshot currentSnapshot;
@@ -64,6 +68,9 @@ public class Reparser
     private Entity dataSpectator;
     private Entity[] teamEntities;
     private StringTable entityNames;
+
+    private Rune topRune;
+    private Rune botRune;
 
     public Hero[] heroes;
     private ArrayList<Entity> courierList;
@@ -89,6 +96,13 @@ public class Reparser
         playerResource = null;
         dataSpectator = null;
         teamEntities = new Entity[2];
+
+        topRune = new Rune();
+        topRune.entityHandle = NULL_HANDLE;
+        topRune.type = -1;
+        botRune = new Rune();
+        botRune.entityHandle = NULL_HANDLE;
+        botRune.type = -1;
 
         heroes = new Hero[heroCount];
         courierList = new ArrayList<Entity>(2);
@@ -266,10 +280,8 @@ public class Reparser
         }
         currentSnapshot.laneCreeps = creepData;
 
-        // TODO: "CDOTA_DataSpectator" (has "PrimaryRune", "SecondaryRune", "NetWorth"
-        int primaryRuneHandle = dataSpectator.getProperty("m_hPrimaryRune");
-        int secondaryRuneHandle = dataSpectator.getProperty("m_hSecondaryRune");
-        //System.out.printf("Runes are %d and %d\n", primaryRuneHandle, secondaryRuneHandle);
+        currentSnapshot.runes[0] = topRune.type;
+        currentSnapshot.runes[1] = botRune.type;
     }
 
     @OnTickEnd
@@ -289,9 +301,22 @@ public class Reparser
         }
         else if(className.equals("CDOTA_Item_Rune"))
         {
-            //System.out.println(ent);
             int runeType = ent.getProperty("m_iRuneType");
-            System.out.println("Created rune %d\n", runeType);
+            int cellX = ent.getProperty("CBodyComponent.m_cellX");
+            int cellY = ent.getProperty("CBodyComponent.m_cellY");
+            int handle = ent.getHandle();
+            if(cellX == 110)
+            {
+                topRune.entityHandle = handle;
+                topRune.type = runeType;
+            }
+            else if(cellX == 148)
+            {
+                botRune.entityHandle = handle;
+                botRune.type = runeType;
+            }
+            else
+                System.out.printf("ERROR: Unrecognised rune spawn location: (%d,%d)\n", cellX, cellY);
         }
         else if(className.equals("CDOTA_Unit_Courier"))
         {
@@ -370,6 +395,33 @@ public class Reparser
                     break;
                 }
             }
+        }
+        else if(className.equals("CDOTA_Item_Rune"))
+        {
+            int cellX = ent.getProperty("CBodyComponent.m_cellX");
+            int cellY = ent.getProperty("CBodyComponent.m_cellY");
+            int handle = ent.getHandle();
+            // NOTE: We need to check what the handle of the current rune is because if a rune spawn
+            //       replaces an existing rune, the new rune spawns before the old one dies, so we
+            //       want to make sure we don't accidentally set the rune to null if it gets replaced
+            if(cellX == 110)
+            {
+                if(topRune.entityHandle == handle)
+                {
+                    topRune.entityHandle = NULL_HANDLE;
+                    topRune.type = -1;
+                }
+            }
+            else if(cellX == 148)
+            {
+                if(botRune.entityHandle == handle)
+                {
+                    botRune.entityHandle = NULL_HANDLE;
+                    botRune.type = -1;
+                }
+            }
+            else
+                System.out.printf("ERROR: Unrecognised rune spawn location: (%d,%d)\n", cellX, cellY);
         }
         if(className.equals("CDOTA_Unit_Roshan"))
         {
