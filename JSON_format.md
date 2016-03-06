@@ -54,7 +54,8 @@
                     "alive": bool,
                     "x": float,
                     "y": float,
-                    "invis": bool
+                    "invis": bool,
+                    "items": [String, ...]
                 }
                 ,
                 ...
@@ -76,7 +77,7 @@
                 },
                 ...
             ],
-            "runeData" TODO
+            "runeData": [int, int]
         },
         ...
     ]
