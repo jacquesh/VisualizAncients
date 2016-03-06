@@ -10,8 +10,8 @@ class CourierState
     public void write(FileWriter out) throws IOException
     {
         out.write("{");
-        out.write(String.format("\"alive\":%b,", alive));
-        out.write(String.format("\"x\":%.2f,\"y\":%.2f", x,y));
+        out.write("\"alive\":"+alive+",");
+        out.write("\"x\":"+String.format("%.2f",x)+",\"y\":"+String.format("%.2f",y));
         out.write("}");
     }
 }

@@ -16,9 +16,9 @@ class TeamData
     public void write(FileWriter out) throws IOException
     {
         out.write("{");
-        out.write(String.format("\"netWorth\":%d,", netWorth));
-        out.write(String.format("\"totalXp\":%d,", totalXP));
-        out.write(String.format("\"score\":%d", score));
+        out.write("\"netWorth\":"+netWorth+",");
+        out.write("\"totalXp\":"+totalXP+",");
+        out.write("\"score\":"+score);
         out.write("}");
     }
 }

@@ -11,9 +11,9 @@ class LaneCreepData
     public void write(FileWriter out) throws IOException
     {
         out.write("{");
-        out.write(String.format("\"x\":%.2f,\"y\":%.2f,", x,y));
-        out.write(String.format("\"creepCount\":%d,", creepCount));
-        out.write(String.format("\"isDire\":%b", isDire));
+        out.write("\"x\":"+String.format("%.2f",x)+",\"y\":"+String.format("%.2f,",y));
+        out.write("\"creepCount\":"+creepCount+",");
+        out.write("\"isDire\":"+isDire);
         out.write("}");
     }
 }

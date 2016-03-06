@@ -41,6 +41,8 @@ class Hero
 
 public class Reparser
 {
+    private final int NULL_HANDLE = 16777215;
+
     private final float[][][] towerPositions = {
         {{97.749268f,80.249512f},{92.004395f,96.000000f},{76.250244f,101.999268f},{123.639893f,80.366699f},{166.492432f,80.482178f},{100.566895f,106.304688f},{80.000244f,121.491455f},{80.375244f,142.366455f},{83.629395f,89.875000f},{85.879395f,87.625000f},{115.348145f,116.250000f}},
         {{166.765625f,165.374756f},{128.000000f,174.999756f},{91.000000f,174.999756f},{147.500000f,144.499756f},{135.999756f,130.499756f},{176.500000f,114.999756f},{177.000000f,130.999756f},{177.031250f,151.312256f},{155.375000f,173.124756f},{161.000000f,156.991943f},{169.250000f,162.624756f}}
@@ -50,6 +52,9 @@ public class Reparser
         {{91.375000f, 92.632568f},{88.593750f, 95.390381f},{94.937500f, 78.281006f},{94.945068f, 82.241943f},{78.250000f, 99.015625f},{74.281250f, 99.007568f}},
         {{179.062256f, 154.125000f},{174.937500f, 153.999756f},{161.499756f, 160.304443f},{164.359375f, 157.500000f},{158.078125f, 171.062256f},{158.046875f, 175.195068f}}
     };
+
+    // String.format is slow, but StringBuilder is fast and javac optimizes String+ to StringBuilder code, so we precompute these and just use +
+    private final String[] int4Str = {"0000", "0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009"}; 
 
     private ArrayList<Snapshot> snapshotList;
     private Snapshot currentSnapshot;
@@ -133,7 +138,7 @@ public class Reparser
                 teamIndex += 1;
 
             // TODO: This is VERY wrong
-            String netWorthName = String.format("m_iNetWorth.%04d", i);
+            String netWorthName = "m_iNetWorth." + int4Str[i];
             int playerNetWorth = dataSpectator.getProperty(netWorthName);
             int playerXP = 0;
             if(heroes[i].entity != null)
@@ -149,7 +154,7 @@ public class Reparser
             Entity hero = heroes[heroIndex].entity;
             if(hero == null)
             {
-                String handlePropName = String.format("m_vecPlayerTeamData.%04d.m_hSelectedHero", heroIndex);
+                String handlePropName = "m_vecPlayerTeamData."+int4Str[heroIndex]+".m_hSelectedHero";
                 int heroHandle = playerResource.getProperty(handlePropName);
                 hero = ctx.getProcessor(Entities.class).getByHandle(heroHandle);
 
@@ -186,9 +191,9 @@ public class Reparser
 
                 for(int itemIndex=0; itemIndex<6; itemIndex++)
                 {
-                    String itemPropName = String.format("m_hItems.%04d", itemIndex);
+                    String itemPropName = "m_hItems."+int4Str[itemIndex];
                     int itemHandle = hero.getProperty(itemPropName);
-                    if(itemHandle != 16777215)
+                    if(itemHandle != NULL_HANDLE)
                     {
                         Entity item = ctx.getProcessor(Entities.class).getByHandle(itemHandle);
                         //System.out.println(item);
@@ -260,6 +265,11 @@ public class Reparser
             }
         }
         currentSnapshot.laneCreeps = creepData;
+
+        // TODO: "CDOTA_DataSpectator" (has "PrimaryRune", "SecondaryRune", "NetWorth"
+        int primaryRuneHandle = dataSpectator.getProperty("m_hPrimaryRune");
+        int secondaryRuneHandle = dataSpectator.getProperty("m_hSecondaryRune");
+        //System.out.printf("Runes are %d and %d\n", primaryRuneHandle, secondaryRuneHandle);
     }
 
     @OnTickEnd
@@ -276,6 +286,12 @@ public class Reparser
                 || className.equals("CDOTA_BaseNPC_Creep_Siege"))
         {
             laneCreepList.add(ent);
+        }
+        else if(className.equals("CDOTA_Item_Rune"))
+        {
+            //System.out.println(ent);
+            int runeType = ent.getProperty("m_iRuneType");
+            System.out.println("Created rune %d\n", runeType);
         }
         else if(className.equals("CDOTA_Unit_Courier"))
         {
@@ -327,7 +343,6 @@ public class Reparser
         else if(className.equals("CDOTA_DataSpectator"))
         {
             dataSpectator = ent;
-            // TODO: "CDOTA_DataSpectator" (has "PrimaryRune", "SecondaryRune", "NetWorth"
         }
         else if(className.equals("CDOTATeam"))
         {
@@ -468,11 +483,11 @@ public class Reparser
         FileWriter out = new java.io.FileWriter(outFile);
         out.write("{\n");
 
-        out.write(String.format("\"startTime\":%.1f,\n", startTime));
+        out.write("\"startTime\":"+String.format("%.1f", startTime)+",\n");
         out.write("\"playerHeroes\":[");
         for(int i=0; i<heroCount; ++i)
         {
-            out.write(String.format("\"%s\"", heroes[i].className));
+            out.write("\""+heroes[i].className+"\"");
             if(i < heroCount-1)
                 out.write(",");
         }
