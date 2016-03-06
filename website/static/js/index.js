@@ -34,12 +34,12 @@
     $timeSlider.slider({
       value: 0,
       min: 0,
-      max: replayData.length - 1,
+      max: replayData.snapshots.length - 1,
       step: 10,
       slide: function(event, ui) {
         $("#amount").text("Time: " + ui.value );
         mapManager.resetMap();
-        var heroData = replayData[ui.value].heroData;
+        var heroData = replayData.snapshots[ui.value].heroData;
         for(var i=0; i<10; i++)
         {
             var hero = heroData[i];
@@ -53,7 +53,7 @@
             }
         }
 
-        var courierData = replayData[ui.value].courierData;
+        var courierData = replayData.snapshots[ui.value].courierData;
         for(var i=0; i<courierData.length; i++)
         {
             var courier = courierData[i];
