@@ -1,5 +1,5 @@
 import java.util.ArrayList;
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.IOException;
 
 public class Snapshot
@@ -33,7 +33,7 @@ public class Snapshot
         runes = new int[2];
     }
 
-    public void write(FileWriter out) throws IOException
+    public void write(OutputStreamWriter out) throws IOException
     {
         out.write("{");
         out.write(String.format("\"time\":%.1f,", time));

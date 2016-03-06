@@ -1,7 +1,9 @@
 import java.io.File;
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
+import java.io.FileOutputStream;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.zip.GZIPOutputStream;
 
 import skadistats.clarity.Clarity;
 import skadistats.clarity.source.MappedFileSource;
@@ -532,7 +534,9 @@ public class Reparser
     public void write(String fileName) throws Exception
     {
         File outFile = new File(fileName);
-        FileWriter out = new java.io.FileWriter(outFile);
+        FileOutputStream outStream = new FileOutputStream(outFile);
+        GZIPOutputStream zipOutStream = new GZIPOutputStream(outStream);
+        OutputStreamWriter out = new OutputStreamWriter(zipOutStream);
         out.write("{\n");
 
         out.write("\"startTime\":"+String.format("%.1f", startTime)+",\n");

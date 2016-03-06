@@ -1,4 +1,4 @@
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.IOException;
 
 class TeamData
@@ -13,7 +13,7 @@ class TeamData
         totalXP = 0;
     }
 
-    public void write(FileWriter out) throws IOException
+    public void write(OutputStreamWriter out) throws IOException
     {
         out.write("{");
         out.write("\"netWorth\":"+netWorth+",");

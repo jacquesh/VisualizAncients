@@ -1,4 +1,4 @@
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.IOException;
 
 class HeroState
@@ -14,7 +14,7 @@ class HeroState
         items = new String[6];
     }
 
-    public void write(FileWriter out) throws IOException
+    public void write(OutputStreamWriter out) throws IOException
     {
         out.write("{");
         out.write("\"alive\":"+alive+",");

@@ -1,4 +1,4 @@
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.IOException;
 
 public class TowerEvent
@@ -8,7 +8,7 @@ public class TowerEvent
     public int towerIndex;
     public boolean isBarracks;
 
-    public void write(FileWriter out) throws IOException
+    public void write(OutputStreamWriter out) throws IOException
     {
         out.write("{");
         out.write(String.format("\"time\":%.1f,", time));

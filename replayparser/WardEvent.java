@@ -1,4 +1,4 @@
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.IOException;
 
 class WardEvent
@@ -10,7 +10,7 @@ class WardEvent
     public boolean isSentry;
     public boolean died;
 
-    public void write(FileWriter out) throws IOException
+    public void write(OutputStreamWriter out) throws IOException
     {
         out.write("{");
         out.write(String.format("\"time\":%.1f,", time));

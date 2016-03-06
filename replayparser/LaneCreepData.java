@@ -1,4 +1,4 @@
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.IOException;
 
 class LaneCreepData
@@ -8,7 +8,7 @@ class LaneCreepData
     public int creepCount;
     public boolean isDire;
 
-    public void write(FileWriter out) throws IOException
+    public void write(OutputStreamWriter out) throws IOException
     {
         out.write("{");
         out.write("\"x\":"+String.format("%.2f",x)+",\"y\":"+String.format("%.2f,",y));
