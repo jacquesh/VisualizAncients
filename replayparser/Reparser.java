@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.zip.GZIPOutputStream;
@@ -62,6 +63,8 @@ public class Reparser
     // String.format is slow, but StringBuilder is fast and javac optimizes String+ to StringBuilder code, so we precompute these and just use +
     private final String[] int4Str = {"0000", "0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009"};
 
+    private MappedFileSource dataSource;
+
     private ArrayList<Snapshot> snapshotList;
     private Snapshot currentSnapshot;
 
@@ -86,9 +89,9 @@ public class Reparser
     private int heroCount;
     private float startTime;
 
-    public Reparser(int numHeroes)
+    public Reparser()
     {
-        heroCount = numHeroes;
+        heroCount = 0;
         startTime = 0.0f;
 
         snapshotList = new ArrayList<Snapshot>(1024);
@@ -106,7 +109,7 @@ public class Reparser
         botRune.entityHandle = NULL_HANDLE;
         botRune.type = -1;
 
-        heroes = new Hero[heroCount];
+        heroes = new Hero[10];
         courierList = new ArrayList<Entity>(2);
         laneCreepList = new ArrayList<Entity>(64);
 
@@ -115,8 +118,39 @@ public class Reparser
         towerDeaths = new ArrayList<TowerEvent>();
         smokeUses = new ArrayList<SmokeEvent>();
 
-        for(int i=0; i<heroCount; ++i)
+        for(int i=0; i<10; ++i)
             heroes[i] = new Hero();
+    }
+
+    public void load(String inputFileName) throws IOException
+    {
+        // TODO: Maybe we should just add some sort of check for the consistency of the playerID
+        //       that is reported by entity updates/creations etc, so that we can just ignore matches
+        //       where its inconsistent
+        dataSource = new MappedFileSource(inputFileName);
+        CDemoFileInfo info = Clarity.infoForSource(dataSource);
+        CDotaGameInfo dota = info.getGameInfo().getDota();
+
+        List<CPlayerInfo> playerList = dota.getPlayerInfoList();
+        heroCount = playerList.size();
+        if(heroCount != 10)
+        {
+            System.out.println("WARNING: Expected 10 players, got "+playerList.size());
+        }
+
+        for(int playerIndex=0; playerIndex<heroCount; playerIndex++)
+        {
+            CPlayerInfo player = playerList.get(playerIndex);
+            heroes[playerIndex].heroName = player.getHeroName();
+        }
+        // Reset the source buffer to the beginning so we can read through it again
+        dataSource.setPosition(0);
+    }
+
+    public void parse() throws IOException
+    {
+        SimpleRunner runner = new SimpleRunner(dataSource);
+        runner.runWith(this);
     }
 
     @UsesEntities
@@ -148,7 +182,7 @@ public class Reparser
         currentSnapshot.time = gameTime;
 
         int teamIndex = 0;
-        for(int i=0; i<10; ++i)
+        for(int i=0; i<heroCount; ++i)
         {
             if(i == 5)
                 teamIndex += 1;
@@ -531,12 +565,12 @@ public class Reparser
         }
     }
 
-    public void write(String fileName) throws Exception
+    public void write(String fileName) throws IOException
     {
         File outFile = new File(fileName);
         FileOutputStream outStream = new FileOutputStream(outFile);
-        GZIPOutputStream zipOutStream = new GZIPOutputStream(outStream);
-        OutputStreamWriter out = new OutputStreamWriter(zipOutStream);
+        //GZIPOutputStream zipOutStream = new GZIPOutputStream(outStream);
+        OutputStreamWriter out = new OutputStreamWriter(outStream);
         out.write("{\n");
 
         out.write("\"startTime\":"+String.format("%.1f", startTime)+",\n");
@@ -601,42 +635,4 @@ public class Reparser
         out.close();
     }
 
-    public static void main(String[] args) throws Exception
-    {
-        // TODO: Maybe we should just add some sort of check for the consistency of the playerID
-        //       that is reported by entity updates/creations etc, so that we can just ignore matches
-        //       where its inconsistent
-        String inputFile = "testdedtowers-dire.dem";
-        inputFile = "test2.dem";
-        MappedFileSource source = new MappedFileSource(inputFile);
-        CDemoFileInfo info = Clarity.infoForSource(source);
-        CDotaGameInfo dota = info.getGameInfo().getDota();
-
-        List<CPlayerInfo> playerList = dota.getPlayerInfoList();
-        int heroCount = playerList.size();
-        Reparser parser = new Reparser(heroCount);
-        if(heroCount != 10)
-        {
-            System.out.println("ERROR: Expected 10 players, got "+playerList.size());
-        }
-        for(int playerIndex=0; playerIndex<heroCount; playerIndex++)
-        {
-            CPlayerInfo player = playerList.get(playerIndex);
-            parser.heroes[playerIndex].heroName = player.getHeroName();
-        }
-        source.setPosition(0); // Reset the source buffer to the beginning so we can read through it again
-
-        long startTime = System.currentTimeMillis();
-        SimpleRunner runner = new SimpleRunner(source);
-        runner.runWith(parser);
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
-        System.out.printf("Processing took %fs\n", duration/1000.0f);
-
-        startTime = System.currentTimeMillis();
-        parser.write("out.visdata");
-        endTime = System.currentTimeMillis();
-        duration = endTime - startTime;
-        System.out.printf("Writing took %fs\n", duration/1000.0f);
-    }
 }
