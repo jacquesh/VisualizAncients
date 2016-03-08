@@ -567,6 +567,8 @@ public class Reparser
 
     public void write(String fileName) throws IOException
     {
+        int snapshotInterval = 15; // NOTE: The game runs at 30 ticks/s
+
         File outFile = new File(fileName);
         FileOutputStream outStream = new FileOutputStream(outFile);
         DeflaterOutputStream zipOutStream = new DeflaterOutputStream(outStream);
@@ -620,7 +622,7 @@ public class Reparser
         out.write("],\n");
 
         out.write("\"snapshots\":[\n");
-        for(int i=0; i<snapshotList.size(); ++i)
+        for(int i=0; i<snapshotList.size(); i+=snapshotInterval)
         {
             snapshotList.get(i).write(out);
             if(i < snapshotList.size()-1)
