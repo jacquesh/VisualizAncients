@@ -4,7 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.zip.GZIPOutputStream;
+import java.util.zip.DeflaterOutputStream;
 
 import skadistats.clarity.Clarity;
 import skadistats.clarity.source.MappedFileSource;
@@ -569,8 +569,8 @@ public class Reparser
     {
         File outFile = new File(fileName);
         FileOutputStream outStream = new FileOutputStream(outFile);
-        //GZIPOutputStream zipOutStream = new GZIPOutputStream(outStream);
-        OutputStreamWriter out = new OutputStreamWriter(outStream);
+        DeflaterOutputStream zipOutStream = new DeflaterOutputStream(outStream);
+        OutputStreamWriter out = new OutputStreamWriter(zipOutStream);
         out.write("{\n");
 
         out.write("\"startTime\":"+String.format("%.1f", startTime)+",\n");
@@ -632,7 +632,11 @@ public class Reparser
         out.write("]\n");
 
         out.write("}");
+
         out.close();
+        zipOutStream.finish();
+        zipOutStream.close();
+        outStream.close();
     }
 
 }
