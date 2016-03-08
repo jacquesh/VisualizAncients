@@ -85,12 +85,26 @@
 ```
 
 ## Multi-match
+The aggregate format for multiple matches consists of a bunch of fields each of the same form, so the overal structure is the following:
 ```json
 {
-    "positionData" TODO
-    "deathData" TODO
+    "positionData": [...]
     "killData" TODO
-    "wardData" TODO
-    "smokeData" TODO
+    "wardData": [...]
+    "sentryData" TODO? (Pretty easy to get the data for, possibly interesting to see if there's a difference between wards/sentries?)
+    "smokeData": [...]
 }
 ```
+and then each of those is a list of items that have the following format:
+```json
+[ // Has 60*60 + 90 = 3690 elements, one per second
+    [ // Has 64*64 = 4096 elements, one per in-game cell (matches each entity's m_cellX/Y
+        0, // This is the number of times we've had an event at this time at this location
+        ...
+    ],
+    ...
+]
+```
+
+## TODO
+- Graph data (multi-match...also single-match?)
