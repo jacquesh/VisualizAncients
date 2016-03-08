@@ -18,7 +18,7 @@ public class Main
 
         startTime = System.currentTimeMillis();
         int fileNameExtensionIndex = fileName.lastIndexOf('.');
-        String outFileName = fileName.substring(0, fileNameExtensionIndex) + ".json";
+        String outFileName = fileName.substring(0, fileNameExtensionIndex) + ".zjson";
         parser.write(outFileName);
         endTime = System.currentTimeMillis();
         System.out.printf("Writing took %fs\n", (endTime-startTime)/1000.0f);
