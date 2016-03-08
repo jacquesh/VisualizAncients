@@ -27,8 +27,22 @@
     }
   };
 
+  var charArr2Str = function(charArr) {
+    var chunkSize = 0x8000;
+    var outputArr = [];
+    for(var i=0; i<charArr.length; i+=chunkSize) {
+        outputArr.push(String.fromCharCode.apply(null, charArr.subarray(i, i+chunkSize)));
+    }
+    var result = outputArr.join("");
+    return result;
+  }
+
   var setupPlayerData = function (data) {
-    replayData = JSON.parse(data);
+    var inflater = new pako.Inflate();
+    inflater.push(data, true);
+    var dataCharArr = inflater.result;
+    var dataStr = charArr2Str(dataCharArr);
+    replayData = JSON.parse(dataStr);
 
     var $timeSlider = $("#time-slider");
     $timeSlider.slider({
@@ -69,7 +83,14 @@
   };
 
   var loadPlayerData = function() {
-    $.get("/static/data_large.json", setupPlayerData);
+    var req = new XMLHttpRequest();
+    req.open("GET", "/static/data.zjson", true);
+    req.responseType = "arraybuffer";
+    req.onload = function(event) {
+        var bytes = new Uint8Array(req.response);
+        setupPlayerData(bytes);
+    };
+    req.send();
   }
 
   $(document).ready(loadPlayerData);
