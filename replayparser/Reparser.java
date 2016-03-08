@@ -625,7 +625,7 @@ public class Reparser
         for(int i=0; i<snapshotList.size(); i+=snapshotInterval)
         {
             snapshotList.get(i).write(out);
-            if(i < snapshotList.size()-1)
+            if(i+snapshotInterval < snapshotList.size())
             {
                 out.write(",");
             }
