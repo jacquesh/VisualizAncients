@@ -65,13 +65,44 @@ header > hr {
     vertical-align: middle;
 }
 
-#graph-bar {
-    border: #000000 solid 2px;
-    width: 85%;
-    height: 40px;
+#graph-bar-container {
+    width: 95%;
+    margin-bottom: 10px;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 10px;
+    height: 40px;
+}
+
+#change-graph-box {
+    font-size: 12px;
+    float: left;
+    width: 5%;
+}
+
+#change-graph-box > .arrow {
+    width: 25%;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+#change-graph-box > #graph-label {
+    text-align: center;
+}
+
+#open-graphs {
+    float: left;
+    border: black solid 1px;
+    width: 5%;
+    height: 40px;
+}
+
+#graph-bar {
+    float: left;
+    border: #000000 solid 1px;
+    width: calc(90% - 6px);
+    height: 40px;
+    margin-left: 1px;
+    margin-right: 1px;
 }
 
 .ui-slider > .ui-slider-handle {
