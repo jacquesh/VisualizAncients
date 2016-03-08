@@ -6,13 +6,13 @@
   var mapManager = {
     $map: $('#dota-map'),
 
-    drawMapPoint: function(x, y, colour) {
+    drawMapCircle: function(x, y, colour) {
       var width = this.$map.width();
       var scalef = width / 127;
       x = (x - 64) * scalef;
       y = width - ((y - 64) * scalef);
       this.$map.drawArc({
-        fillStyle: '#FFF',
+        fillStyle: '#000',
         x: x, y: y,
         radius: 8
       }).drawArc({
@@ -22,55 +22,68 @@
       });
     },
 
+    drawMapRect: function(x, y, colour) {
+      var width = this.$map.width();
+      var scalef = width / 127;
+      x = (x - 64) * scalef;
+      y = width - ((y - 64) * scalef);
+      this.$map.drawRect({
+        fillStyle: '#000',
+        x: x, y: y,
+        width: 16, height:16
+      }).drawRect({
+        fillStyle: colour,
+        x: x, y: y,
+        width: 12, height:12
+      });
+    },
+
     resetMap: function() {
       this.$map.clearCanvas();
     }
   };
 
   var setupPlayerData = function (data) {
-    replayData = JSON.parse(data);
+    replayData = data;
 
-    var $timeSlider = $("#time-slider");
+    var $timeSlider = $('#time-slider');
     $timeSlider.slider({
       value: 0,
       min: 0,
       max: replayData.length - 1,
       step: 10,
       slide: function(event, ui) {
-        $("#amount").text("Time: " + ui.value );
+        $('#amount').text(ui.value );
         mapManager.resetMap();
         var heroData = replayData[ui.value].heroData;
-        for(var i=0; i<10; i++)
-        {
-            var hero = heroData[i];
-            if(hero.alive)
-            {
-                mapManager.drawMapPoint(hero.x, hero.y, "#000");
-            }
-            else
-            {
-                mapManager.drawMapPoint(64, 64, "#000");
-            }
+        for (var i=0; i < 10; i++) {
+          var hero = heroData[i];
+          var x_pos = hero.alive ? hero.x : 64;
+          var y_pos = hero.alive ? hero.y : 64;
+
+          if (i < 5) {
+              mapManager.drawMapCircle(x_pos, y_pos, '#097FE6');
+          } else {
+              mapManager.drawMapRect(x_pos, y_pos, '#E65609');
+          }
         }
 
         var courierData = replayData[ui.value].courierData;
-        for(var i=0; i<courierData.length; i++)
-        {
-            var courier = courierData[i];
-            if(courier.alive)
-            {
-                mapManager.drawMapPoint(courier.x, courier.y, "#FFF");
-            }
+        for (var j=0; j < courierData.length; j++) {
+          var courier = courierData[j];
+          if (courier.alive) {
+              mapManager.drawMapCircle(courier.x, courier.y, '#FFF');
+          }
         }
       }
     });
     //$timeSlider.slider('option', 'slide').call($timeSlider);
-    $("#amount").text("Time: " + $timeSlider.slider("value"));
+    $('#amount').text($timeSlider.slider('value'));
   };
 
   var loadPlayerData = function() {
-    $.get("/static/data_large.json", setupPlayerData);
-  }
+    $.getJSON("/static/data_large.json", setupPlayerData);
+  };
 
   $(document).ready(loadPlayerData);
 

@@ -12,7 +12,6 @@ html, body {
 header {
     text-align: center;
     padding-top: 10px;
-    padding-bottom: 10px;
 }
 
 header > hr {
@@ -24,38 +23,64 @@ header > hr {
 .content-container {
     min-height: 100%;
     position: relative;
-    width: 50%;
+    width: 80%;
     margin-left: auto;
     margin-right: auto;
     background-color: #ffffff;
 }
 
 .content {
-    padding: 10px 10px 60px;
+    padding: 0 10px 60px;
+}
+
+#time-container {
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #time {
-    width:420px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+    width: calc(90% - 4px);
+    margin-left: 2px;
+    margin-right: 2px;
+    padding-bottom: 10px;
+    float: left;
+}
+
+#time-container > #start-time {
+    width: 5%;
+    float: left;
+}
+
+#time-container > #end-time {
+    width: 5%;
+    float: left;
 }
 
 #time > #amount {
-    padding-top: 5px;
-    padding-bottom: 5px;
+    display: none;
 }
 
-#time-slider {
-    width: 400px;
+#time > #time-slider {
+    vertical-align: middle;
+}
+
+#graph-bar {
+    border: #000000 solid 2px;
+    width: 85%;
+    height: 40px;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 10px;
+}
+
+.ui-slider > .ui-slider-handle {
+    width: 10px;
 }
 
 canvas {
     background-size: cover;
     background-image: url("../img/dota2-map.jpg");
-    width: 420px;
     display: block;
     margin-left: auto;
     margin-right: auto;
