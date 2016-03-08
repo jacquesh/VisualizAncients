@@ -1,7 +1,7 @@
 import java.io.File;
-import java.io.OutputStreamWriter;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.zip.DeflaterOutputStream;
