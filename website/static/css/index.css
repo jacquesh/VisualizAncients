@@ -20,7 +20,7 @@ header > hr {
     margin-bottom: 10px;
 }
 
-.content-container {
+#content-container {
     min-height: 100%;
     position: relative;
     width: 80%;
@@ -29,12 +29,14 @@ header > hr {
     background-color: #ffffff;
 }
 
-.content {
+#content {
+    min-height: 100%;
     padding: 0 10px 60px;
 }
 
 #time-container {
     width: 95%;
+    height: 30px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -109,12 +111,26 @@ header > hr {
     width: 10px;
 }
 
-canvas {
+.column {
+    float: left;
+    min-width: calc((100% - 420px) / 2);
+    min-height: 420px;
+}
+#left-column {
+
+}
+
+#right-column {
+
+}
+
+#map-container {
+    float: left;
+}
+
+#map-container > canvas#dota-map {
     background-size: cover;
     background-image: url("../img/dota2-map.jpg");
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 footer {
