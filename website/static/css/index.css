@@ -20,6 +20,10 @@ header > hr {
     margin-bottom: 10px;
 }
 
+.clear-fix {
+    clear: both;
+}
+
 #content-container {
     min-height: 100%;
     position: relative;
