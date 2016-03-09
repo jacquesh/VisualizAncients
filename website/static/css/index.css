@@ -118,14 +118,74 @@ header > hr {
 .column {
     float: left;
     min-width: calc((100% - 420px) / 2);
-    min-height: 420px;
-}
-#left-column {
-
+    height: 420px;
 }
 
-#right-column {
+.border {
+    border: solid black 1px;
+}
 
+.center-block {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hug-right {
+    margin-left:auto;
+    margin-right: 2%;
+}
+
+.hug-left {
+    margin-left: 2%;
+    margin-right: auto;
+}
+
+#left-column > #toggle-box {
+    width: 80%;
+    height: 55%;
+    margin-bottom: calc(2% - 2px);
+}
+
+#left-column > #map-presence {
+    width: 80%;
+    height: 43%;
+}
+
+#left-column > #map-presence > .team-block{
+    height: 50%;
+}
+
+#right-column > #path-toggle {
+    width: 80%;
+    height: 20%;
+    margin-bottom: calc(2% - 2px);
+}
+
+#right-column > #path-toggle > .heading {
+    text-align: center;
+    padding-bottom: 5px;
+}
+
+#right-column > #player-stats {
+    height: 78%;
+    width: 80%;
+}
+
+#right-column > #player-stats > #character-name {
+    text-align: center;
+    min-height: 28px;
+}
+
+#right-column > #player-stats > img {
+    height: 100px;
+    width: 175px;
+    margin-bottom: 5%;
+}
+
+#right-column > #player-stats > #items {
+    width: 175px;
+    height: calc(95% - 128px - 4px);
 }
 
 #map-container {
@@ -137,6 +197,52 @@ header > hr {
     background-image: url("../img/dota2-map.jpg");
 }
 
+#radiant {
+    background-color: rgba(51, 95, 255, 0.75);
+}
+
+#dire {
+    background-color: rgba(255, 7, 18, 0.75);
+}
+
+#team-graphs {
+    width: 90%;
+    height: 55px;
+    margin-top: 10px;
+}
+
+#team-graphs > .score-box {
+    width: 40%;
+    height: 100%;
+}
+
+#team-graphs > #radiant {
+    float: left;
+}
+
+.deaths {
+    padding-top: 5px;
+    width: 50px;
+    text-align: center;
+}
+
+.deaths > .count {
+    font-weight: bold;
+}
+
+#team-graphs > #radiant > .deaths {
+    float: right;
+    padding-right: 10px;
+}
+
+#team-graphs > #dire {
+    float: right;
+}
+
+#team-graphs > #dire > .deaths {
+    padding-left: 10px;
+}
+
 footer {
     position: absolute;
     bottom: 0;
@@ -144,4 +250,20 @@ footer {
     height: 20px;
     text-align: center;
     font-size: 10px;
+}
+
+.table {
+    display: table;
+}
+
+.table-row {
+    display: table-row;
+    width: 100%;
+    height: 33%;
+}
+
+.table-cell {
+    float: left;
+    height: 100%;
+    width: 50%;
 }

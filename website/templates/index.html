@@ -33,12 +33,50 @@
                 <div id="open-graphs">Icon</div>
             </div>
             <div class="clear-fix"></div>
-            <div id="left-column" class="column"></div>
+
+            <div id="left-column" class="column">
+                <div id="toggle-box" class="border hug-right">
+                    Toggles
+                </div>
+                <div id="map-presence" class="border hug-right">
+                    <div id="dire" class="team-block">Dire Control</div>
+                    <div id="radiant" class="team-block">Radiant Control</div>
+                </div>
+            </div>
+
             <div id="map-container">
                 <canvas id="dota-map" width="420" height="420"></canvas>
             </div>
-            <div id="right-column" class="column"></div>
+
+            <div id="right-column" class="column">
+                <div id="path-toggle" class="hug-left border">
+                    <h4 class="heading">Toggle Paths</h4>
+                    <img src="http://placehold.it/50x50" class="center-block">
+                </div>
+                <div id="player-stats" class="hug-left border">
+                    <h1 id="character-name">Character Name</h1>
+                    <img src="http://placehold.it/175x100" class="center-block">
+                    <div id="items" class="center-block table">
+                        <div class="table-row">
+                            <div class="table-cell"><img src="http://placehold.it/50x50"></div>
+                            <div class="table-cell"><img src="http://placehold.it/50x50"></div>
+                        </div>
+                        <div class="table-row">
+                            <div class="table-cell"><img src="http://placehold.it/50x50"></div>
+                            <div class="table-cell"><img src="http://placehold.it/50x50"></div>
+                        </div>
+                        <div class="table-row">
+                            <div class="table-cell"><img src="http://placehold.it/50x50"></div>
+                            <div class="table-cell"><img src="http://placehold.it/50x50"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="clear-fix"></div>
+            <div id="team-graphs" class="center-block">
+                <div id="radiant" class="score-box border"><div class="deaths">Deaths <span class="count">1</span></div></div>
+                <div id="dire" class="score-box border"><div class="deaths">Deaths <span class="count">1</span></div></div>
+            </div>
         </section>
         <footer>
             Made by: Alan Berman, Jacques Heunis, Jethro Muller, and Timothy Gwynn.
