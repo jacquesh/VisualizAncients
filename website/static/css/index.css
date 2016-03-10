@@ -12,7 +12,6 @@ html, body {
 header {
     text-align: center;
     padding-top: 10px;
-    padding-bottom: 10px;
 }
 
 header > hr {
@@ -21,44 +20,227 @@ header > hr {
     margin-bottom: 10px;
 }
 
-.content-container {
+.clear-fix {
+    clear: both;
+}
+
+#content-container {
     min-height: 100%;
     position: relative;
-    width: 50%;
+    width: 80%;
     margin-left: auto;
     margin-right: auto;
     background-color: #ffffff;
 }
 
-.content {
-    padding: 10px 10px 60px;
+#content {
+    min-height: 100%;
+    padding: 0 10px 60px;
+}
+
+#time-container {
+    width: 95%;
+    height: 30px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #time {
-    width:420px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+    width: calc(90% - 4px);
+    margin-left: 2px;
+    margin-right: 2px;
+    padding-bottom: 10px;
+    float: left;
+}
+
+#time-container > #start-time {
+    width: 5%;
+    float: left;
+}
+
+#time-container > #end-time {
+    width: 5%;
+    float: left;
 }
 
 #time > #amount {
-    padding-top: 5px;
-    padding-bottom: 5px;
+    display: none;
 }
 
-#time-slider {
-    width: 400px;
+#time > #time-slider {
+    vertical-align: middle;
+}
+
+#graph-bar-container {
+    width: 95%;
+    margin-bottom: 10px;
     margin-left: auto;
     margin-right: auto;
+    height: 40px;
 }
 
-canvas {
-    background-size: cover;
-    background-image: url("../img/dota2-map.jpg");
-    width: 420px;
+#change-graph-box {
+    font-size: 12px;
+    float: left;
+    width: 5%;
+}
+
+#change-graph-box > .arrow {
+    width: 25%;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+#change-graph-box > #graph-label {
+    text-align: center;
+}
+
+#open-graphs {
+    float: left;
+    border: black solid 1px;
+    width: 5%;
+    height: 40px;
+}
+
+#graph-bar {
+    float: left;
+    border: #000000 solid 1px;
+    width: calc(90% - 6px);
+    height: 40px;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+.ui-slider > .ui-slider-handle {
+    width: 10px;
+}
+
+.column {
+    float: left;
+    min-width: calc((100% - 420px) / 2);
+    height: 420px;
+}
+
+.border {
+    border: solid black 1px;
+}
+
+.center-block {
     display: block;
     margin-left: auto;
     margin-right: auto;
+}
+
+.hug-right {
+    margin-left:auto;
+    margin-right: 2%;
+}
+
+.hug-left {
+    margin-left: 2%;
+    margin-right: auto;
+}
+
+#left-column > #toggle-box {
+    width: 80%;
+    height: 55%;
+    margin-bottom: calc(2% - 2px);
+}
+
+#left-column > #map-presence {
+    width: 80%;
+    height: 43%;
+}
+
+#left-column > #map-presence > .team-block{
+    height: 50%;
+}
+
+#right-column > #path-toggle {
+    width: 80%;
+    height: 20%;
+    margin-bottom: calc(2% - 2px);
+}
+
+#right-column > #path-toggle > .heading {
+    text-align: center;
+    padding-bottom: 5px;
+}
+
+#right-column > #player-stats {
+    height: 78%;
+    width: 80%;
+}
+
+#right-column > #player-stats > #character-name {
+    text-align: center;
+    min-height: 28px;
+}
+
+#right-column > #player-stats > img {
+    height: 100px;
+    width: 175px;
+    margin-bottom: 5%;
+}
+
+#right-column > #player-stats > #items {
+    width: 175px;
+    height: calc(95% - 128px - 4px);
+}
+
+#map-container {
+    float: left;
+}
+
+#map-container > canvas#dota-map {
+    background-size: cover;
+    background-image: url("../img/dota2-map.jpg");
+}
+
+#radiant {
+    background-color: rgba(51, 95, 255, 0.75);
+}
+
+#dire {
+    background-color: rgba(255, 7, 18, 0.75);
+}
+
+#team-graphs {
+    width: 90%;
+    height: 55px;
+    margin-top: 10px;
+}
+
+#team-graphs > .score-box {
+    width: 40%;
+    height: 100%;
+}
+
+#team-graphs > #radiant {
+    float: left;
+}
+
+.deaths {
+    padding-top: 5px;
+    width: 50px;
+    text-align: center;
+}
+
+.deaths > .count {
+    font-weight: bold;
+}
+
+#team-graphs > #radiant > .deaths {
+    float: right;
+    padding-right: 10px;
+}
+
+#team-graphs > #dire {
+    float: right;
+}
+
+#team-graphs > #dire > .deaths {
+    padding-left: 10px;
 }
 
 footer {
@@ -68,4 +250,20 @@ footer {
     height: 20px;
     text-align: center;
     font-size: 10px;
+}
+
+.table {
+    display: table;
+}
+
+.table-row {
+    display: table-row;
+    width: 100%;
+    height: 33%;
+}
+
+.table-cell {
+    float: left;
+    height: 100%;
+    width: 50%;
 }
