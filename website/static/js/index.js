@@ -43,19 +43,33 @@
     }
   };
 
+  var charArr2Str = function(charArr) {
+    var chunkSize = 0x8000;
+    var outputArr = [];
+    for(var i=0; i<charArr.length; i+=chunkSize) {
+        outputArr.push(String.fromCharCode.apply(null, charArr.subarray(i, i+chunkSize)));
+    }
+    var result = outputArr.join("");
+    return result;
+  }
+
   var setupPlayerData = function (data) {
-    replayData = data;
+    var inflater = new pako.Inflate();
+    inflater.push(data, true);
+    var dataCharArr = inflater.result;
+    var dataStr = charArr2Str(dataCharArr);
+    replayData = JSON.parse(dataStr);
 
     var $timeSlider = $('#time-slider');
     $timeSlider.slider({
       value: 0,
       min: 0,
-      max: replayData.length - 1,
+      max: replayData.snapshots.length - 1,
       step: 10,
       slide: function(event, ui) {
         $('#amount').text(ui.value );
         mapManager.resetMap();
-        var heroData = replayData[ui.value].heroData;
+        var heroData = replayData.snapshots[ui.value].heroData;
         for (var i=0; i < 10; i++) {
           var hero = heroData[i];
           var x_pos = hero.alive ? hero.x : 64;
@@ -68,7 +82,7 @@
           }
         }
 
-        var courierData = replayData[ui.value].courierData;
+        var courierData = replayData.snapshots[ui.value].courierData;
         for (var j=0; j < courierData.length; j++) {
           var courier = courierData[j];
           if (courier.alive) {
@@ -82,7 +96,14 @@
   };
 
   var loadPlayerData = function() {
-    $.getJSON("/static/data_large.json", setupPlayerData);
+    var req = new XMLHttpRequest();
+    req.open("GET", "/static/data.zjson", true);
+    req.responseType = "arraybuffer";
+    req.onload = function(event) {
+        var bytes = new Uint8Array(req.response);
+        setupPlayerData(bytes);
+    };
+    req.send();
   };
 
   $(document).ready(loadPlayerData);
