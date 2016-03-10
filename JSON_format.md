@@ -1,6 +1,6 @@
 # JSON Data interchange format
 ## Single match
-```json
+```
 {
     "startTime": float,
     "playerHeroes": [string, ...],
@@ -86,7 +86,7 @@
 
 ## Multi-match
 The aggregate format for multiple matches consists of a bunch of fields each of the same form, so the overal structure is the following:
-```json
+```
 {
     // These all have the positional format explained below
     "positionData": [...],
@@ -102,7 +102,7 @@ The aggregate format for multiple matches consists of a bunch of fields each of 
 }
 ```
 then the positional format is as follows:
-```json
+```
 [ // Has 60*60 + 90 = 3690 elements, one per second
     [ // Has 64*64 = 4096 elements, one per in-game cell (matches each entity's m_cellX/Y
         0, // This is the number of times we've had an event at this time at this location
@@ -112,12 +112,9 @@ then the positional format is as follows:
 ]
 ```
 and the graph format is:
-```json
+```
 [ // Has 60 + 1 elements, 1 per minute +1 for anything before creeps spawn
     0, // This is the number of times we've had an event at this time
     ...
 ]
 ```
-
-## TODO
-- Graph data (multi-match...also single-match?)
