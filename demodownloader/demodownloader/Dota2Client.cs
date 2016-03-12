@@ -3,6 +3,9 @@ using System.Net;
 using System.Threading;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 using SteamKit2;
 using SteamKit2.Internal; // For the protobuf message type
@@ -10,6 +13,7 @@ using SteamKit2.GC;
 using SteamKit2.GC.Internal;
 using SteamKit2.GC.Dota;
 using SteamKit2.GC.Dota.Internal;
+using System.IO;
 
 namespace demodownloader
 {
@@ -24,6 +28,7 @@ namespace demodownloader
         private SteamUser user;
         private string userName;
         private string userPassword;
+
 
         public Dota2Client(string accountName, string accountPassword)
         {
@@ -116,11 +121,47 @@ namespace demodownloader
             }
         }
 
+       
+
         private void onWelcomeReceived(IPacketGCMsg msg)
         {
             ClientGCMsgProtobuf<CMsgGCMatchDetailsRequest> request = new ClientGCMsgProtobuf<CMsgGCMatchDetailsRequest>((uint)EDOTAGCMsg.k_EMsgGCMatchDetailsRequest);
+            RunAsync().Wait();
             request.Body.match_id = 2215232850;
             gameCoordinator.Send(request, DOTA_APP_ID);
+        }
+
+        static async Task RunAsync()
+        {
+            string steamAPI = "?key=956B29B784D225393DA5B57301BF7E24";
+            string playerID = "57934473";
+            int numberOfMatches = 10;
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:9000/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                string url = "https://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/V001/"+ steamAPI +"&account_id=" + playerID + "&Matches_Requested="+numberOfMatches+"&format=json";
+                HttpResponseMessage response = await client.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    
+                    var responseValue = string.Empty;
+
+                    Task task = response.Content.ReadAsStreamAsync().ContinueWith(t =>
+                    {
+                        var stream = t.Result;
+                        using (var reader = new StreamReader(stream))
+                        {
+                            responseValue = reader.ReadToEnd();
+                        }
+                    });
+
+                    task.Wait();
+                    Console.WriteLine(responseValue);
+                }
+            }
+
         }
 
         private void onMatchDetailsReceived(IPacketGCMsg msg)
@@ -153,7 +194,7 @@ namespace demodownloader
             uint replaySalt = match.replay_salt;
             string replayURL = String.Format("http://replay{0}.valve.net/{1}/{2}_{3}.dem.bz2", replayCluster, DOTA_APP_ID, matchID, replaySalt);
             Console.WriteLine("Replay is available @ {0}, downloading", replayURL);
-            DownloadReplay(matchID, replayCluster, replaySalt);
+            //DownloadReplay(matchID, replayCluster, replaySalt);
 
             steam.Disconnect();
         }
