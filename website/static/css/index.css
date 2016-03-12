@@ -198,11 +198,11 @@ header > hr {
     background-image: url("../img/dota2-map.jpg");
 }
 
-#radiant {
+.radiant {
     background-color: rgba(51, 95, 255, 0.75);
 }
 
-#dire {
+.dire {
     background-color: rgba(255, 7, 18, 0.75);
 }
 
@@ -221,9 +221,19 @@ header > hr {
     float: left;
 }
 
+.team-stats {
+    padding-top: 1%;
+    width: 76%;
+}
+
+.team-stats img {
+    width: 8%;
+    vertical-align: middle;
+}
+
 .deaths {
-    padding-top: 5px;
-    width: 50px;
+    padding-top: 1%;
+    width: 15%;
     text-align: center;
 }
 
@@ -233,7 +243,12 @@ header > hr {
 
 #team-graphs > #radiant > .deaths {
     float: right;
-    padding-right: 10px;
+    padding-right: 2%;
+}
+
+#team-graphs > #radiant > .team-stats {
+    float: left;
+    padding-left: 1%;
 }
 
 #team-graphs > #dire {
@@ -241,7 +256,13 @@ header > hr {
 }
 
 #team-graphs > #dire > .deaths {
-    padding-left: 10px;
+    padding-left: 2%;
+}
+
+#team-graphs > #dire > .team-stats {
+    float: right;
+    text-align: right;
+    padding-right: 1%;
 }
 
 footer {

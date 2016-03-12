@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="/static/vendor/jquery-ui-1.11.4/jquery-ui.min.css">
     <link rel="stylesheet" href="/static/vendor/font-awesome.min.css">
     <link rel="stylesheet" href="/static/css/index.css">
+
 </head>
 <body>
     <main id="content-container">
@@ -39,8 +40,8 @@
                     Toggles
                 </div>
                 <div id="map-presence" class="border hug-right">
-                    <div id="dire" class="team-block">Dire Control</div>
-                    <div id="radiant" class="team-block">Radiant Control</div>
+                    <div id="dire-control" class="dire team-block">Dire Control</div>
+                    <div id="radiant-control" class="radiant team-block">Radiant Control</div>
                 </div>
             </div>
 
@@ -74,8 +75,20 @@
             </div>
             <div class="clear-fix"></div>
             <div id="team-graphs" class="center-block">
-                <div id="radiant" class="score-box border"><div class="deaths">Deaths <span class="count">0</span></div></div>
-                <div id="dire" class="score-box border"><div class="deaths">Deaths <span class="count">0</span></div></div>
+                <div id="radiant" class="radiant score-box border">
+                    <div class="team-stats">
+                        <div><img src="/static/img/icons/gold.png"> <span class="net-worth">0</span></div>
+                        <div><img src="/static/img/icons/xp.png"> <span class="total-xp">0</span></div>
+                    </div>
+                    <div class="deaths">Deaths <span class="count">0</span></div>
+                </div>
+                <div id="dire" class="dire score-box border">
+                    <div class="team-stats">
+                        <div><img src="/static/img/icons/gold.png"> <span class="net-worth">0</span></div>
+                        <div><img src="/static/img/icons/xp.png"> <span class="total-xp">0</span></div>
+                    </div>
+                    <div class="deaths">Deaths <span class="count">0</span></div>
+                </div>
             </div>
         </section>
         <footer>
@@ -87,6 +100,10 @@
 <script rel="script" type="text/javascript" src="/static/vendor/jcanvas.min.js"></script>
 <script rel="script" type="text/javascript" src="/static/vendor/jquery-ui-1.11.4/jquery-ui.min.js"></script>
 <script rel="script" type="text/javascript" src="/static/vendor/pako.min.js"></script>
+<<<<<<< HEAD
+
+=======
 <script rel="script" type="text/javascript" src="/static/js/heroNames.js"></script>
 <script rel="script" type="text/javascript" src="/static/js/index.js"></script>
+>>>>>>> 01697725cbffc6b8afdba2f322a27bfcc5cba74a
 </html>
