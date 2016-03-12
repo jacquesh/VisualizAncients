@@ -27,11 +27,11 @@
     },
 
     handleHoverOn: function(layer) {
-
+      $('#character-name').text(layer.data.heroName).removeClass('hidden-text');
     },
 
     handleHoverOff: function(layer) {
-
+      $('#character-name').addClass('hidden-text');
     },
 
     setupLayers: function(playerHeroes) {
