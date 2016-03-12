@@ -3,6 +3,14 @@
 
   var replayData = undefined;
 
+  var getHeroName = function(dt_name) {
+    for (var i=0; i<heroNameMap.length; i++) {
+      if (heroNameMap[i].dt_name === dt_name) {
+        return heroNameMap[i].localized_name;
+      }
+    }
+  };
+
   var mapManager = {
     $map: $('#dota-map'),
     width: $('#dota-map').width(),
@@ -26,17 +34,26 @@
 
     },
 
-    setupLayers: function() {
+    setupLayers: function(playerHeroes) {
       // Draw them like this because we want them in order in the layer list
       for(var i=0; i<10; i++) {
+        var col = '';
         if (i < 5) {
           this.drawMapCircle(0, 0, '#097FE6', 'radiant', this.layers[i]);
+          col = '#097FE6';
         } else {
           this.drawMapRect(0, 0, '#E65609', 'dire', this.layers[i]);
+          col = '#E65609';
         }
+
         this.$map.setLayer(i, {
           mouseover: this.handleHoverOn,
-          mouseout: this.handleHoverOff
+          mouseout: this.handleHoverOff,
+          data: {
+            color: col,
+            heroName: getHeroName(playerHeroes[i].replace('C', 'DT_')),
+            items: []
+          }
         })
       }
 
@@ -47,17 +64,20 @@
     updateHeroLayers: function(heroData) {
       for (var i=0; i<10; i++) {
         var layer = this.layers[i];
+        var layerData = this.$map.getLayer(layer).data;
         var hero = heroData[i];
+
+        layerData.items = heroData.items;
 
         this.$map.setLayer(layer, {
           x: this.getX(hero.x),
-          y: this.getY(hero.y)
+          y: this.getY(hero.y),
+          data: layerData
         });
 
         if (hero.alive) {
-          var layerColour = this.$map.getLayer(layer).data.color;
           this.$map.setLayer(layer, {
-            fillStyle: layerColour,
+            fillStyle: layerData.color,
             strokeStyle: '#000'
           }).moveLayer(layer, 9);
         } else {
@@ -101,10 +121,7 @@
         groups: [group],
         fillStyle: colour,
         x: this.getX(x), y: this.getY(y),
-        radius: 8,
-        data: {
-          color: colour
-        }
+        radius: 8
       });
     },
 
@@ -119,10 +136,7 @@
         groups: [group],
         fillStyle: colour,
         x: this.getX(x), y: this.getY(y),
-        width: 14, height:14,
-        data: {
-          color: colour
-        }
+        width: 14, height:14
       });
     },
 
@@ -147,7 +161,7 @@
     var dataStr = charArr2Str(dataCharArr);
     replayData = JSON.parse(dataStr);
 
-    mapManager.setupLayers();
+    mapManager.setupLayers(replayData.playerHeroes);
 
     var $timeSlider = $('#time-slider');
     $timeSlider.slider({
