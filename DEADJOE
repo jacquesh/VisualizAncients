@@ -1,0 +1,14 @@
+
+*** These modified files were found in JOE when it aborted on Sat Mar 12 19:42:25 2016
+*** JOE was aborted because the terminal closed
+
+*** File '(Unnamed)'
+/home/b/brmala003/Desktop/vis/.git/MERGE_MSG
+
+*** File '/home/b/brmala003/Desktop/vis/.git/MERGE_MSG'
+Merge branch 'master' of https://github.com/jacquesh/VisualizAncients
+# Please enter a commit message to explain why this merge is necessary,
+# especially if it merges an updated upstream into a topic branch.
+#
+# Lines starting with '#' will be ignored, and an empty message aborts
+# the commit.
