@@ -170,22 +170,24 @@ header > hr {
     padding-bottom: 5px;
 }
 
-#right-column > #player-stats {
+#right-column > #player-info {
     height: 78%;
 }
 
-#right-column > #player-stats > #character-name {
+#right-column > #player-info > #character-name {
     text-align: center;
     min-height: 28px;
 }
 
-#right-column > #player-stats > img {
+#right-column > #player-info > #hero-icon {
     height: 100px;
     width: 175px;
     margin-bottom: 2%;
+    background-image: url('/static/img/icons/no_hero.png');
+    background-size: cover;
 }
 
-#right-column > #player-stats > #items {
+#right-column > #player-info > #items {
     width: 175px;
     height: calc(95% - 128px - 4px);
 }
@@ -195,13 +197,22 @@ header > hr {
     height: 55px;
 }
 
+#items .table-cell {
+    width: 55px;
+    height: 55px;
+    margin-bottom: 1%;
+    margin-left: 1%;
+    background-image: url('/static/img/icons/item_block.png');
+    background-size: cover;
+}
+
 #map-container {
     float: left;
 }
 
 #map-container > canvas#dota-map {
     background-size: cover;
-    background-image: url("../img/dota2-map.jpg");
+    background-image: url("/static/img/dota2-map.jpg");
 }
 
 .radiant {
