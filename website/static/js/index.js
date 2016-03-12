@@ -17,6 +17,7 @@
     scalef: $('#dota-map').width() / 127,
     layers: ['rad-1', 'rad-2', 'rad-3', 'rad-4', 'rad-5',
              'dir-1', 'dir-2', 'dir-3', 'dir-4', 'dir-5'],
+    wards: {},
 
     getX: function(data_x) {
       return (data_x - 64) * this.scalef;
@@ -80,16 +81,14 @@
           this.$map.setLayer(layer, {
             fillStyle: layerData.color,
             strokeStyle: '#000'
-          }).moveLayer(layer, 9);
+          }).moveLayer(layer, this.$map.getLayers().length);
         } else {
           this.$map.setLayer(layer, {
             fillStyle: 'rgba(255, 0, 0, 0.4)',
             strokeStyle: 'rgba(0, 0, 0, 0.4)'
-          }).moveLayer(layer, 0);
+          }).moveLayer(layer, this.wards.length + 1);
         }
       }
-
-      this.$map.drawLayers();
     },
 
     updateCouriers: function(courierData) {
@@ -109,6 +108,41 @@
           y: this.getY(dirData.y)
         });
       }
+    },
+
+    setupWards: function(wardEvents, firstTickTime) {
+      for (var i=0; i<wardEvents.length; i++) {
+        var event = wardEvents[i];
+        var handle = 'w' + event.entityHandle;
+
+        if (!event.died) {
+          this.wards[handle] = {
+            start: Math.round((event.time - firstTickTime) * 2) + 1,
+            sentry: event.isSentry
+          };
+
+          this.addWard(event.x, event.y, 'radiant', handle);
+          this.$map.setLayer(handle, {visible: false}).moveLayer(handle, 0);
+        } else {
+          this.wards[handle].end = Math.round((event.time - firstTickTime) * 2) + 1;
+        }
+      }
+    },
+
+    updateWards: function(time) {
+      var map = this.$map;
+      $.each(this.wards, function(handle, ward) {
+        if ((ward.start < time) && (time < ward.end)) {
+          map.setLayer(handle, {visible: true});
+        } else {
+          map.setLayer(handle, {visible: false});
+        }
+      });
+    },
+
+    addWard: function(x, y, team, handle) {
+      var iconPath = '/static/img/icons/' + team[0] + '_ward.png';
+      this.drawMapIcon(x, y, 0.5, iconPath, team + '-wards', handle);
     },
 
     drawMapCircle: function(x, y, colour, group, name) {
@@ -176,6 +210,8 @@
     replayData = JSON.parse(dataStr);
 
     mapManager.setupLayers(replayData.playerHeroes);
+    mapManager.setupWards(replayData.wardEvents, replayData.snapshots[1].time);
+    mapManager.$map.drawLayers();
 
     var $timeSlider = $('#time-slider');
     $timeSlider.slider({
@@ -196,17 +232,21 @@
 
         mapManager.resetMap();
 
-        var heroData = replayData.snapshots[ui.value].heroData;
+        var snapshot = replayData.snapshots[ui.value];
+        var heroData = snapshot.heroData;
         mapManager.updateHeroLayers(heroData);
 
-        var courierData = replayData.snapshots[ui.value].courierData;
+        var courierData = snapshot.courierData;
         if (courierData.length) {
           mapManager.updateCouriers(courierData);
         }
 
-        var snapshot = replayData.snapshots[ui.value];
+        mapManager.updateWards(ui.value);
+
         updateTeamScores('#radiant', snapshot.teamStats[0]);
         updateTeamScores('#dire', snapshot.teamStats[1]);
+
+        mapManager.$map.drawLayers();
       }
     });
     //$timeSlider.slider('option', 'slide').call($timeSlider);
