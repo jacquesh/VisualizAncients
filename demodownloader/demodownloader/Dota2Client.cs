@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading;
 using System.Reflection;
 using System.Collections.Generic;
@@ -45,10 +46,21 @@ namespace demodownloader
             SteamDirectory.Initialize().Wait();
             steam.Connect();
 
-            while(true)
+            while(true) //TODO: There is a better way to do this
             {
                 manager.RunWaitCallbacks(TimeSpan.FromSeconds(1));
             }
+        }
+
+        public void DownloadReplay(ulong matchID, uint clusterID, uint replaySalt)
+        {
+            string replayURL = String.Format("http://replay{0}.valve.net/{1}/{2}_{3}.dem.bz2", clusterID, DOTA_APP_ID, matchID, replaySalt);
+            string filePath = String.Format("{0}_{1}.dem.bz2", matchID, replaySalt);
+            using (WebClient client = new WebClient())
+            {
+                client.DownloadFile(replayURL, filePath);
+            }
+            Console.WriteLine("Download complete!");
         }
 
         private void onConnect(SteamClient.ConnectedCallback callback)
@@ -107,7 +119,7 @@ namespace demodownloader
         private void onWelcomeReceived(IPacketGCMsg msg)
         {
             ClientGCMsgProtobuf<CMsgGCMatchDetailsRequest> request = new ClientGCMsgProtobuf<CMsgGCMatchDetailsRequest>((uint)EDOTAGCMsg.k_EMsgGCMatchDetailsRequest);
-            request.Body.match_id = 2217354801;
+            request.Body.match_id = 2215232850;
             gameCoordinator.Send(request, DOTA_APP_ID);
         }
 
@@ -140,7 +152,8 @@ namespace demodownloader
             ulong matchID = match.match_id;
             uint replaySalt = match.replay_salt;
             string replayURL = String.Format("http://replay{0}.valve.net/{1}/{2}_{3}.dem.bz2", replayCluster, DOTA_APP_ID, matchID, replaySalt);
-            Console.WriteLine("Replay is available @ {0}", replayURL);
+            Console.WriteLine("Replay is available @ {0}, downloading", replayURL);
+            DownloadReplay(matchID, replayCluster, replaySalt);
 
             steam.Disconnect();
         }
