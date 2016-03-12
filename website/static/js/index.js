@@ -170,17 +170,13 @@
       max: replayData.snapshots.length - 1,
       step: 1,
       slide: function(event, ui) {
-        var updateTeamScores = function(snapshot) {
-          var $radiant = $('#radiant');
-          var $dire = $('#dire');
-          var radiantScore = $radiant.find('#deaths').text();
-          radiantScore += snapshot.teamStats[0].score;
-
-          var direScore = $radiant.find('#deaths').text();
-          direScore += snapshot.teamStats[1].score;
-
-          $radiant.find('#deaths').text(radiantScore);
-          $dire.find('#deaths').text(direScore);
+        var updateTeamScores = function(team, stats) {
+          console.log(stats);
+          var $team = $(team);
+          $team.find('#deaths').text(stats.score);
+          var $teamStats = $team.find('.team-stats');
+          $teamStats.find('.net-worth').text(stats.netWorth);
+          $teamStats.find('.total-xp').text(stats.totalXp);
         };
 
         $('#amount').text(ui.value );
@@ -196,7 +192,8 @@
         }
 
         var snapshot = replayData.snapshots[ui.value];
-        updateTeamScores(snapshot);
+        updateTeamScores('#radiant', snapshot.teamStats[0]);
+        updateTeamScores('#dire', snapshot.teamStats[1]);
       }
     });
     //$timeSlider.slider('option', 'slide').call($timeSlider);

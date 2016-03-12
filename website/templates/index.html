@@ -39,8 +39,8 @@
                     Toggles
                 </div>
                 <div id="map-presence" class="border hug-right">
-                    <div id="dire" class="team-block">Dire Control</div>
-                    <div id="radiant" class="team-block">Radiant Control</div>
+                    <div id="dire-control" class="dire team-block">Dire Control</div>
+                    <div id="radiant-control" class="radiant team-block">Radiant Control</div>
                 </div>
             </div>
 
@@ -74,8 +74,20 @@
             </div>
             <div class="clear-fix"></div>
             <div id="team-graphs" class="center-block">
-                <div id="radiant" class="score-box border"><div class="deaths">Deaths <span class="count">0</span></div></div>
-                <div id="dire" class="score-box border"><div class="deaths">Deaths <span class="count">0</span></div></div>
+                <div id="radiant" class="radiant score-box border">
+                    <div class="team-stats">
+                        <div>Net Worth: <span class="net-worth">0</span></div>
+                        <div>Total XP: <span class="total-xp">0</span></div>
+                    </div>
+                    <div class="deaths">Deaths <span class="count">0</span></div>
+                </div>
+                <div id="dire" class="dire score-box border">
+                    <div class="team-stats">
+                        <div>Net Worth: <span class="net-worth">0</span></div>
+                        <div>Total XP: <span class="total-xp">0</span></div>
+                    </div>
+                    <div class="deaths">Deaths <span class="count">0</span></div>
+                </div>
             </div>
         </section>
         <footer>
