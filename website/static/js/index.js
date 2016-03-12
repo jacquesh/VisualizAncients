@@ -57,8 +57,9 @@
         })
       }
 
-      this.drawMapCircle(0, 0, '#FFF', 'courier', 'rad-courier');
-      this.drawMapCircle(0, 0, '#FFF', 'courier', 'dir-courier');
+      var courierPath = '/static/img/courier.png';
+      this.drawMapIcon(0, 0, 0.6, courierPath, 'courier', 'rad-courier');
+      this.drawMapIcon(0, 0, 0.6, courierPath, 'courier', 'dir-courier');
     },
 
     updateHeroLayers: function(heroData) {
@@ -140,6 +141,19 @@
       });
     },
 
+    drawMapIcon: function(x, y, scale, path, group, name) {
+      group = group === undefined ? 'icons' : group;
+
+      $('canvas').drawImage({
+        layer: true,
+        name: name,
+        groups: [group],
+        source: path,
+        x: this.getX(x), y: this.getY(y),
+        scale: scale
+      });
+    },
+
     resetMap: function() {
       this.$map.clearCanvas();
     }
@@ -171,7 +185,6 @@
       step: 1,
       slide: function(event, ui) {
         var updateTeamScores = function(team, stats) {
-          console.log(stats);
           var $team = $(team);
           $team.find('#deaths').text(stats.score);
           var $teamStats = $team.find('.team-stats');
