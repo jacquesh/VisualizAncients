@@ -3,38 +3,140 @@
 
   var replayData = undefined;
 
+  var getHeroName = function(dt_name) {
+    for (var i=0; i<heroNameMap.length; i++) {
+      if (heroNameMap[i].dt_name === dt_name) {
+        return heroNameMap[i].localized_name;
+      }
+    }
+  };
+
   var mapManager = {
     $map: $('#dota-map'),
+    width: $('#dota-map').width(),
+    scalef: $('#dota-map').width() / 127,
+    layers: ['rad-1', 'rad-2', 'rad-3', 'rad-4', 'rad-5',
+             'dir-1', 'dir-2', 'dir-3', 'dir-4', 'dir-5'],
 
-    drawMapCircle: function(x, y, colour) {
-      var width = this.$map.width();
-      var scalef = width / 127;
-      x = (x - 64) * scalef;
-      y = width - ((y - 64) * scalef);
+    getX: function(data_x) {
+      return (data_x - 64) * this.scalef;
+    },
+
+    getY: function(data_y) {
+      return this.width - ((data_y - 64) * this.scalef);
+    },
+
+    handleHoverOn: function(layer) {
+
+    },
+
+    handleHoverOff: function(layer) {
+
+    },
+
+    setupLayers: function(playerHeroes) {
+      // Draw them like this because we want them in order in the layer list
+      for(var i=0; i<10; i++) {
+        var col = '';
+        if (i < 5) {
+          this.drawMapCircle(0, 0, '#097FE6', 'radiant', this.layers[i]);
+          col = '#097FE6';
+        } else {
+          this.drawMapRect(0, 0, '#E65609', 'dire', this.layers[i]);
+          col = '#E65609';
+        }
+
+        this.$map.setLayer(i, {
+          mouseover: this.handleHoverOn,
+          mouseout: this.handleHoverOff,
+          data: {
+            color: col,
+            heroName: getHeroName(playerHeroes[i].replace('C', 'DT_')),
+            items: []
+          }
+        })
+      }
+
+      this.drawMapCircle(0, 0, '#FFF', 'courier', 'rad-courier');
+      this.drawMapCircle(0, 0, '#FFF', 'courier', 'dir-courier');
+    },
+
+    updateHeroLayers: function(heroData) {
+      for (var i=0; i<10; i++) {
+        var layer = this.layers[i];
+        var layerData = this.$map.getLayer(layer).data;
+        var hero = heroData[i];
+
+        layerData.items = heroData.items;
+
+        this.$map.setLayer(layer, {
+          x: this.getX(hero.x),
+          y: this.getY(hero.y),
+          data: layerData
+        });
+
+        if (hero.alive) {
+          this.$map.setLayer(layer, {
+            fillStyle: layerData.color,
+            strokeStyle: '#000'
+          }).moveLayer(layer, 9);
+        } else {
+          this.$map.setLayer(layer, {
+            fillStyle: 'rgba(255, 0, 0, 0.4)',
+            strokeStyle: 'rgba(0, 0, 0, 0.4)'
+          }).moveLayer(layer, 0);
+        }
+      }
+
+      this.$map.drawLayers();
+    },
+
+    updateCouriers: function(courierData) {
+      var radData = courierData[0];
+      var dirData = courierData[1];
+
+      if (radData) {
+        this.$map.setLayer('rad-courier', {
+          x: this.getX(radData.x),
+          y: this.getY(radData.y)
+        });
+      }
+
+      if (dirData) {
+        this.$map.setLayer('dir-courier', {
+          x: this.getX(dirData.x),
+          y: this.getY(dirData.y)
+        });
+      }
+    },
+
+    drawMapCircle: function(x, y, colour, group, name) {
+      group = group === undefined ? 'radiant' : group;
+
       this.$map.drawArc({
-        fillStyle: '#000',
-        x: x, y: y,
-        radius: 8
-      }).drawArc({
+        name: name,
+        strokeStyle: '#000',
+        strokeWidth: 2,
+        layer: true,
+        groups: [group],
         fillStyle: colour,
-        x: x, y: y,
-        radius: 6
+        x: this.getX(x), y: this.getY(y),
+        radius: 8
       });
     },
 
-    drawMapRect: function(x, y, colour) {
-      var width = this.$map.width();
-      var scalef = width / 127;
-      x = (x - 64) * scalef;
-      y = width - ((y - 64) * scalef);
+    drawMapRect: function(x, y, colour, group, name) {
+      group = group === undefined ? 'dire' : group;
+
       this.$map.drawRect({
-        fillStyle: '#000',
-        x: x, y: y,
-        width: 16, height:16
-      }).drawRect({
+        name: name,
+        strokeStyle: '#000',
+        strokeWidth: 2,
+        layer: true,
+        groups: [group],
         fillStyle: colour,
-        x: x, y: y,
-        width: 12, height:12
+        x: this.getX(x), y: this.getY(y),
+        width: 14, height:14
       });
     },
 
@@ -49,9 +151,8 @@
     for(var i=0; i<charArr.length; i+=chunkSize) {
         outputArr.push(String.fromCharCode.apply(null, charArr.subarray(i, i+chunkSize)));
     }
-    var result = outputArr.join("");
-    return result;
-  }
+    return outputArr.join("");
+  };
 
   var setupPlayerData = function (data) {
     var inflater = new pako.Inflate();
@@ -59,41 +160,46 @@
     var dataCharArr = inflater.result;
     var dataStr = charArr2Str(dataCharArr);
     replayData = JSON.parse(dataStr);
-	
-	
+    mapManager.setupLayers(replayData.playerHeroes);
+
     var $timeSlider = $('#time-slider');
     $timeSlider.slider({
       value: 0,
       min: 0,
       max: replayData.snapshots.length - 1,
-      step: 10,
+      step: 1,
       slide: function(event, ui) {
-        $('#amount').text(ui.value );
-        mapManager.resetMap();
-        var heroData = replayData.snapshots[ui.value].heroData;
-        for (var i=0; i < 10; i++) {
-          var hero = heroData[i];
-          var x_pos = hero.alive ? hero.x : 64;
-          var y_pos = hero.alive ? hero.y : 64;
+        var updateTeamScores = function(team, stats) {
+          console.log(stats);
+          var $team = $(team);
+          $team.find('#deaths').text(stats.score);
+          var $teamStats = $team.find('.team-stats');
+          $teamStats.find('.net-worth').text(stats.netWorth);
+          $teamStats.find('.total-xp').text(stats.totalXp);
+        };
 
-          if (i < 5) {
-              mapManager.drawMapCircle(x_pos, y_pos, '#097FE6');
-          } else {
-              mapManager.drawMapRect(x_pos, y_pos, '#E65609');
-          }
-        }
+        $('#amount').text(ui.value );
+
+        mapManager.resetMap();
+
+        var heroData = replayData.snapshots[ui.value].heroData;
+        mapManager.updateHeroLayers(heroData);
 
         var courierData = replayData.snapshots[ui.value].courierData;
-        for (var j=0; j < courierData.length; j++) {
-          var courier = courierData[j];
-          if (courier.alive) {
-              mapManager.drawMapCircle(courier.x, courier.y, '#FFF');
-          }
+        if (courierData.length) {
+          mapManager.updateCouriers(courierData);
         }
+
+        var snapshot = replayData.snapshots[ui.value];
+        updateTeamScores('#radiant', snapshot.teamStats[0]);
+        updateTeamScores('#dire', snapshot.teamStats[1]);
       }
     });
     //$timeSlider.slider('option', 'slide').call($timeSlider);
     $('#amount').text($timeSlider.slider('value'));
+
+    var time = replayData.snapshots[replayData.snapshots.length - 1].time;
+    $('#end-time').text(Math.round(time / 60) + ':' + Math.round(time % 60));
   };
 
   var loadPlayerData = function() {
