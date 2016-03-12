@@ -103,6 +103,16 @@ header > hr {
     height: 40px;
 }
 
+#open-graphs > a {
+    text-decoration: none;
+    color: black;
+}
+
+#open-graphs .fa-bar-chart {
+    font-size: 2.4em;
+    margin-left: 8%;
+}
+
 #graph-bar {
     float: left;
     border: #000000 solid 1px;
