@@ -8,35 +8,80 @@
     width: $('#dota-map').width(),
     scalef: $('#dota-map').width() / 127,
 
-    drawMapCircle: function(x, y, colour) {
+    handleHoverOn: function(layer) {
+
+    },
+
+    handleHoverOff: function(layer) {
+
+    },
+
+    setupLayers: function() {
+      // Draw them like this because we want them in order in the layer list
+      for(var i=0; i<5; i++) {
+        this.drawMapCircle(0, 0, '#097FE6');
+      }
+
+      for(var i=0; i<5; i++) {
+        this.drawMapRect(0, 0, '#E65609');
+      }
+    },
+
+    updateLayers: function(heroData) {
+      for (var i=0; i<10; i++) {
+        var hero = heroData[i];
+        var x_pos = hero.alive ? hero.x : 64;
+        var y_pos = hero.alive ? hero.y : 64;
+        var x = (x_pos - 64) * this.scalef;
+        var y = this.width - ((y_pos - 64) * this.scalef);
+        this.$map.setLayer(i, {
+          x: x,
+          y: y
+        });
+      }
+
+      this.$map.drawLayers();
+    },
+
+    drawMapCircle: function(x, y, colour, group) {
       x = (x - 64) * this.scalef;
       y = this.width - ((y - 64) * this.scalef);
+      group = group === undefined ? 'radiant' : group;
+
       this.$map.drawArc({
         strokeStyle: '#000',
         strokeWidth: 2,
         layer: true,
+        groups: [group],
         fillStyle: colour,
         x: x, y: y,
-        radius: 8
+        radius: 8,
+        mouseover: this.handleHoverOn,
+        mouseout: this.handleHoverOff
       });
     },
 
-    drawMapRect: function(x, y, colour) {
+    drawMapRect: function(x, y, colour, group) {
       x = (x - 64) * this.scalef;
       y = this.width - ((y - 64) * this.scalef);
+      group = group === undefined ? 'dire' : group;
+
       this.$map.drawRect({
         strokeStyle: '#000',
         strokeWidth: 2,
         layer: true,
+        groups: [group],
         fillStyle: colour,
         x: x, y: y,
-        width: 14, height:14
+        width: 14, height:14,
+        mouseover: this.handleHoverOn,
+        mouseout: this.handleHoverOff
       });
     },
 
     resetMap: function() {
+      this.$map.removeLayerGroup('courier');
       this.$map.clearCanvas();
-      this.$map.removeLayers();
     }
   };
 
@@ -55,6 +100,8 @@
     var dataCharArr = inflater.result;
     var dataStr = charArr2Str(dataCharArr);
     replayData = JSON.parse(dataStr);
+
+    mapManager.setupLayers();
 
     var $timeSlider = $('#time-slider');
     $timeSlider.slider({
@@ -77,25 +124,17 @@
         };
 
         $('#amount').text(ui.value );
-        mapManager.resetMap();
-        var heroData = replayData.snapshots[ui.value].heroData;
-        for (var i=0; i < 10; i++) {
-          var hero = heroData[i];
-          var x_pos = hero.alive ? hero.x : 64;
-          var y_pos = hero.alive ? hero.y : 64;
 
-          if (i < 5) {
-              mapManager.drawMapCircle(x_pos, y_pos, '#097FE6');
-          } else {
-              mapManager.drawMapRect(x_pos, y_pos, '#E65609');
-          }
-        }
+        mapManager.resetMap();
+
+        var heroData = replayData.snapshots[ui.value].heroData;
+        mapManager.updateLayers(heroData);
 
         var courierData = replayData.snapshots[ui.value].courierData;
         for (var j=0; j < courierData.length; j++) {
           var courier = courierData[j];
           if (courier.alive) {
-              mapManager.drawMapCircle(courier.x, courier.y, '#FFF');
+              mapManager.drawMapCircle(courier.x, courier.y, '#FFF', 'courier');
           }
         }
 
