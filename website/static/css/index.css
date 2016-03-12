@@ -122,6 +122,11 @@ header > hr {
     height: 420px;
 }
 
+.side-bar {
+    width: 70%;
+    min-width: 233px;
+}
+
 .border {
     border: solid black 1px;
 }
@@ -143,13 +148,11 @@ header > hr {
 }
 
 #left-column > #toggle-box {
-    width: 80%;
     height: 55%;
     margin-bottom: calc(2% - 2px);
 }
 
 #left-column > #map-presence {
-    width: 80%;
     height: 43%;
 }
 
@@ -158,7 +161,6 @@ header > hr {
 }
 
 #right-column > #path-toggle {
-    width: 80%;
     height: 20%;
     margin-bottom: calc(2% - 2px);
 }
@@ -170,7 +172,6 @@ header > hr {
 
 #right-column > #player-stats {
     height: 78%;
-    width: 80%;
 }
 
 #right-column > #player-stats > #character-name {
@@ -212,7 +213,7 @@ header > hr {
 }
 
 #team-graphs {
-    width: 90%;
+    width: 85%;
     height: 55px;
     margin-top: 10px;
 }
