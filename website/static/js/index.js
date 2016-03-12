@@ -5,41 +5,38 @@
 
   var mapManager = {
     $map: $('#dota-map'),
+    width: $('#dota-map').width(),
+    scalef: $('#dota-map').width() / 127,
 
     drawMapCircle: function(x, y, colour) {
-      var width = this.$map.width();
-      var scalef = width / 127;
-      x = (x - 64) * scalef;
-      y = width - ((y - 64) * scalef);
+      x = (x - 64) * this.scalef;
+      y = this.width - ((y - 64) * this.scalef);
       this.$map.drawArc({
-        fillStyle: '#000',
-        x: x, y: y,
-        radius: 8
-      }).drawArc({
+        strokeStyle: '#000',
+        strokeWidth: 2,
+        layer: true,
         fillStyle: colour,
         x: x, y: y,
-        radius: 6
+        radius: 8
       });
     },
 
     drawMapRect: function(x, y, colour) {
-      var width = this.$map.width();
-      var scalef = width / 127;
-      x = (x - 64) * scalef;
-      y = width - ((y - 64) * scalef);
+      x = (x - 64) * this.scalef;
+      y = this.width - ((y - 64) * this.scalef);
       this.$map.drawRect({
-        fillStyle: '#000',
-        x: x, y: y,
-        width: 16, height:16
-      }).drawRect({
+        strokeStyle: '#000',
+        strokeWidth: 2,
+        layer: true,
         fillStyle: colour,
         x: x, y: y,
-        width: 12, height:12
+        width: 14, height:14
       });
     },
 
     resetMap: function() {
       this.$map.clearCanvas();
+      this.$map.removeLayers();
     }
   };
 
@@ -49,9 +46,8 @@
     for(var i=0; i<charArr.length; i+=chunkSize) {
         outputArr.push(String.fromCharCode.apply(null, charArr.subarray(i, i+chunkSize)));
     }
-    var result = outputArr.join("");
-    return result;
-  }
+    return outputArr.join("");
+  };
 
   var setupPlayerData = function (data) {
     var inflater = new pako.Inflate();
@@ -67,6 +63,19 @@
       max: replayData.snapshots.length - 1,
       step: 10,
       slide: function(event, ui) {
+        var updateTeamScores = function(snapshot) {
+          var $radiant = $('#radiant');
+          var $dire = $('#dire');
+          var radiantScore = $radiant.find('#deaths').text();
+          radiantScore += snapshot.teamStats[0].score;
+
+          var direScore = $radiant.find('#deaths').text();
+          direScore += snapshot.teamStats[1].score;
+
+          $radiant.find('#deaths').text(radiantScore);
+          $dire.find('#deaths').text(direScore);
+        };
+
         $('#amount').text(ui.value );
         mapManager.resetMap();
         var heroData = replayData.snapshots[ui.value].heroData;
@@ -89,10 +98,16 @@
               mapManager.drawMapCircle(courier.x, courier.y, '#FFF');
           }
         }
+
+        var snapshot = replayData.snapshots[ui.value];
+        updateTeamScores(snapshot);
       }
     });
     //$timeSlider.slider('option', 'slide').call($timeSlider);
     $('#amount').text($timeSlider.slider('value'));
+
+    var time = replayData.snapshots[replayData.snapshots.length - 1].time;
+    $('#end-time').text(Math.round(time / 60) + ':' + Math.round(time % 60));
   };
 
   var loadPlayerData = function() {
