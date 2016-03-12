@@ -108,7 +108,7 @@
       value: 0,
       min: 0,
       max: replayData.snapshots.length - 1,
-      step: 10,
+      step: 1,
       slide: function(event, ui) {
         var updateTeamScores = function(snapshot) {
           var $radiant = $('#radiant');
@@ -134,7 +134,7 @@
         for (var j=0; j < courierData.length; j++) {
           var courier = courierData[j];
           if (courier.alive) {
-              mapManager.drawMapCircle(courier.x, courier.y, '#FFF', 'courier');
+            mapManager.drawMapCircle(courier.x, courier.y, '#FFF', 'courier');
           }
         }
 
