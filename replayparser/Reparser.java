@@ -472,12 +472,14 @@ public class Reparser
                 || className.equals("CDOTA_NPC_Observer_Ward_TrueSight"))
         {
             boolean isSentry = className.endsWith("TrueSight");
+            boolean isDire = (ent.getProperty("m_iTeamNum") == 3);
 
             WardEvent evt = new WardEvent();
             evt.time = currentSnapshot.time;
             evt.x = 0.0f;
             evt.y = 0.0f;
             evt.entityHandle = ent.getHandle();
+            evt.isDire = isDire;
             evt.isSentry = isSentry;
             evt.died = true;
             wardEvents.add(evt);

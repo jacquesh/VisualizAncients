@@ -7,6 +7,7 @@ class WardEvent
     public float x;
     public float y;
     public int entityHandle;
+    public boolean isDire;
     public boolean isSentry;
     public boolean died;
 
@@ -16,6 +17,7 @@ class WardEvent
         out.write(String.format("\"time\":%.1f,", time));
         out.write(String.format("\"x\":%.2f,\"y\":%.2f,", x, y));
         out.write(String.format("\"entityHandle\":%d,", entityHandle));
+        out.write(String.format("\"isDire\":%b,", isDire));
         out.write(String.format("\"isSentry\":%b,", isSentry));
         out.write(String.format("\"died\":%b", died));
         out.write("}");
