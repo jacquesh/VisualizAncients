@@ -1,4 +1,4 @@
-heroeNameMap = {
+heroNameMap = {
 	"npc_dota_hero_antimage": "Anti-Mage",
 	"npc_dota_hero_axe": "Axe",
 	"npc_dota_hero_bane": "Bane",
