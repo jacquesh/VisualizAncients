@@ -187,17 +187,18 @@ public class Reparser
             if(i == 5)
                 teamIndex += 1;
 
-            // TODO: This is VERY wrong
+            // TODO: This net worth is VERY wrong
+            String playerKillsName = "m_vecPlayerTeamData." + int4Str[i] + ".m_iKills";
             String netWorthName = "m_iNetWorth." + int4Str[i];
+            int playerKills = playerResource.getProperty(playerKillsName);
             int playerNetWorth = dataSpectator.getProperty(netWorthName);
             int playerXP = 0;
             if(heroes[i].entity != null)
                 playerXP = heroes[i].entity.getProperty("m_iCurrentXP");
+            currentSnapshot.teams[teamIndex].score += playerKills;
             currentSnapshot.teams[teamIndex].netWorth += playerNetWorth;
             currentSnapshot.teams[teamIndex].totalXP += playerXP;
         }
-        currentSnapshot.teams[0].score = teamEntities[0].getProperty("m_iScore");
-        currentSnapshot.teams[1].score = teamEntities[1].getProperty("m_iScore");
 
         for(int heroIndex=0; heroIndex<heroCount; ++heroIndex)
         {
