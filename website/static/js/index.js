@@ -60,7 +60,7 @@
         var layerData = this.$map.getLayer(layer).data;
         var hero = heroData[i];
 
-        layerData.items = heroData.items;
+        layerData.items = hero.items;
 
         this.$map.setLayer(layer, {
           x: this.getX(hero.x),
