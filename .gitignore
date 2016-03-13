@@ -1,6 +1,9 @@
 # Vim files
 *.swp
 
+# Gedit/Geany? files
+*~
+
 # Java files
 *.class
 

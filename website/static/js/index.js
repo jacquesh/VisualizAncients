@@ -204,16 +204,15 @@
 
   var loadPlayerData = function() {
     var req = new XMLHttpRequest();
-    req.open("GET", "../static/js/data.zjson", true);
+    req.open("GET", "/static/data.zjson", true);
     req.responseType = "arraybuffer";
     req.onload = function(event) {
         var bytes = new Uint8Array(req.response);
         setupPlayerData(bytes);
-        
     };
     req.send();
   };
 
-  
   $(document).ready(loadPlayerData);
+
 })(jQuery);
