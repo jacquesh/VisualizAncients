@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 using SteamKit2;
 using SteamKit2.Internal; // For the protobuf message type
@@ -14,6 +15,8 @@ using SteamKit2.GC.Internal;
 using SteamKit2.GC.Dota;
 using SteamKit2.GC.Dota.Internal;
 using System.IO;
+using Newtonsoft.Json;
+using System.Linq;
 
 namespace demodownloader
 {
@@ -28,7 +31,7 @@ namespace demodownloader
         private SteamUser user;
         private string userName;
         private string userPassword;
-
+        private List<string> matchIds = new List<string>(); // stores the list of matchIds
 
         public Dota2Client(string accountName, string accountPassword)
         {
@@ -126,16 +129,23 @@ namespace demodownloader
         private void onWelcomeReceived(IPacketGCMsg msg)
         {
             ClientGCMsgProtobuf<CMsgGCMatchDetailsRequest> request = new ClientGCMsgProtobuf<CMsgGCMatchDetailsRequest>((uint)EDOTAGCMsg.k_EMsgGCMatchDetailsRequest);
-            RunAsync().Wait();
+            RunAsync("57934473", true).Wait();
+            List<string> temp = matchIds.Distinct().ToList();
+            foreach (string x in temp)
+            {
+                Console.WriteLine(x);
+            }
+            //just write out the list of match IDs for now. can move the next two lines up into loop when on UCT net.
             request.Body.match_id = 2215232850;
             gameCoordinator.Send(request, DOTA_APP_ID);
         }
 
-        static async Task RunAsync()
+        async Task RunAsync(string pID, bool cont)
         {
             string steamAPI = "?key=956B29B784D225393DA5B57301BF7E24";
-            string playerID = "57934473";
-            int numberOfMatches = 10;
+            string playerID = pID;
+            int numberOfMatches = 2; // small for testing purposes; larger number -> more matches
+            
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri("http://localhost:9000/");
@@ -144,10 +154,8 @@ namespace demodownloader
                 string url = "https://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/V001/"+ steamAPI +"&account_id=" + playerID + "&Matches_Requested="+numberOfMatches+"&format=json";
                 HttpResponseMessage response = await client.GetAsync(url);
                 if (response.IsSuccessStatusCode)
-                {
-                    
+                { 
                     var responseValue = string.Empty;
-
                     Task task = response.Content.ReadAsStreamAsync().ContinueWith(t =>
                     {
                         var stream = t.Result;
@@ -156,9 +164,24 @@ namespace demodownloader
                             responseValue = reader.ReadToEnd();
                         }
                     });
-
                     task.Wait();
-                    Console.WriteLine(responseValue);
+                    JObject results = JObject.Parse(responseValue);
+                    for (int i =0; i < numberOfMatches; i++)
+                    {
+                        if (((string)results["result"]["status"]).Equals("1")) // check user is letting us get their history
+                        {
+                            string matches = (string)results["result"]["matches"][0]["match_id"];
+                            if (cont) // only flood one level down, otherwise it just doesn't stop
+                            {
+                                for (int j = 0; j < 10; j++)
+                                {
+                                    string playerIDx = (string)results["result"]["matches"][i]["players"][j]["account_id"];
+                                    RunAsync(playerIDx, false).Wait();
+                                }
+                            }
+                            matchIds.Add(matches);
+                        }
+                    }
                 }
             }
 
