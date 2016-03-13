@@ -130,6 +130,7 @@ public class Reparser
         dataSource = new MappedFileSource(inputFileName);
         CDemoFileInfo info = Clarity.infoForSource(dataSource);
         CDotaGameInfo dota = info.getGameInfo().getDota();
+        System.out.println("Match ID: "+dota.getMatchId());
 
         List<CPlayerInfo> playerList = dota.getPlayerInfoList();
         heroCount = playerList.size();
@@ -187,17 +188,18 @@ public class Reparser
             if(i == 5)
                 teamIndex += 1;
 
-            // TODO: This is VERY wrong
+            // TODO: This net worth is VERY wrong
+            String playerKillsName = "m_vecPlayerTeamData." + int4Str[i] + ".m_iKills";
             String netWorthName = "m_iNetWorth." + int4Str[i];
+            int playerKills = playerResource.getProperty(playerKillsName);
             int playerNetWorth = dataSpectator.getProperty(netWorthName);
             int playerXP = 0;
             if(heroes[i].entity != null)
                 playerXP = heroes[i].entity.getProperty("m_iCurrentXP");
+            currentSnapshot.teams[teamIndex].score += playerKills;
             currentSnapshot.teams[teamIndex].netWorth += playerNetWorth;
             currentSnapshot.teams[teamIndex].totalXP += playerXP;
         }
-        currentSnapshot.teams[0].score = teamEntities[0].getProperty("m_iScore");
-        currentSnapshot.teams[1].score = teamEntities[1].getProperty("m_iScore");
 
         for(int heroIndex=0; heroIndex<heroCount; ++heroIndex)
         {
@@ -470,12 +472,14 @@ public class Reparser
                 || className.equals("CDOTA_NPC_Observer_Ward_TrueSight"))
         {
             boolean isSentry = className.endsWith("TrueSight");
+            boolean isDire = (ent.getProperty("m_iTeamNum") == 3);
 
             WardEvent evt = new WardEvent();
             evt.time = currentSnapshot.time;
             evt.x = 0.0f;
             evt.y = 0.0f;
             evt.entityHandle = ent.getHandle();
+            evt.isDire = isDire;
             evt.isSentry = isSentry;
             evt.died = true;
             wardEvents.add(evt);
@@ -579,7 +583,7 @@ public class Reparser
         out.write("\"playerHeroes\":[");
         for(int i=0; i<heroCount; ++i)
         {
-            out.write("\""+heroes[i].className+"\"");
+            out.write("\""+heroes[i].heroName+"\"");
             if(i < heroCount-1)
                 out.write(",");
         }

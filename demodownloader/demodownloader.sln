@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "demodownloader", "demodownloader\demodownloader.csproj", "{DAD62583-8FC0-42ED-8B10-81BC7EBEBA74}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BEB5BF07-BB56-402A-97A3-A41C6444C6A5} = {BEB5BF07-BB56-402A-97A3-A41C6444C6A5}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamKit2", "SteamKit2\SteamKit2.csproj", "{BEB5BF07-BB56-402A-97A3-A41C6444C6A5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DAD62583-8FC0-42ED-8B10-81BC7EBEBA74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAD62583-8FC0-42ED-8B10-81BC7EBEBA74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAD62583-8FC0-42ED-8B10-81BC7EBEBA74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAD62583-8FC0-42ED-8B10-81BC7EBEBA74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEB5BF07-BB56-402A-97A3-A41C6444C6A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEB5BF07-BB56-402A-97A3-A41C6444C6A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEB5BF07-BB56-402A-97A3-A41C6444C6A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEB5BF07-BB56-402A-97A3-A41C6444C6A5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

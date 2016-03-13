@@ -1,6 +1,9 @@
 # Vim files
 *.swp
 
+# Gedit/Geany? files
+*~
+
 # Java files
 *.class
 
@@ -14,3 +17,25 @@
 # Data files
 *.json
 *.zjson
+
+# MSVC Files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+.vs/
+*.nupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
