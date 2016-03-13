@@ -313,17 +313,17 @@ header > hr {
     padding-left: 1%;
 }
 
-.deaths {
+.kills {
     padding-top: 1%;
-    width: 15%;
+    width: 11%;
     text-align: center;
 }
 
-.deaths > .count {
+.kills > .count {
     font-weight: bold;
 }
 
-#team-graphs > #radiant > .deaths {
+#team-graphs > #radiant > .kills {
     float: right;
     padding-right: 2%;
 }
@@ -337,7 +337,7 @@ header > hr {
     float: right;
 }
 
-#team-graphs > #dire > .deaths {
+#team-graphs > #dire > .kills {
     padding-left: 2%;
 }
 

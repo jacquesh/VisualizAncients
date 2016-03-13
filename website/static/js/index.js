@@ -196,7 +196,8 @@
 
     updateTeamScores: function(team, stats) {
       var $team = $(team);
-      $team.find('#deaths').text(stats.score);
+      console.log(stats);
+      $team.find('.kills').find('.count').text(stats.score);
       var $teamStats = $team.find('.team-stats');
       var $netWorth = $teamStats.find('.net-worth');
       var $totalXp = $teamStats.find('.total-xp');
