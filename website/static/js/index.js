@@ -3,14 +3,6 @@
 
   var replayData = undefined;
 
-  var getHeroName = function(dt_name) {
-    for (var i=0; i<heroNameMap.length; i++) {
-      if (heroNameMap[i].dt_name === dt_name) {
-        return heroNameMap[i].localized_name;
-      }
-    }
-  };
-
   var mapManager = {
     $map: $('#dota-map'),
     width: $('#dota-map').width(),
@@ -36,7 +28,6 @@
     },
 
     setupLayers: function(playerHeroes) {
-      // Draw them like this because we want them in order in the layer list
       for(var i=0; i<10; i++) {
         var col = '';
         if (i < 5) {
@@ -52,7 +43,7 @@
           mouseout: this.handleHoverOff,
           data: {
             color: col,
-            heroName: getHeroName(playerHeroes[i].replace('C', 'DT_')),
+            heroName: heroNameMap[playerHeroes[i]],
             items: []
           }
         })
