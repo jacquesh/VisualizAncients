@@ -314,6 +314,7 @@ header > hr {
 }
 
 .kills {
+    font-size: 1.2em;
     padding-top: 1%;
     width: 11%;
     text-align: center;
