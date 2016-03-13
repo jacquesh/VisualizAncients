@@ -130,6 +130,7 @@ public class Reparser
         dataSource = new MappedFileSource(inputFileName);
         CDemoFileInfo info = Clarity.infoForSource(dataSource);
         CDotaGameInfo dota = info.getGameInfo().getDota();
+        System.out.println("Match ID: "+dota.getMatchId());
 
         List<CPlayerInfo> playerList = dota.getPlayerInfoList();
         heroCount = playerList.size();
