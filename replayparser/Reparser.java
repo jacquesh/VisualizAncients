@@ -581,7 +581,7 @@ public class Reparser
         out.write("\"playerHeroes\":[");
         for(int i=0; i<heroCount; ++i)
         {
-            out.write("\""+heroes[i].className+"\"");
+            out.write("\""+heroes[i].heroName+"\"");
             if(i < heroCount-1)
                 out.write(",");
         }
