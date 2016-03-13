@@ -193,6 +193,30 @@
     }
   };
 
+  var statsManager = {
+    biggestVal:0,
+
+    setMaxStats: function(stats) {
+      var maxGold = Math.max(stats[0].netWorth, stats[1].netWorth);
+      var maxXP = Math.max(stats[0].totalXp, stats[1].totalXp);
+      this.biggestVal = Math.max(maxGold, maxXP);
+    },
+
+    updateTeamScores: function(team, stats) {
+      var $team = $(team);
+      $team.find('#deaths').text(stats.score);
+      var $teamStats = $team.find('.team-stats');
+      var $netWorth = $teamStats.find('.net-worth');
+      var $totalXp = $teamStats.find('.total-xp');
+
+      $netWorth.text(stats.netWorth);
+      //$netWorth.width('calc('+ (stats.netWorth/this.biggestVal) * 100 +'% - 9%)');
+
+      $totalXp.text(stats.totalXp);
+      //$totalXp.width('calc('+ (stats.totalXp/this.big) * 100 +'% - 9%)');
+    }
+  };
+
   var charArr2Str = function(charArr) {
     var chunkSize = 0x8000;
     var outputArr = [];
@@ -209,9 +233,12 @@
     var dataStr = charArr2Str(dataCharArr);
     replayData = JSON.parse(dataStr);
 
+    var snapshots = replayData.snapshots;
     mapManager.setupLayers(replayData.playerHeroes);
-    mapManager.setupWards(replayData.wardEvents, replayData.snapshots[1].time);
+    mapManager.setupWards(replayData.wardEvents, snapshots[1].time);
     mapManager.$map.drawLayers();
+
+    statsManager.setMaxStats(snapshots[snapshots.length-1].teamStats);
 
     var $timeSlider = $('#time-slider');
     $timeSlider.slider({
@@ -220,19 +247,11 @@
       max: replayData.snapshots.length - 1,
       step: 1,
       slide: function(event, ui) {
-        var updateTeamScores = function(team, stats) {
-          var $team = $(team);
-          $team.find('#deaths').text(stats.score);
-          var $teamStats = $team.find('.team-stats');
-          $teamStats.find('.net-worth').text(stats.netWorth);
-          $teamStats.find('.total-xp').text(stats.totalXp);
-        };
-
         $('#amount').text(ui.value );
 
         mapManager.resetMap();
 
-        var snapshot = replayData.snapshots[ui.value];
+        var snapshot = snapshots[ui.value];
         var heroData = snapshot.heroData;
         mapManager.updateHeroLayers(heroData);
 
@@ -243,8 +262,8 @@
 
         mapManager.updateWards(ui.value);
 
-        updateTeamScores('#radiant', snapshot.teamStats[0]);
-        updateTeamScores('#dire', snapshot.teamStats[1]);
+        statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
+        statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
 
         mapManager.$map.drawLayers();
       }

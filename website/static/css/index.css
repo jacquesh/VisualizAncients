@@ -258,6 +258,39 @@ header > hr {
     vertical-align: middle;
 }
 
+.team-stats > div {
+    height: 23px;
+    position: relative;
+}
+
+.total-xp, .net-worth {
+    width: 91%;
+    height: 70%;
+    display: inline-block;
+}
+
+.total-xp {
+    background: #59CBD8;
+}
+
+.net-worth {
+    background: #ffff00;
+}
+
+.team-stats > p {
+    position: absolute;
+    width: 100%;
+    margin: 0;
+}
+
+#team-graphs > #radiant > .team-stats img {
+    padding-right: 1%;
+}
+
+#team-graphs > #dire > .team-stats img {
+    padding-left: 1%;
+}
+
 .deaths {
     padding-top: 1%;
     width: 15%;
