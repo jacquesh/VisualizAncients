@@ -112,7 +112,8 @@
             sentry: event.isSentry
           };
 
-          this.addWard(event.x, event.y, 'radiant', handle);
+          var team = event.isDire ? 'dire' : 'radiant';
+          this.addWard(event.x, event.y, team, handle);
           this.$map.setLayer(handle, {visible: false}).moveLayer(handle, 0);
         } else {
           this.wards[handle].end = Math.round((event.time - firstTickTime) * 2) + 1;
@@ -132,7 +133,7 @@
     },
 
     addWard: function(x, y, team, handle) {
-      var iconPath = '/static/img/icons/' + team[0] + '_ward.png';
+      var iconPath = '/static/img/icons/' + team + '_ward.png';
       this.drawMapIcon(x, y, 0.5, iconPath, team + '-wards', handle);
     },
 
