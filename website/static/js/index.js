@@ -21,10 +21,14 @@
 
     handleHoverOn: function(layer) {
       $('#character-name').text(layer.data.heroName).removeClass('hidden-text');
+      var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
+      $('#player-info').addClass(team);
     },
 
     handleHoverOff: function(layer) {
       $('#character-name').addClass('hidden-text');
+      var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
+      $('#player-info').removeClass(team);
     },
 
     setupLayers: function(playerHeroes) {
