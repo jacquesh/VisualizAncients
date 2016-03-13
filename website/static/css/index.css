@@ -170,6 +170,28 @@ header > hr {
     height: 50%;
 }
 
+#map-presence > .team-block > img {
+    margin-top: 2%;
+    margin-left: 2%;
+    height: 90%;
+}
+
+#map-presence > .team-block > .presence {
+    margin-top: 1.5%;
+    margin-right: 2%;
+    float: right;
+    width: 50%;
+    height: 90%;
+    border-radius: 10px;
+}
+
+#map-presence > .team-block > .presence > h1 {
+    margin-top: 20%;
+    font-size: 2em;
+    vertical-align: middle;
+    text-align: center;
+}
+
 #right-column > #path-toggle {
     height: 20%;
     margin-bottom: calc(2% - 2px);
