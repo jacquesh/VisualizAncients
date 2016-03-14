@@ -20,15 +20,32 @@
     },
 
     handleHoverOn: function(layer) {
+      var prepareName = function(name) {
+        return name.toLowerCase().replace('-', '').replace(' ', '_');
+      };
+      var assignImage = function(selector, name) {
+        var imgLink = 'https://cdn.steamstatic.com/apps/dota2/images/items/';
+        var imgEnd = '_lg.png';
+        $(selector).html('<img src="' + imgLink + name.replace('item_', '') + imgEnd + '">');
+      };
+
       $('#character-name').text(layer.data.heroName).removeClass('hidden-text');
       var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
       $('#player-info').addClass(team);
+      $('#items').find('.table-cell').each(function(index, elem) {
+        if (layer.data.items[index] !== '') {
+          assignImage(elem, layer.data.items[index]);
+        }
+      });
+      $('#hero-icon').html('<img src="http://cdn.dota2.com/apps/dota2/images/heroes/' + prepareName(layer.data.heroName) + '_full.png">');
     },
 
     handleHoverOff: function(layer) {
       $('#character-name').addClass('hidden-text');
       var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
       $('#player-info').removeClass(team);
+      $('#items').find('.table-cell').html('');
+      $('#hero-icon').html('');
     },
 
     setupLayers: function(playerHeroes) {
@@ -200,7 +217,6 @@
 
     updateTeamScores: function(team, stats) {
       var $team = $(team);
-      console.log(stats);
       $team.find('.kills').find('.count').text(stats.score);
       var $teamStats = $team.find('.team-stats');
       var $netWorth = $teamStats.find('.net-worth');

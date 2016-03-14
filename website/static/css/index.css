@@ -217,6 +217,11 @@ header > hr {
     margin-bottom: 2%;
     background-image: url('/static/img/icons/no_hero.png');
     background-size: cover;
+    overflow: hidden;
+}
+
+#hero-icon > img {
+    height: 100%;
 }
 
 #right-column > #player-info > #items {
@@ -224,13 +229,8 @@ header > hr {
     height: calc(95% - 128px - 4px);
 }
 
-#items img {
-    width: 55px;
-    height: 55px;
-}
-
 #items .table-cell {
-    width: 55px;
+    width: 49%;
     height: 55px;
     margin-bottom: 1%;
     margin-left: 1%;
@@ -370,6 +370,11 @@ footer {
     float: left;
     height: 100%;
     width: 50%;
+    overflow: hidden;
+}
+
+.table-cell > img {
+    height: 100%;
 }
 
 .hidden-text {
