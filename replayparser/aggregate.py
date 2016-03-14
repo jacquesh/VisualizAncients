@@ -59,7 +59,8 @@ def parseMatchData(aggregate, matchFileName):
         minuteIndex = 0
         if ward["time"] >= startTime:
             minuteIndex = int(ward["time"] - startTime)//60 + 1
-        aggregate["wardCounts"][minuteIndex] += 1
+        wardType = "sentryCounts" if ward["isSentry"] else "wardCounts"
+        aggregate[wardType][minuteIndex] += 1
 
     for rosh in match["roshEvents"]:
         if not rosh["died"]:
@@ -96,6 +97,7 @@ def run(dirName):
     graphBuckets = 60 + 1 # Put all the pre-creep events in a single bucket, and then 1 bucket/minute
     aggregate["roshCounts"] = [0]*graphBuckets
     aggregate["wardCounts"] = [0]*graphBuckets
+    aggregate["sentryCounts"] = [0]*graphBuckets
     aggregate["deathCounts"] = [0]*graphBuckets
 
     for fileName in os.listdir(dirName):
