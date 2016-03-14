@@ -23,17 +23,17 @@ def parseMatchData(aggregate, matchFileName):
         if (timeIndex < 0) or (timeIndex >= 3600 + PRE_CREEP_TIME):
             continue
         for heroIndex, hero in enumerate(tick["heroData"]):
-            isValid = hero["alive"]
-            if not isValid:
-                continue
-            xIndex = (int(hero["x"]) - 64)//2
-            yIndex = (int(hero["y"]) - 64)//2
-            locIndex = yIndex*64 + xIndex
             died = False
             if (tickIndex > 0) and (not hero["alive"]):
                 previousHero = match["snapshots"][tickIndex-1]["heroData"][heroIndex]
                 if previousHero["alive"]:
                     died = True
+            isValid = (hero["alive"] or died)
+            if not isValid:
+                continue
+            xIndex = (int(hero["x"]) - 64)//2
+            yIndex = (int(hero["y"]) - 64)//2
+            locIndex = yIndex*64 + xIndex
             aggregate["positionData"][timeIndex][locIndex] += 1
             if died:
                 aggregate["deathData"][timeIndex][locIndex] += 1
