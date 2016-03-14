@@ -2,6 +2,7 @@
   'use strict';
 
   var replayData = undefined;
+  var graphSettings = {barValueSpacing : 0};
   var charArr2Str = function(charArr) {
     var chunkSize = 0x8000;
     var outputArr = [];
@@ -25,7 +26,7 @@
 };
   var loadPlayerData = function() {
     var req = new XMLHttpRequest();
-    req.open("GET", "/static/data.zjson", true);
+    req.open("GET", "/static/aggregate.zjson", true);
     req.responseType = "arraybuffer";
     req.onload = function(event) {
         var bytes = new Uint8Array(req.response);
@@ -43,7 +44,7 @@
 		time.push(k);
 	}  
 	var roshanDeaths = [];
-	for (var i =0; i< replay.length-1; i++)
+	for (var i =0; i< replay.length; i++)
 	{
 		var event = replay[i];
 		roshanDeaths.push(event);
@@ -61,7 +62,7 @@
             highlightStroke: "rgba(220,220,220,1)",
             data: roshanDeaths
         }]};
-	var roshanChart = new Chart(roshan_ctx).Bar(data); 
+	var roshanChart = new Chart(roshan_ctx).Bar(data, graphSettings); 
   };	
   var drawWardsChart = function(replay)
   {
@@ -71,7 +72,7 @@
 		time.push(k);
 	}    
 	var wardCount = [];
-	for (var i =0; i< replay.length-1; i++)
+	for (var i =0; i< replay.length; i++)
 	{
 		var event = replay[i];
 		wardCount.push(event);
@@ -89,7 +90,7 @@
             highlightStroke: "rgba(220,220,220,1)",
             data: wardCount
         }]};
-	var wardChart = new Chart(ward_ctx).Bar(data);
+	var wardChart = new Chart(ward_ctx).Bar(data, graphSettings);
   };
     var drawPlayerKillsChart = function(replay)
   {
@@ -99,7 +100,7 @@
 		time.push(k);
 	}    
 	var playerKillCount = [];
-	for (var i =0; i< replay.length-1; i++)
+	for (var i =0; i< replay.length; i++)
 	{
 		var event = replay[i];
 		playerKillCount.push(event);
@@ -117,7 +118,7 @@
             highlightStroke: "rgba(220,220,220,1)",
             data: playerKillCount
         }]};
-	var player_kills_Chart = new Chart(player_kills_ctx).Bar(data);
+	var player_kills_Chart = new Chart(player_kills_ctx).Bar(data, graphSettings);
   };		
  
 	$(document).ready(loadPlayerData);
