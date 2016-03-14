@@ -21,7 +21,7 @@
 
     handleHoverOn: function(layer) {
       var assignImage = function(selector, prefix, name) {
-        var imgLink = '/static/img/' + prefix + '/' + name + '.png';
+        var imgLink = '/static/img/' + prefix + '/' + name + '.jpg';
         $(selector).html('<img src="' + imgLink + '">');
       };
 
