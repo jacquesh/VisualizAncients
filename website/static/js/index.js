@@ -2,14 +2,13 @@
   'use strict';
 
   var replayData = undefined;
+  var $map = $('#dota-map');
 
   var mapManager = {
-    $map: $('#dota-map'),
-    width: $('#dota-map').width(),
-    scalef: $('#dota-map').width() / 127,
+    width: $map.width(),
+    scalef: $map.width() / 127,
     layers: ['rad-1', 'rad-2', 'rad-3', 'rad-4', 'rad-5',
              'dir-1', 'dir-2', 'dir-3', 'dir-4', 'dir-5'],
-    wards: {},
 
     getX: function(data_x) {
       return (data_x - 64) * this.scalef;
@@ -55,7 +54,7 @@
           col = '#E65609';
         }
 
-        this.$map.setLayer(i, {
+        $map.setLayer(i, {
           mouseover: this.handleHoverOn,
           mouseout: this.handleHoverOff,
           data: {
@@ -75,27 +74,27 @@
     updateHeroLayers: function(heroData) {
       for (var i=0; i<10; i++) {
         var layer = this.layers[i];
-        var layerData = this.$map.getLayer(layer).data;
+        var layerData = $map.getLayer(layer).data;
         var hero = heroData[i];
 
         layerData.items = hero.items;
 
-        this.$map.setLayer(layer, {
+        $map.setLayer(layer, {
           x: this.getX(hero.x),
           y: this.getY(hero.y),
           data: layerData
         });
 
         if (hero.alive) {
-          this.$map.setLayer(layer, {
+          $map.setLayer(layer, {
             fillStyle: layerData.color,
             strokeStyle: '#000'
-          }).moveLayer(layer, this.$map.getLayers().length);
+          }).moveLayer(layer, $map.getLayers().length);
         } else {
-          this.$map.setLayer(layer, {
+          $map.setLayer(layer, {
             fillStyle: 'rgba(255, 0, 0, 0.4)',
             strokeStyle: 'rgba(0, 0, 0, 0.4)'
-          }).moveLayer(layer, this.wards.length + 1);
+          }).moveLayer(layer, wardManager.wards.length + 1);
         }
       }
     },
@@ -105,61 +104,24 @@
       var dirData = courierData[1];
 
       if (radData) {
-        this.$map.setLayer('rad-courier', {
+        $map.setLayer('rad-courier', {
           x: this.getX(radData.x),
           y: this.getY(radData.y)
         });
       }
 
       if (dirData) {
-        this.$map.setLayer('dir-courier', {
+        $map.setLayer('dir-courier', {
           x: this.getX(dirData.x),
           y: this.getY(dirData.y)
         });
       }
     },
 
-    setupWards: function(wardEvents, firstTickTime) {
-      for (var i=0; i<wardEvents.length; i++) {
-        var event = wardEvents[i];
-        var handle = 'w' + event.entityHandle;
-
-        if (!event.died) {
-          this.wards[handle] = {
-            start: Math.round((event.time - firstTickTime) * 2) + 1,
-            sentry: event.isSentry
-          };
-
-          var team = event.isDire ? 'dire' : 'radiant';
-          this.addWard(event.x, event.y, team, handle);
-          this.$map.setLayer(handle, {visible: false}).moveLayer(handle, 0);
-        } else {
-          this.wards[handle].end = Math.round((event.time - firstTickTime) * 2) + 1;
-        }
-      }
-    },
-
-    updateWards: function(time) {
-      var map = this.$map;
-      $.each(this.wards, function(handle, ward) {
-        if ((ward.start < time) && (time < ward.end)) {
-          map.setLayer(handle, {visible: true});
-        } else {
-          map.setLayer(handle, {visible: false});
-        }
-      });
-    },
-
-    addWard: function(x, y, team, handle) {
-      var wardType = this.wards[handle].sentry ? 'sentry' : 'ward';
-      var iconPath = '/static/img/icons/' + team + '_' + wardType + '.png';
-      this.drawMapIcon(x, y, 0.5, iconPath, team + '-wards', handle);
-    },
-
     drawMapCircle: function(x, y, colour, group, name) {
       group = group === undefined ? 'radiant' : group;
 
-      this.$map.drawArc({
+      $map.drawArc({
         name: name,
         strokeStyle: '#000',
         strokeWidth: 2,
@@ -174,7 +136,7 @@
     drawMapRect: function(x, y, colour, group, name) {
       group = group === undefined ? 'dire' : group;
 
-      this.$map.drawRect({
+      $map.drawRect({
         name: name,
         strokeStyle: '#000',
         strokeWidth: 2,
@@ -200,7 +162,47 @@
     },
 
     resetMap: function() {
-      this.$map.clearCanvas();
+      $map.clearCanvas();
+    }
+  };
+
+  var wardManager = {
+    wards: {},
+    setupWards: function(wardEvents, firstTickTime) {
+      for (var i=0; i<wardEvents.length; i++) {
+        var event = wardEvents[i];
+        var handle = 'w' + event.entityHandle;
+
+        if (!event.died) {
+          this.wards[handle] = {
+            start: Math.round((event.time - firstTickTime) * 2) + 1,
+            sentry: event.isSentry
+          };
+
+          var team = event.isDire ? 'dire' : 'radiant';
+          this.addWard(event.x, event.y, team, handle);
+          $map.setLayer(handle, {visible: false}).moveLayer(handle, 0);
+        } else {
+          this.wards[handle].end = Math.round((event.time - firstTickTime) * 2) + 1;
+        }
+      }
+    },
+
+    updateWards: function(time) {
+      var map = $map;
+      $.each(this.wards, function(handle, ward) {
+        if ((ward.start < time) && (time < ward.end)) {
+          map.setLayer(handle, {visible: true});
+        } else {
+          map.setLayer(handle, {visible: false});
+        }
+      });
+    },
+
+    addWard: function(x, y, team, handle) {
+      var wardType = this.wards[handle].sentry ? 'sentry' : 'ward';
+      var iconPath = '/static/img/icons/' + team + '_' + wardType + '.png';
+      mapManager.drawMapIcon(x, y, 0.5, iconPath, team + '-wards', handle);
     }
   };
 
@@ -245,9 +247,11 @@
     replayData = JSON.parse(dataStr);
 
     var snapshots = replayData.snapshots;
+
     mapManager.setupLayers(replayData.playerHeroes);
-    mapManager.setupWards(replayData.wardEvents, snapshots[1].time);
-    mapManager.$map.drawLayers();
+    wardManager.setupWards(replayData.wardEvents, snapshots[1].time);
+
+    $map.drawLayers();
 
     statsManager.setMaxStats(snapshots[snapshots.length-1].teamStats);
 
@@ -271,12 +275,12 @@
           mapManager.updateCouriers(courierData);
         }
 
-        mapManager.updateWards(ui.value);
+        wardManager.updateWards(ui.value);
 
         statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
         statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
 
-        mapManager.$map.drawLayers();
+        $map.drawLayers();
       }
     });
     //$timeSlider.slider('option', 'slide').call($timeSlider);
