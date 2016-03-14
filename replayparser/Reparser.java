@@ -378,12 +378,14 @@ public class Reparser
             float x = (float)cellX + (subCellX/128.0f);
             float y = (float)cellY + (subCellY/128.0f);
             boolean isSentry = className.endsWith("TrueSight");
+            boolean isDire = (ent.getProperty("m_iTeamNum") == 3);
 
             WardEvent evt = new WardEvent();
             evt.time = currentSnapshot.time;
             evt.x = x;
             evt.y = y;
             evt.entityHandle = ent.getHandle();
+            evt.isDire = isDire;
             evt.isSentry = isSentry;
             evt.died = false;
             wardEvents.add(evt);
