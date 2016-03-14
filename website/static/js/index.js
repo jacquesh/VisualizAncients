@@ -20,13 +20,9 @@
     },
 
     handleHoverOn: function(layer) {
-      var prepareName = function(name) {
-        return name.toLowerCase().replace('-', '').replace(' ', '_');
-      };
-      var assignImage = function(selector, name) {
-        var imgLink = 'https://cdn.steamstatic.com/apps/dota2/images/items/';
-        var imgEnd = '_lg.png';
-        $(selector).html('<img src="' + imgLink + name.replace('item_', '') + imgEnd + '">');
+      var assignImage = function(selector, prefix, name) {
+        var imgLink = '/static/img/' + prefix + '/' + name + '.png';
+        $(selector).html('<img src="' + imgLink + '">');
       };
 
       $('#character-name').text(layer.data.heroName).removeClass('hidden-text');
@@ -34,10 +30,10 @@
       $('#player-info').addClass(team);
       $('#items').find('.table-cell').each(function(index, elem) {
         if (layer.data.items[index] !== '') {
-          assignImage(elem, layer.data.items[index]);
+          assignImage(elem, 'items', layer.data.items[index].replace('item_', ''));
         }
       });
-      $('#hero-icon').html('<img src="http://cdn.dota2.com/apps/dota2/images/heroes/' + prepareName(layer.data.heroName) + '_full.png">');
+      assignImage('#hero-icon', 'heroes', layer.data.imgName);
     },
 
     handleHoverOff: function(layer) {
@@ -65,6 +61,7 @@
           data: {
             color: col,
             heroName: heroNameMap[playerHeroes[i]],
+            imgName: playerHeroes[i].replace('npc_dota_hero_', ''),
             items: []
           }
         })
