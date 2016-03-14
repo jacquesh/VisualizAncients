@@ -151,7 +151,8 @@
     },
 
     addWard: function(x, y, team, handle) {
-      var iconPath = '/static/img/icons/' + team + '_ward.png';
+      var wardType = this.wards[handle].sentry ? 'sentry' : 'ward';
+      var iconPath = '/static/img/icons/' + team + '_' + wardType + '.png';
       this.drawMapIcon(x, y, 0.5, iconPath, team + '-wards', handle);
     },
 
