@@ -45,16 +45,21 @@
 
     setupLayers: function(playerHeroes) {
       for(var i=0; i<10; i++) {
+        var layerName = this.layers[i];
         var col = '';
+        var team = '';
+
         if (i < 5) {
-          this.drawMapCircle(0, 0, '#097FE6', 'radiant', this.layers[i]);
+          this.drawMapCircle(0, 0, '#097FE6', 'radiant', layerName);
           col = '#097FE6';
+          team = 'radiant';
         } else {
-          this.drawMapRect(0, 0, '#E65609', 'dire', this.layers[i]);
+          this.drawMapRect(0, 0, '#E65609', 'dire', layerName);
           col = '#E65609';
+          team = 'dire';
         }
 
-        $map.setLayer(i, {
+        $map.setLayer(layerName, {
           mouseover: this.handleHoverOn,
           mouseout: this.handleHoverOff,
           data: {
@@ -64,7 +69,22 @@
             items: [],
             alive: false
           }
-        })
+        });
+
+        var path = '/static/img/icons/' + team + '_death.png';
+        var deathName = layerName + '-dead';
+        this.drawMapIcon(0, 0, 0.7, path, team, deathName);
+        $map.setLayer(deathName, {
+          mouseover: this.handleHoverOn,
+          mouseout: this.handleHoverOff,
+          visible: false,
+          data: {
+            heroName: heroNameMap[playerHeroes[i]],
+            imgName: playerHeroes[i].replace('npc_dota_hero_', ''),
+            items: [],
+            alive: false
+          }
+        }).moveLayer(deathName, 0);
       }
 
       var courierPath = '/static/img/courier.png';
@@ -74,32 +94,39 @@
 
     updateHeroLayers: function(heroData) {
       for (var i=0; i<10; i++) {
-        var layer = this.layers[i];
-        var layerData = $map.getLayer(layer).data;
+        var layerId = this.layers[i];
+        var layer = $map.getLayer(layerId);
         var hero = heroData[i];
 
-        layerData.items = hero.items;
+        layer.data.items = hero.items;
 
-        $map.setLayer(layer, {
-          x: this.getX(hero.x),
-          y: this.getY(hero.y),
-          data: layerData
-        });
+        if (hero.alive) {
+          $map.setLayer(layerId, {
+            x: this.getX(hero.x),
+            y: this.getY(hero.y),
+            data: layer.data
+          });
+        }
 
-        if (hero.alive && !layerData.alive) {
-          layerData.alive = true;
-          $map.setLayer(layer, {
-            fillStyle: layerData.color,
-            strokeStyle: '#000',
-            data: layerData
-          }).moveLayer(layer, $map.getLayers().length);
-        } else if (!hero.alive && layerData.alive) {
-          layerData.alive = false;
-          $map.setLayer(layer, {
-            fillStyle: 'rgba(255, 0, 0, 0.4)',
-            strokeStyle: 'rgba(0, 0, 0, 0.4)',
-            data: layerData
-          }).moveLayer(layer, wardManager.wards.length + 1);
+        if (hero.alive && !layer.data.alive) {
+          layer.data.alive = true;
+          $map.setLayer(layerId, {
+            visible: true,
+            data: layer.data
+          });
+          $map.setLayer(layerId + '-dead', {visible: false});
+        } else if (!hero.alive && layer.data.alive) {
+          layer.data.alive = false;
+          $map.setLayer(layerId, {
+            visible: false,
+            data: layer.data
+          });
+
+          $map.setLayer(layerId + '-dead', {
+            x: layer.x, y: layer.y,
+            visible: true,
+            data: layer.data
+          });
         }
       }
     },
