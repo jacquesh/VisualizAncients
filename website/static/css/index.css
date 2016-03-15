@@ -213,14 +213,13 @@ header > hr {
 
 #right-column > #player-info > #character-name {
     text-align: center;
-    min-height: 28px;
+    min-height: 24px;
 }
 
 #right-column > #player-info > #hero-icon {
     height: 100px;
     width: 175px;
-    margin-bottom: 2%;
-    background-image: url('/static/img/icons/no_hero.png');
+    background-image: url('/static/img/heroes/default.jpg');
     background-size: cover;
     overflow: hidden;
 }
@@ -230,17 +229,29 @@ header > hr {
 }
 
 #right-column > #player-info > #items {
-    width: 175px;
+    width: 178px;
     height: calc(95% - 128px - 4px);
 }
 
 #items .table-cell {
-    width: 49%;
-    height: 55px;
-    margin-bottom: 1%;
-    margin-left: 1%;
-    background-image: url('/static/img/icons/item_block.png');
-    background-size: cover;
+    width: calc(50% - 2px);
+    height: 64px;
+    max-width: 88px;
+    background: #222222 url('/static/img/items/emptyitembg.jpg');
+    border-right: 1px solid white;
+    border-bottom: 1px solid white;
+}
+
+#items .table-cell:nth-child(1) {
+    border-left: 1px solid white;
+}
+
+#items .table-row {
+    max-height: 64px;
+}
+
+#items .table-row:first-of-type .table-cell {
+    border-top: 1px solid white;
 }
 
 #map-container {
@@ -362,13 +373,17 @@ footer {
     font-size: 10px;
 }
 
+.border-white {
+    border-color: white;
+}
+
 .table {
     display: table;
 }
 
 .table-row {
-    width: 65%;
     height: 33%;
+    min-height: 64px;
 }
 
 .table-cell {

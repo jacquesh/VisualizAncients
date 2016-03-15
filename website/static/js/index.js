@@ -2,14 +2,13 @@
   'use strict';
 
   var replayData = undefined;
+  var $map = $('#dota-map');
 
   var mapManager = {
-    $map: $('#dota-map'),
-    width: $('#dota-map').width(),
-    scalef: $('#dota-map').width() / 127,
+    width: $map.width(),
+    scalef: $map.width() / 127,
     layers: ['rad-1', 'rad-2', 'rad-3', 'rad-4', 'rad-5',
              'dir-1', 'dir-2', 'dir-3', 'dir-4', 'dir-5'],
-    wards: {},
 
     getX: function(data_x) {
       return (data_x - 64) * this.scalef;
@@ -20,13 +19,9 @@
     },
 
     handleHoverOn: function(layer) {
-      var prepareName = function(name) {
-        return name.toLowerCase().replace('-', '').replace(' ', '_');
-      };
-      var assignImage = function(selector, name) {
-        var imgLink = 'https://cdn.steamstatic.com/apps/dota2/images/items/';
-        var imgEnd = '_lg.png';
-        $(selector).html('<img src="' + imgLink + name.replace('item_', '') + imgEnd + '">');
+      var assignImage = function(selector, prefix, name) {
+        var imgLink = '/static/img/' + prefix + '/' + name + '.jpg';
+        $(selector).html('<img src="' + imgLink + '">');
       };
 
       $('#character-name').text(layer.data.heroName).removeClass('hidden-text');
@@ -34,10 +29,10 @@
       $('#player-info').addClass(team);
       $('#items').find('.table-cell').each(function(index, elem) {
         if (layer.data.items[index] !== '') {
-          assignImage(elem, layer.data.items[index]);
+          assignImage(elem, 'items', layer.data.items[index].replace('item_', ''));
         }
       });
-      $('#hero-icon').html('<img src="http://cdn.dota2.com/apps/dota2/images/heroes/' + prepareName(layer.data.heroName) + '_full.png">');
+      assignImage('#hero-icon', 'heroes', layer.data.imgName);
     },
 
     handleHoverOff: function(layer) {
@@ -50,24 +45,46 @@
 
     setupLayers: function(playerHeroes) {
       for(var i=0; i<10; i++) {
+        var layerName = this.layers[i];
         var col = '';
+        var team = '';
+
         if (i < 5) {
-          this.drawMapCircle(0, 0, '#097FE6', 'radiant', this.layers[i]);
+          this.drawMapCircle(0, 0, '#097FE6', 'radiant', layerName);
           col = '#097FE6';
+          team = 'radiant';
         } else {
-          this.drawMapRect(0, 0, '#E65609', 'dire', this.layers[i]);
+          this.drawMapRect(0, 0, '#E65609', 'dire', layerName);
           col = '#E65609';
+          team = 'dire';
         }
 
-        this.$map.setLayer(i, {
+        $map.setLayer(layerName, {
           mouseover: this.handleHoverOn,
           mouseout: this.handleHoverOff,
           data: {
             color: col,
             heroName: heroNameMap[playerHeroes[i]],
-            items: []
+            imgName: playerHeroes[i].replace('npc_dota_hero_', ''),
+            items: [],
+            alive: false
           }
-        })
+        });
+
+        var path = '/static/img/icons/' + team + '_death.png';
+        var deathName = layerName + '-dead';
+        this.drawMapIcon(0, 0, 0.7, path, team, deathName);
+        $map.setLayer(deathName, {
+          mouseover: this.handleHoverOn,
+          mouseout: this.handleHoverOff,
+          visible: false,
+          data: {
+            heroName: heroNameMap[playerHeroes[i]],
+            imgName: playerHeroes[i].replace('npc_dota_hero_', ''),
+            items: [],
+            alive: false
+          }
+        }).moveLayer(deathName, 0);
       }
 
       var courierPath = '/static/img/courier.png';
@@ -77,28 +94,39 @@
 
     updateHeroLayers: function(heroData) {
       for (var i=0; i<10; i++) {
-        var layer = this.layers[i];
-        var layerData = this.$map.getLayer(layer).data;
+        var layerId = this.layers[i];
+        var layer = $map.getLayer(layerId);
         var hero = heroData[i];
 
-        layerData.items = hero.items;
-
-        this.$map.setLayer(layer, {
-          x: this.getX(hero.x),
-          y: this.getY(hero.y),
-          data: layerData
-        });
+        layer.data.items = hero.items;
 
         if (hero.alive) {
-          this.$map.setLayer(layer, {
-            fillStyle: layerData.color,
-            strokeStyle: '#000'
-          }).moveLayer(layer, this.$map.getLayers().length);
-        } else {
-          this.$map.setLayer(layer, {
-            fillStyle: 'rgba(255, 0, 0, 0.4)',
-            strokeStyle: 'rgba(0, 0, 0, 0.4)'
-          }).moveLayer(layer, this.wards.length + 1);
+          $map.setLayer(layerId, {
+            x: this.getX(hero.x),
+            y: this.getY(hero.y),
+            data: layer.data
+          });
+        }
+
+        if (hero.alive && !layer.data.alive) {
+          layer.data.alive = true;
+          $map.setLayer(layerId, {
+            visible: true,
+            data: layer.data
+          });
+          $map.setLayer(layerId + '-dead', {visible: false});
+        } else if (!hero.alive && layer.data.alive) {
+          layer.data.alive = false;
+          $map.setLayer(layerId, {
+            visible: false,
+            data: layer.data
+          });
+
+          $map.setLayer(layerId + '-dead', {
+            x: layer.x, y: layer.y,
+            visible: true,
+            data: layer.data
+          });
         }
       }
     },
@@ -108,60 +136,24 @@
       var dirData = courierData[1];
 
       if (radData) {
-        this.$map.setLayer('rad-courier', {
+        $map.setLayer('rad-courier', {
           x: this.getX(radData.x),
           y: this.getY(radData.y)
         });
       }
 
       if (dirData) {
-        this.$map.setLayer('dir-courier', {
+        $map.setLayer('dir-courier', {
           x: this.getX(dirData.x),
           y: this.getY(dirData.y)
         });
       }
     },
 
-    setupWards: function(wardEvents, firstTickTime) {
-      for (var i=0; i<wardEvents.length; i++) {
-        var event = wardEvents[i];
-        var handle = 'w' + event.entityHandle;
-
-        if (!event.died) {
-          this.wards[handle] = {
-            start: Math.round((event.time - firstTickTime) * 2) + 1,
-            sentry: event.isSentry
-          };
-
-          var team = event.isDire ? 'dire' : 'radiant';
-          this.addWard(event.x, event.y, team, handle);
-          this.$map.setLayer(handle, {visible: false}).moveLayer(handle, 0);
-        } else {
-          this.wards[handle].end = Math.round((event.time - firstTickTime) * 2) + 1;
-        }
-      }
-    },
-
-    updateWards: function(time) {
-      var map = this.$map;
-      $.each(this.wards, function(handle, ward) {
-        if ((ward.start < time) && (time < ward.end)) {
-          map.setLayer(handle, {visible: true});
-        } else {
-          map.setLayer(handle, {visible: false});
-        }
-      });
-    },
-
-    addWard: function(x, y, team, handle) {
-      var iconPath = '/static/img/icons/' + team + '_ward.png';
-      this.drawMapIcon(x, y, 0.5, iconPath, team + '-wards', handle);
-    },
-
     drawMapCircle: function(x, y, colour, group, name) {
       group = group === undefined ? 'radiant' : group;
 
-      this.$map.drawArc({
+      $map.drawArc({
         name: name,
         strokeStyle: '#000',
         strokeWidth: 2,
@@ -176,7 +168,7 @@
     drawMapRect: function(x, y, colour, group, name) {
       group = group === undefined ? 'dire' : group;
 
-      this.$map.drawRect({
+      $map.drawRect({
         name: name,
         strokeStyle: '#000',
         strokeWidth: 2,
@@ -191,7 +183,7 @@
     drawMapIcon: function(x, y, scale, path, group, name) {
       group = group === undefined ? 'icons' : group;
 
-      $('canvas').drawImage({
+      $map.drawImage({
         layer: true,
         name: name,
         groups: [group],
@@ -202,7 +194,135 @@
     },
 
     resetMap: function() {
-      this.$map.clearCanvas();
+      $map.clearCanvas();
+    }
+  };
+
+  var wardManager = {
+    wards: {},
+    setupWards: function(wardEvents, firstTickTime) {
+      for (var i=0; i<wardEvents.length; i++) {
+        var event = wardEvents[i];
+        var handle = 'w' + event.entityHandle;
+
+        if (!event.died) {
+          this.wards[handle] = {
+            start: Math.round((event.time - firstTickTime) * 2) + 1,
+            sentry: event.isSentry
+          };
+
+          var team = event.isDire ? 'dire' : 'radiant';
+          this.addWard(event.x, event.y, team, handle);
+          $map.setLayer(handle, {visible: false}).moveLayer(handle, 0);
+        } else {
+          this.wards[handle].end = Math.round((event.time - firstTickTime) * 2) + 1;
+        }
+      }
+    },
+
+    updateWards: function(time) {
+      var map = $map;
+      $.each(this.wards, function(handle, ward) {
+        if ((ward.start < time) && (time < ward.end)) {
+          map.setLayer(handle, {visible: true});
+        } else {
+          map.setLayer(handle, {visible: false});
+        }
+      });
+    },
+
+    addWard: function(x, y, team, handle) {
+      var wardType = this.wards[handle].sentry ? 'sentry' : 'ward';
+      var iconPath = '/static/img/icons/' + team + '_' + wardType + '.png';
+      mapManager.drawMapIcon(x, y, 0.5, iconPath, team + '-wards', handle);
+    }
+  };
+
+  var roshanManager = {
+    roshanEvents: [],
+
+    setupRoshanEvents: function(roshanData, firstTickTime) {
+      var roshanPath = '/static/img/icons/roshan.png';
+      mapManager.drawMapIcon(160, 113, 0.75, roshanPath, 'roshan', 'roshan');
+      $map.setLayer('roshan', {visible: false});
+
+      var eventIndex = 0;
+      for (var i=0; i < roshanData.length; i++) {
+        var event = roshanData[i];
+
+        if (!event.died) {
+          this.roshanEvents.push({
+            start: Math.round((event.time - firstTickTime) * 2) + 1,
+            end: -1
+          });
+        } else {
+          this.roshanEvents[eventIndex].end = Math.round((event.time - firstTickTime) * 2) + 1;
+          eventIndex += 1;
+        }
+      }
+    },
+
+    updateRoshan: function(time) {
+      for (var i=0; i < this.roshanEvents.length; i++) {
+        var event = this.roshanEvents[i];
+
+        if (time < event.start) {
+          return;
+        }
+
+        if ((event.end === -1) && (event.start < time)) {
+          $map.setLayer('roshan', {visible: true});
+        } else if ((event.start < time) && (time < event.end)) {
+          $map.setLayer('roshan', {visible: true});
+        } else {
+          $map.setLayer('roshan', {visible: false});
+        }
+      }
+    }
+  };
+
+  var runeManager = {
+    runeMap: ['dd', 'haste', 'illusion', 'invis', 'regen', 'bounty', 'arcane'],
+
+    setupRunes: function() {
+      this.addRuneSpot(110, 140, 0.7, 'rune-top');
+      this.addRuneSpot(150, 110, 0.7, 'rune-bot');
+    },
+
+    addRuneSpot: function(x, y, scale, name) {
+      var runeBasePath = '/static/img/icons/runes/';
+
+      mapManager.drawMapIcon(x, y, scale, '', 'runes', name);
+      $map.setLayer(name, {
+        data: {
+          basePath: runeBasePath,
+          type: ''
+        }
+      });
+    },
+
+    updateRunes: function(runesState) {
+      var names = ['rune-top', 'rune-bot'];
+
+      for (var i=0; i < runesState.length; i++) {
+        if (runesState[i] !== -1) {
+          var layer = $map.getLayer(names[i]);
+          if (layer.data.type === '' || layer.data.type !== runesState[i]) {
+            var runeName = this.runeMap[runesState[i]];
+            layer.data.type = runesState[i];
+
+            $map.setLayer(names[i], {
+              source: layer.data.basePath + runeName + '_rune.png',
+              visible: true,
+              data: layer.data
+            });
+          } else if (!layer.visible) {
+            $map.setLayer(names[i], {visible: true});
+          }
+        } else {
+          $map.setLayer(names[i], {visible: false});
+        }
+      }
     }
   };
 
@@ -247,9 +367,14 @@
     replayData = JSON.parse(dataStr);
 
     var snapshots = replayData.snapshots;
+    var firstTickTime = snapshots[1].time;
+
     mapManager.setupLayers(replayData.playerHeroes);
-    mapManager.setupWards(replayData.wardEvents, snapshots[1].time);
-    mapManager.$map.drawLayers();
+    roshanManager.setupRoshanEvents(replayData.roshEvents, firstTickTime);
+    wardManager.setupWards(replayData.wardEvents, firstTickTime);
+    runeManager.setupRunes();
+
+    $map.drawLayers();
 
     statsManager.setMaxStats(snapshots[snapshots.length-1].teamStats);
 
@@ -273,12 +398,14 @@
           mapManager.updateCouriers(courierData);
         }
 
-        mapManager.updateWards(ui.value);
+        runeManager.updateRunes(snapshot.runeData);
+        roshanManager.updateRoshan(ui.value);
+        wardManager.updateWards(ui.value);
 
         statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
         statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
 
-        mapManager.$map.drawLayers();
+        $map.drawLayers();
       }
     });
     //$timeSlider.slider('option', 'slide').call($timeSlider);

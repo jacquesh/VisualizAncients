@@ -98,6 +98,7 @@ The aggregate format for multiple matches consists of a bunch of fields each of 
     // These all have the graph format explained below
     "roshCounts": [...],
     "wardCounts": [...],
+    "sentryCounts": [...],
     "deathCounts": [...]
 }
 ```
