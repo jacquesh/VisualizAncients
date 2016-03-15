@@ -290,7 +290,7 @@
 
   var loadPlayerData = function() {
     var req = new XMLHttpRequest();
-    req.open("GET", "/static/data.zjson", true);
+    req.open("GET", "/static/aggregate.zjson", true);
     req.responseType = "arraybuffer";
     req.onload = function(event) {
         var bytes = new Uint8Array(req.response);

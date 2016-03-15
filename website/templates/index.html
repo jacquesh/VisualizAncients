@@ -6,6 +6,25 @@
     <link rel="stylesheet" href="/static/vendor/jquery-ui-1.11.4/jquery-ui.min.css">
     <link rel="stylesheet" href="/static/vendor/font-awesome.min.css">
     <link rel="stylesheet" href="/static/css/index.css">
+    <script rel="script" type="text/javascript" src="/static/vendor/jquery-2.2.0.min.js"></script>
+	<script rel="script" type="text/javascript" src="/static/vendor/pako.min.js"></script>
+	<script rel="script" type="text/javascript" src="/static/vendor/Chart.min.js"></script>
+	<script rel="script" type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script rel="script" type="text/javascript" src="/static/js/smallGraphDrawer.js"></script>
+	<script>
+		var changeGraphUp = function (){
+		var roshan = document.getElementbyId("roshanSmallChart");
+		var ward = document.getElementbyId("wardChart");
+		var player_kills_Chart = document.getElementbyId("player_kills_Chart");
+		if ((player_kills_Chart.style.display=="none") && (ward.style.display=="none"))
+		{
+			roshanSmallChart.style.display="none";
+			wardChart.style.display="block";	
+		}
+		
+	};
+	</script>
+	
 </head>
 <body>
     <main id="content-container">
@@ -29,7 +48,11 @@
                     <div id="graph-label">Roshan</div>
                     <div class="arrow" id="down-arrow"><i class="fa fa-arrow-down"></i></div>
                 </div>
-                <div id="graph-bar">Graph Here</div>
+                <div id="graph-bar">
+					<canvas id="roshanSmallChart" ></canvas>
+					<canvas id="wardChart"></canvas>
+					<canvas id="player_kills_Chart"></canvas>
+                </div>
                 <div id="open-graphs"><a href="#"><i class="fa fa-bar-chart fa-2x"></i></a></div>
             </div>
             <div class="clear-fix"></div>
