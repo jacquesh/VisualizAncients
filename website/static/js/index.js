@@ -151,7 +151,7 @@
     drawMapIcon: function(x, y, scale, path, group, name) {
       group = group === undefined ? 'icons' : group;
 
-      $('canvas').drawImage({
+      $map.drawImage({
         layer: true,
         name: name,
         groups: [group],
@@ -249,6 +249,51 @@
     }
   };
 
+  var runeManager = {
+    runeMap: ['dd', 'haste', 'illusion', 'invis', 'regen', 'bounty', 'arcane'],
+
+    setupRunes: function() {
+      this.addRuneSpot(110, 140, 0.7, 'rune-top');
+      this.addRuneSpot(150, 110, 0.7, 'rune-bot');
+    },
+
+    addRuneSpot: function(x, y, scale, name) {
+      var runeBasePath = '/static/img/icons/runes/';
+
+      mapManager.drawMapIcon(x, y, scale, '', 'runes', name);
+      $map.setLayer(name, {
+        data: {
+          basePath: runeBasePath,
+          type: ''
+        }
+      });
+    },
+
+    updateRunes: function(runesState) {
+      var names = ['rune-top', 'rune-bot'];
+
+      for (var i=0; i < runesState.length; i++) {
+        if (runesState[i] !== -1) {
+          var layer = $map.getLayer(names[i]);
+          if (layer.data.type === '' || layer.data.type !== runesState[i]) {
+            var runeName = this.runeMap[runesState[i]];
+            layer.data.type = runesState[i];
+
+            $map.setLayer(names[i], {
+              source: layer.data.basePath + runeName + '_rune.png',
+              visible: true,
+              data: layer.data
+            });
+          } else if (!layer.visible) {
+            $map.setLayer(names[i], {visible: true});
+          }
+        } else {
+          $map.setLayer(names[i], {visible: false});
+        }
+      }
+    }
+  };
+
   var statsManager = {
     biggestVal:0,
 
@@ -295,6 +340,7 @@
     mapManager.setupLayers(replayData.playerHeroes);
     roshanManager.setupRoshanEvents(replayData.roshEvents, firstTickTime);
     wardManager.setupWards(replayData.wardEvents, firstTickTime);
+    runeManager.setupRunes();
 
     $map.drawLayers();
 
@@ -320,6 +366,7 @@
           mapManager.updateCouriers(courierData);
         }
 
+        runeManager.updateRunes(snapshot.runeData);
         roshanManager.updateRoshan(ui.value);
         wardManager.updateWards(ui.value);
 
