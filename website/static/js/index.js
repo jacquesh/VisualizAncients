@@ -312,9 +312,8 @@
       });
     },
 
-    showWards: function(time) {
+    showWards: function() {
       this.hidden = false;
-      this.updateWards(time);
     }
   };
 
@@ -631,6 +630,17 @@
         mapManager.hideDeaths();
       }
       mapManager.updateHeroLayers(replayData.snapshots[time].heroData);
+      $map.drawLayers();
+    });
+
+    $('#wards-box').prev().click(function () {
+      var time = +$('#amount').text();
+      if ($(this).next().prop('checked')) {
+        wardManager.showWards();
+      } else {
+        wardManager.hideWards();
+      }
+      wardManager.updateWards(time);
       $map.drawLayers();
     });
   };
