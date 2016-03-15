@@ -252,8 +252,12 @@
       this.deathsHidden = true;
     },
 
-    toggleCreep: function() {
-      this.creepHidden = !this.creepHidden;
+    showCreep: function() {
+      this.creepHidden = false;
+    },
+
+    hideCreep: function() {
+      this.creepHidden = true;
     }
   };
 
@@ -641,6 +645,17 @@
         wardManager.hideWards();
       }
       wardManager.updateWards(time);
+      $map.drawLayers();
+    });
+
+    $('#creep-box').prev().click(function() {
+      var time = +$('#amount').text();
+      if ($(this).next().prop('checked')) {
+        mapManager.showCreep();
+      } else {
+        mapManager.hideCreep();
+      }
+      mapManager.updateCreep(replayData.snapshots[time].laneCreepData);
       $map.drawLayers();
     });
   };
