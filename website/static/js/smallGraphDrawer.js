@@ -1,6 +1,6 @@
 (function ($) {
   'use strict';
-
+	
   var replayData = undefined;
   var graphSettings = {barValueSpacing: 0,scaleShowLabels: false,
 	  scaleShowVerticalLines: false,
@@ -105,18 +105,66 @@
     };
     var player_kills_Chart = new Chart(player_kills_ctx).Bar(data, graphSettings);
   };
-
-		var changeGraphUp = function (){
-		var roshan = document.getElementById("roshanSmallChart");
-		var ward = document.getElementById("wardChart");
-		var player_kills_Chart = document.getElementById("player_kills_Chart");
-		if ((player_kills_Chart.style.display=="none") && (ward.style.display=="none"))
-		{
-			roshanSmallChart.style.display="none";
-			wardChart.style.display="block";	
-		}
-		
-	};
+  
+var upcount=0;
+var downcount=0;
+$('#uparrow').on("click",function (){
+	upcount++;
+	var roshan = document.getElementById("roshanSmallChart");
+	var ward = document.getElementById("wardSmallChart");
+	var player_kills_Chart = document.getElementById("playerKillsSmallChart");
+	if ((upcount%3)==1)
+	{
+		$("#roshanSmallChart").hide();
+		$("#playerKillsSmallChart").hide();
+		ward.style.display="block";	
+		$("#graph-label").text("Wards");
+	}
+	else if ((upcount%3)==2)
+	{
+		$("#wardSmallChart").hide();
+		$("#roshanKillsSmallChart").hide();
+		player_kills_Chart.style.display="block";
+		$("#graph-label").text("Kills");	
+	}
+	else
+	{
+		$("#wardSmallChart").hide();
+		$("#playerKillsSmallChart").hide();
+		roshan.style.display="block";
+		$("#graph-label").text("Roshan");	
+	}
+	
+	
+});
+$('#downarrow').on("click",function (){
+	upcount++;
+	var roshan = document.getElementById("roshanSmallChart");
+	var ward = document.getElementById("wardSmallChart");
+	var player_kills_Chart = document.getElementById("playerKillsSmallChart");
+	if ((upcount%3)==1)
+	{
+		$("#roshanSmallChart").hide();
+		$("#wardSmallChart").hide();
+		player_kills_Chart.style.display="block";	
+		$("#graph-label").text("Kills");
+	}
+	else if ((upcount%3)==2)
+	{
+		$("#playerKillsSmallChart").hide();
+		$("#roshanKillsSmallChart").hide();
+		ward.style.display="block";
+		$("#graph-label").text("Wards");	
+	}
+	else
+	{
+		$("#wardSmallChart").hide();
+		$("#playerKillsSmallChart").hide();
+		roshan.style.display="block";
+		$("#graph-label").text("Roshan");	
+	}
+	
+	
+});
   $(document).ready(loadPlayerData);
-  $(document).ready(changeGraphUp);
 })(jQuery);
