@@ -511,9 +511,8 @@
       $map.setLayerGroup('dire-buildings', {visible: false});
     },
 
-    showBuildings: function(time) {
+    showBuildings: function() {
       this.hidden = false;
-      this.updateBuildings(time);
     }
   };
 
@@ -676,6 +675,18 @@
       if (courierData.length) {
         mapManager.updateCouriers(courierData);
       }
+      $map.drawLayers();
+    });
+
+    $('#towers-box').prev().click(function() {
+      var time = +$('#amount').text();
+      if ($(this).next().prop('checked')) {
+        buildingManager.showBuildings();
+      } else {
+        buildingManager.hideBuildings();
+      }
+
+      buildingManager.updateBuildings(time);
       $map.drawLayers();
     });
   };
