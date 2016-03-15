@@ -12,6 +12,7 @@
     couriersHidden: false,
     deathsHidden: false,
     creepHidden: false,
+    smokeHidden: false,
 
     getX: function(data_x) {
       return (data_x - 64) * this.scalef;
@@ -174,6 +175,20 @@
       }
     },
 
+    updateSmokes: function(smokeData, time) {
+      $map.removeLayerGroup('smoke');
+      if (!this.smokeHidden) {
+        var colour = 'rgba(97, 29, 216, 0.51)';
+        for (var i = 0; i < smokeData.length; i++) {
+          var smoke = smokeData[i];
+          var timeDiff = time - smoke.time;
+          if ((0 < timeDiff) && (timeDiff < 1)) {
+            this.drawMapCircle(smoke.x, smoke.y, colour, 'smoke', 'smoke-' + i, 15);
+          }
+        }
+      }
+    },
+
     drawMapCircle: function(x, y, colour, group, name, radius) {
       radius = radius === undefined ? 8 : radius;
       group = group === undefined ? 'radiant' : group;
@@ -242,6 +257,10 @@
     toggleCouriers: function() {
       this.couriersHidden = !this.couriersHidden;
       $map.setLayerGroup('courier', {visible: !this.couriersHidden});
+    },
+
+    toggleSmokes: function() {
+      this.smokeHidden = !this.smokeHidden;
     },
 
     showDeaths: function() {
@@ -593,6 +612,7 @@
         roshanManager.updateRoshan(ui.value);
         wardManager.updateWards(ui.value);
         buildingManager.updateBuildings(ui.value);
+        mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
 
         statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
         statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
@@ -686,6 +706,14 @@
       }
 
       buildingManager.updateBuildings(time);
+      $map.drawLayers();
+    });
+
+    $('#smokes-box').prev().click(function() {
+      var time = +$('#amount').text();
+      mapManager.toggleSmokes();
+
+      mapManager.updateSmokes(replayData.smokeUses, replayData.snapshots[time].time);
       $map.drawLayers();
     });
 
