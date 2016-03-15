@@ -1,8 +1,16 @@
 (function ($) {
   'use strict';
-
+	
   var replayData = undefined;
-  var graphSettings = {barValueSpacing: 0,scaleShowLabels: false};
+  var graphSettings = {barValueSpacing: 0,scaleShowLabels: false,
+	  scaleShowVerticalLines: false,
+	  barShowStroke : false,
+	  animation:false,
+	  showScale:false,
+	  scaleShowLabels: false,
+	  scaleShowHorizontalLines: false,
+	  showTooltips: false
+	  };
   var time = (function () {
     var temp = [];
     for (var k = 0; k < 61; k++) {
@@ -45,8 +53,8 @@
 
   var drawRoshanChart = function (roshanDeaths) {
     var roshan_ctx = document.getElementById("roshanSmallChart").getContext("2d");
-    roshan_ctx.canvas.width=850;
-    roshan_ctx.canvas.height=60;
+    roshan_ctx.canvas.width=600;
+    roshan_ctx.canvas.height=40;
     var data = {
       labels: time,
       datasets: [
@@ -63,8 +71,8 @@
   };
   var drawWardsChart = function (wardCount) {
     var ward_ctx = document.getElementById("wardSmallChart").getContext("2d");
-    ward_ctx.canvas.width=850;
-    ward_ctx.canvas.height=60;
+    ward_ctx.canvas.width=800;
+    ward_ctx.canvas.height=40;
     var data = {
       labels: time,
       datasets: [
@@ -81,8 +89,9 @@
   };
   var drawPlayerKillsChart = function (playerKillCount) {
     var player_kills_ctx = document.getElementById("playerKillsSmallChart").getContext("2d");
-    player_kills_ctx.canvas.width=850;
-    player_kills_ctx.canvas.height=60;
+
+    player_kills_ctx.canvas.width=800;
+    player_kills_ctx.canvas.height=40;
     var data = {
       labels: time,
       datasets: [
@@ -97,18 +106,66 @@
     };
     var player_kills_Chart = new Chart(player_kills_ctx).Bar(data, graphSettings);
   };
-
-		var changeGraphUp = function (){
-		var roshan = document.getElementbyId("roshanSmallChart");
-		var ward = document.getElementbyId("wardChart");
-		var player_kills_Chart = document.getElementbyId("player_kills_Chart");
-		if ((player_kills_Chart.style.display=="none") && (ward.style.display=="none"))
-		{
-			roshanSmallChart.style.display="none";
-			wardChart.style.display="block";	
-		}
-		
-	};
+  
+var upcount=0;
+var downcount=0;
+$('#uparrow').on("click",function (){
+	upcount++;
+	var roshan = document.getElementById("roshanSmallChart");
+	var ward = document.getElementById("wardSmallChart");
+	var player_kills_Chart = document.getElementById("playerKillsSmallChart");
+	if ((upcount%3)==1)
+	{
+		$("#roshanSmallChart").hide();
+		$("#playerKillsSmallChart").hide();
+		ward.style.display="block";	
+		$("#graph-label").text("Wards");
+	}
+	else if ((upcount%3)==2)
+	{
+		$("#wardSmallChart").hide();
+		$("#roshanKillsSmallChart").hide();
+		player_kills_Chart.style.display="block";
+		$("#graph-label").text("Kills");	
+	}
+	else
+	{
+		$("#wardSmallChart").hide();
+		$("#playerKillsSmallChart").hide();
+		roshan.style.display="block";
+		$("#graph-label").text("Roshan");	
+	}
+	
+	
+});
+$('#downarrow').on("click",function (){
+	upcount++;
+	var roshan = document.getElementById("roshanSmallChart");
+	var ward = document.getElementById("wardSmallChart");
+	var player_kills_Chart = document.getElementById("playerKillsSmallChart");
+	if ((upcount%3)==1)
+	{
+		$("#roshanSmallChart").hide();
+		$("#wardSmallChart").hide();
+		player_kills_Chart.style.display="block";	
+		$("#graph-label").text("Kills");
+	}
+	else if ((upcount%3)==2)
+	{
+		$("#playerKillsSmallChart").hide();
+		$("#roshanKillsSmallChart").hide();
+		ward.style.display="block";
+		$("#graph-label").text("Wards");	
+	}
+	else
+	{
+		$("#wardSmallChart").hide();
+		$("#playerKillsSmallChart").hide();
+		roshan.style.display="block";
+		$("#graph-label").text("Roshan");	
+	}
+	
+	
+});
   $(document).ready(loadPlayerData);
-  $(document).ready(changeGraphUp);
 })(jQuery);
