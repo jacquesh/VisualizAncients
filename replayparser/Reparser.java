@@ -88,6 +88,7 @@ public class Reparser
 
     private int heroCount;
     private float startTime;
+    private float endTime;
 
     public Reparser()
     {
@@ -525,6 +526,10 @@ public class Reparser
             evt.isBarracks = isRax;
             towerDeaths.add(evt);
         }
+        else if(className.equals("CDOTA_BaseNPC_Fort"))
+        {
+            endTime = currentSnapshot.time;
+        }
     }
 
     @OnStringTableCreated
@@ -627,17 +632,22 @@ public class Reparser
         }
         out.write("],\n");
 
-        out.write("\"snapshots\":[\n");
+        out.write("\"snapshots\":[");
         for(int i=0; i<snapshotList.size(); i+=snapshotInterval)
         {
-            snapshotList.get(i).write(out);
-            if(i+snapshotInterval < snapshotList.size())
+            if(i > 0)
             {
                 out.write(",");
             }
             out.write("\n");
+            Snapshot ss = snapshotList.get(i);
+            ss.write(out);
+            if(ss.time >= endTime)
+            {
+                break;
+            }
         }
-        out.write("]\n");
+        out.write("\n]\n");
 
         out.write("}");
 
