@@ -99,9 +99,9 @@
   };
 
 		var changeGraphUp = function (){
-		var roshan = document.getElementbyId("roshanSmallChart");
-		var ward = document.getElementbyId("wardChart");
-		var player_kills_Chart = document.getElementbyId("player_kills_Chart");
+		var roshan = document.getElementById("roshanSmallChart");
+		var ward = document.getElementById("wardChart");
+		var player_kills_Chart = document.getElementById("player_kills_Chart");
 		if ((player_kills_Chart.style.display=="none") && (ward.style.display=="none"))
 		{
 			roshanSmallChart.style.display="none";
