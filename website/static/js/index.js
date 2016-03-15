@@ -430,9 +430,8 @@
       $map.setLayerGroup('runes', {visible: false});
     },
 
-    showRunes: function(time) {
+    showRunes: function() {
       this.hidden = false;
-      this.updateRunes(replayData.snapshots[time].runeData);
     }
   };
 
@@ -687,6 +686,18 @@
       }
 
       buildingManager.updateBuildings(time);
+      $map.drawLayers();
+    });
+
+    $('#runes-box').prev().click(function() {
+      var time = +$('#amount').text();
+      if ($(this).next().prop('checked')) {
+        runeManager.showRunes();
+      } else {
+        runeManager.hideRunes();
+      }
+
+      runeManager.updateRunes(replayData.snapshots[time].runeData);
       $map.drawLayers();
     });
   };
