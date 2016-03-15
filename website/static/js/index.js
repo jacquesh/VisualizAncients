@@ -269,21 +269,19 @@
     },
 
     updateRoshan: function(time) {
+      var showRosh = false;
       for (var i=0; i < this.roshanEvents.length; i++) {
-        var event = this.roshanEvents[i];
+        if (!showRosh) {
+          var event = this.roshanEvents[i];
 
-        if (time < event.start) {
-          return;
-        }
-
-        if ((event.end === -1) && (event.start < time)) {
-          $map.setLayer('roshan', {visible: true});
-        } else if ((event.start < time) && (time < event.end)) {
-          $map.setLayer('roshan', {visible: true});
+          var neverKilled = ((event.end === -1) && (event.start < time));
+          var aliveTime = ((event.start < time) && (time < event.end));
+          showRosh = neverKilled || aliveTime;
         } else {
-          $map.setLayer('roshan', {visible: false});
+          break;
         }
       }
+      $map.setLayer('roshan', {visible: showRosh});
     }
   };
 
