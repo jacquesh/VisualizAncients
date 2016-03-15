@@ -330,6 +330,73 @@
     }
   };
 
+  var buildingManager = {
+    setupBuildings: function(towerEvents, firstTickTime) {
+      // Make towers for both teams
+      for (var i=0; i < 2; i++) {
+        var team = (i == 0) ? 'radiant' : 'dire';
+        for (var j=0; j < 11; j++) {
+          var pos = towerPositions[i][j];
+          var layerName = team + '-' + j + '-' + 'tower';
+          this.addBuilding(pos.x, pos.y, team, false, team + '-buildings', layerName);
+          $map.setLayer(layerName, {
+            data: {
+              deadTime: -1
+            }
+          });
+        }
+      }
+
+      // Make barracks for both teams
+      for (var i=0; i < 2; i++) {
+        var team = (i == 0) ? 'radiant' : 'dire';
+        for (var j=0; j < 6; j++) {
+          var pos = barracksPositions[i][j];
+          var layerName = team + '-' + j + '-' + 'barracks';
+          this.addBuilding(pos.x, pos.y, team, true, team + '-buildings', layerName);
+          $map.setLayer(layerName, {
+            data: {
+              deadTime: -1
+            }
+          });
+        }
+      }
+
+      for (var i=0; i < towerEvents.length; i++) {
+        var event = towerEvents[i];
+        var team = event.teamIndex == 0 ? 'radiant' : 'dire';
+        var type = event.isBarracks ? 'barracks' : 'tower';
+
+        var layerName = team + '-' + event.towerIndex + '-' + type;
+        $map.setLayer(layerName, {
+          data: {
+            deadTime: Math.round((event.time - firstTickTime) * 2) + 1
+          }
+        });
+      }
+    },
+
+    updateBuildings: function(tick) {
+      var setDead = function(index, layer) {
+        var deadTime = layer.data.deadTime;
+        var dead = (deadTime <= tick) && (deadTime !== -1);
+
+        $map.setLayer(layer.name, {
+          visible: !dead
+        });
+      };
+
+      $.each($map.getLayerGroup('radiant-buildings'), setDead);
+      $.each($map.getLayerGroup('dire-buildings'), setDead);
+    },
+
+    addBuilding: function(x, y, team, barracks, group, name) {
+      var type = barracks ? 'barracks.png' : 'tower.png';
+      var path = '/static/img/icons/' + type;
+      mapManager.drawMapIcon(x, y, 0.25, path, group, name);
+    }
+  };
+
   var statsManager = {
     biggestVal:0,
 
@@ -373,6 +440,7 @@
     var snapshots = replayData.snapshots;
     var firstTickTime = snapshots[1].time;
 
+    buildingManager.setupBuildings(replayData.towerDeaths, firstTickTime);
     mapManager.setupLayers(replayData.playerHeroes);
     roshanManager.setupRoshanEvents(replayData.roshEvents, firstTickTime);
     wardManager.setupWards(replayData.wardEvents, firstTickTime);
@@ -405,6 +473,7 @@
         runeManager.updateRunes(snapshot.runeData);
         roshanManager.updateRoshan(ui.value);
         wardManager.updateWards(ui.value);
+        buildingManager.updateBuildings(ui.value);
 
         statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
         statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
