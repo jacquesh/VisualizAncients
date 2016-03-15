@@ -613,6 +613,15 @@
     req.send();
   };
 
-  $(document).ready(loadPlayerData);
+  var setupCheckboxes = function () {
+    var $toggleBox = $('#toggle-box');
+    $toggleBox.find('input').altCheckbox();
+    $toggleBox.find('.alt-checkbox').addClass('checked');
+  };
+
+  $(document).ready(function() {
+    setupCheckboxes();
+    loadPlayerData();
+  });
 
 })(jQuery);
