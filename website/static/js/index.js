@@ -332,13 +332,13 @@
 
   var buildingManager = {
     setupBuildings: function(towerEvents, firstTickTime) {
-      // Make towers for both teams
+      // Make barracks for both teams
       for (var i=0; i < 2; i++) {
         var team = (i == 0) ? 'radiant' : 'dire';
-        for (var j=0; j < 11; j++) {
-          var pos = towerPositions[i][j];
-          var layerName = team + '-' + j + '-' + 'tower';
-          this.addBuilding(pos.x, pos.y, team, false, team + '-buildings', layerName);
+        for (var j=0; j < 6; j++) {
+          var pos = barracksPositions[i][j];
+          var layerName = team + '-' + j + '-' + 'barracks';
+          this.addBuilding(pos.x, pos.y, team, true, team + '-buildings', layerName);
           $map.setLayer(layerName, {
             data: {
               deadTime: -1
@@ -347,13 +347,13 @@
         }
       }
 
-      // Make barracks for both teams
+      // Make towers for both teams
       for (var i=0; i < 2; i++) {
         var team = (i == 0) ? 'radiant' : 'dire';
-        for (var j=0; j < 6; j++) {
-          var pos = barracksPositions[i][j];
-          var layerName = team + '-' + j + '-' + 'barracks';
-          this.addBuilding(pos.x, pos.y, team, true, team + '-buildings', layerName);
+        for (var j=0; j < 11; j++) {
+          var pos = towerPositions[i][j];
+          var layerName = team + '-' + j + '-' + 'tower';
+          this.addBuilding(pos.x, pos.y, team, false, team + '-buildings', layerName);
           $map.setLayer(layerName, {
             data: {
               deadTime: -1
