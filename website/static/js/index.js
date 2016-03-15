@@ -106,6 +106,12 @@
             y: this.getY(hero.y),
             data: layer.data
           });
+        } else {
+          $map.setLayer(layerId + '-dead', {
+            x: this.getX(hero.x),
+            y: this.getY(hero.y),
+            data: layer.data
+          });
         }
 
         if (hero.alive && !layer.data.alive) {
