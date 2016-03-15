@@ -121,10 +121,10 @@ header > hr {
     margin-left: 1px;
     margin-right: 1px;
 }
-#wardChart{
+#wardSmallChart{
 	display:none;
 }
-#player_kills_Chart{
+#playerKillsSmallChart{
 	display:none;
 }
 .ui-slider > .ui-slider-handle {
