@@ -9,6 +9,8 @@
     scalef: $map.width() / 127,
     layers: ['rad-1', 'rad-2', 'rad-3', 'rad-4', 'rad-5',
              'dir-1', 'dir-2', 'dir-3', 'dir-4', 'dir-5'],
+    couriersHidden: false,
+    deathsHidden: false,
 
     getX: function(data_x) {
       return (data_x - 64) * this.scalef;
@@ -128,11 +130,13 @@
             data: layer.data
           });
 
-          $map.setLayer(layerId + '-dead', {
-            x: layer.x, y: layer.y,
-            visible: true,
-            data: layer.data
-          });
+          if (!this.deathsHidden) {
+            $map.setLayer(layerId + '-dead', {
+              x: layer.x, y: layer.y,
+              visible: true,
+              data: layer.data
+            });
+          }
         }
       }
     },
@@ -201,11 +205,22 @@
 
     resetMap: function() {
       $map.clearCanvas();
+    },
+
+    toggleCouriers: function() {
+      this.couriersHidden = !this.couriersHidden;
+      $map.setLayerGroup('courier', {visible: this.couriersHidden});
+    },
+
+    toggleDeaths: function() {
+      this.deathsHidden = !this.deathsHidden;
     }
   };
 
   var wardManager = {
     wards: {},
+    hidden: false,
+
     setupWards: function(wardEvents, firstTickTime) {
       for (var i=0; i<wardEvents.length; i++) {
         var event = wardEvents[i];
@@ -227,6 +242,10 @@
     },
 
     updateWards: function(time) {
+      if (this.hidden) {
+        return;
+      }
+
       var map = $map;
       $.each(this.wards, function(handle, ward) {
         if ((ward.start < time) && (time < ward.end)) {
@@ -241,11 +260,27 @@
       var wardType = this.wards[handle].sentry ? 'sentry' : 'ward';
       var iconPath = '/static/img/icons/' + team + '_' + wardType + '.png';
       mapManager.drawMapIcon(x, y, 0.5, iconPath, team + '-wards', handle);
+    },
+
+    hideWards: function() {
+      this.hidden = true;
+      $map.setLayerGroup('radiant-wards', {
+        visible: false
+      });
+      $map.setLayerGroup('dire-wards', {
+        visible: false
+      });
+    },
+
+    showWards: function(time) {
+      this.hidden = false;
+      this.updateWards(time);
     }
   };
 
   var roshanManager = {
     roshanEvents: [],
+    hidden: false,
 
     setupRoshanEvents: function(roshanData, firstTickTime) {
       var roshanPath = '/static/img/icons/roshan.png';
@@ -269,6 +304,10 @@
     },
 
     updateRoshan: function(time) {
+      if (this.hidden) {
+        return;
+      }
+
       var showRosh = false;
       for (var i=0; i < this.roshanEvents.length; i++) {
         if (!showRosh) {
@@ -282,11 +321,22 @@
         }
       }
       $map.setLayer('roshan', {visible: showRosh});
+    },
+
+    hideRoshan: function() {
+      this.hidden = true;
+      $map.setLayer('roshan', {visible: false});
+    },
+
+    showRoshan: function(time) {
+      this.hidden = false;
+      this.updateRoshan(time);
     }
   };
 
   var runeManager = {
     runeMap: ['dd', 'haste', 'illusion', 'invis', 'regen', 'bounty', 'arcane'],
+    hidden: false,
 
     setupRunes: function() {
       this.addRuneSpot(110, 140, 0.7, 'rune-top');
@@ -306,6 +356,10 @@
     },
 
     updateRunes: function(runesState) {
+      if (this.hidden) {
+        return;
+      }
+
       var names = ['rune-top', 'rune-bot'];
 
       for (var i=0; i < runesState.length; i++) {
@@ -327,10 +381,21 @@
           $map.setLayer(names[i], {visible: false});
         }
       }
+    },
+
+    hideRunes: function() {
+      this.hidden = true;
+      $map.setLayerGroup('runes', {visible: false});
+    },
+
+    showRunes: function(time) {
+      this.hidden = false;
+      this.updateRunes(replayData.snapshots[time].runeData);
     }
   };
 
   var buildingManager = {
+    hidden: false,
     setupBuildings: function(towerEvents, firstTickTime) {
       // Make barracks for both teams
       for (var i=0; i < 2; i++) {
@@ -386,14 +451,27 @@
         });
       };
 
-      $.each($map.getLayerGroup('radiant-buildings'), setDead);
-      $.each($map.getLayerGroup('dire-buildings'), setDead);
+      if (!this.hidden) {
+        $.each($map.getLayerGroup('radiant-buildings'), setDead);
+        $.each($map.getLayerGroup('dire-buildings'), setDead);
+      }
     },
 
     addBuilding: function(x, y, team, barracks, group, name) {
       var type = barracks ? 'barracks.png' : 'tower.png';
       var path = '/static/img/icons/' + type;
       mapManager.drawMapIcon(x, y, 0.25, path, group, name);
+    },
+
+    hideBuildings: function() {
+      this.hidden = true;
+      $map.setLayerGroup('radiant-buildings', {visible: false});
+      $map.setLayerGroup('dire-buildings', {visible: false});
+    },
+
+    showBuildings: function(time) {
+      this.hidden = false;
+      this.updateBuildings(time);
     }
   };
 
