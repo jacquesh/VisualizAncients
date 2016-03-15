@@ -124,20 +124,21 @@
             data: layer.data
           });
           $map.setLayer(layerId + '-dead', {visible: false});
-        } else if (!hero.alive && layer.data.alive) {
+        } else if (!hero.alive) {
           layer.data.alive = false;
           $map.setLayer(layerId, {
             visible: false,
             data: layer.data
           });
 
-          if (!this.deathsHidden) {
-            $map.setLayer(layerId + '-dead', {
-              x: layer.x, y: layer.y,
-              visible: true,
-              data: layer.data
-            });
-          }
+          $map.setLayer(layerId + '-dead', {
+            x: layer.x, y: layer.y,
+            visible: true,
+            data: layer.data
+          });
+        }
+        if (this.deathsHidden) {
+          $map.setLayer(layerId + '-dead', {visible: false});
         }
       }
     },
@@ -243,8 +244,12 @@
       $map.setLayerGroup('courier', {visible: this.couriersHidden});
     },
 
-    toggleDeaths: function() {
-      this.deathsHidden = !this.deathsHidden;
+    showDeaths: function() {
+      this.deathsHidden = false;
+    },
+
+    hideDeaths: function() {
+      this.deathsHidden = true;
     },
 
     toggleCreep: function() {
@@ -617,6 +622,17 @@
     var $toggleBox = $('#toggle-box');
     $toggleBox.find('input').altCheckbox();
     $toggleBox.find('.alt-checkbox').addClass('checked');
+
+    $('#death-box').prev().click(function() {
+      var time = +$('#amount').text();
+      if ($(this).next().prop('checked')) {
+        mapManager.showDeaths();
+      } else {
+        mapManager.hideDeaths();
+      }
+      mapManager.updateHeroLayers(replayData.snapshots[time].heroData);
+      $map.drawLayers();
+    });
   };
 
   $(document).ready(function() {
