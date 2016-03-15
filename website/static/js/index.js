@@ -206,6 +206,49 @@
     }
   };
 
+  var roshanManager = {
+    roshanEvents: [],
+
+    setupRoshanEvents: function(roshanData, firstTickTime) {
+      var roshanPath = '/static/img/icons/roshan.png';
+      mapManager.drawMapIcon(160, 113, 0.75, roshanPath, 'roshan', 'roshan');
+      $map.setLayer('roshan', {visible: false});
+
+      var eventIndex = 0;
+      for (var i=0; i < roshanData.length; i++) {
+        var event = roshanData[i];
+
+        if (!event.died) {
+          this.roshanEvents.push({
+            start: Math.round((event.time - firstTickTime) * 2) + 1,
+            end: -1
+          });
+        } else {
+          this.roshanEvents[eventIndex].end = Math.round((event.time - firstTickTime) * 2) + 1;
+          eventIndex += 1;
+        }
+      }
+    },
+
+    updateRoshan: function(time) {
+      for (var i=0; i < this.roshanEvents.length; i++) {
+        var event = this.roshanEvents[i];
+
+        if (time < event.start) {
+          return;
+        }
+
+        if ((event.end === -1) && (event.start < time)) {
+          $map.setLayer('roshan', {visible: true});
+        } else if ((event.start < time) && (time < event.end)) {
+          $map.setLayer('roshan', {visible: true});
+        } else {
+          $map.setLayer('roshan', {visible: false});
+        }
+      }
+    }
+  };
+
   var statsManager = {
     biggestVal:0,
 
@@ -247,9 +290,11 @@
     replayData = JSON.parse(dataStr);
 
     var snapshots = replayData.snapshots;
+    var firstTickTime = snapshots[1].time;
 
     mapManager.setupLayers(replayData.playerHeroes);
-    wardManager.setupWards(replayData.wardEvents, snapshots[1].time);
+    roshanManager.setupRoshanEvents(replayData.roshEvents, firstTickTime);
+    wardManager.setupWards(replayData.wardEvents, firstTickTime);
 
     $map.drawLayers();
 
@@ -275,6 +320,7 @@
           mapManager.updateCouriers(courierData);
         }
 
+        roshanManager.updateRoshan(ui.value);
         wardManager.updateWards(ui.value);
 
         statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
