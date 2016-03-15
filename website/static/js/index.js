@@ -241,7 +241,7 @@
 
     toggleCouriers: function() {
       this.couriersHidden = !this.couriersHidden;
-      $map.setLayerGroup('courier', {visible: this.couriersHidden});
+      $map.setLayerGroup('courier', {visible: !this.couriersHidden});
     },
 
     showDeaths: function() {
@@ -666,6 +666,16 @@
         roshanManager.hideRoshan();
       }
       roshanManager.updateRoshan(time);
+      $map.drawLayers();
+    });
+
+    $('#courier-box').prev().click(function() {
+      var time = +$('#amount').text();
+      mapManager.toggleCouriers();
+      var courierData = replayData.snapshots[time].courierData;
+      if (courierData.length) {
+        mapManager.updateCouriers(courierData);
+      }
       $map.drawLayers();
     });
   };
