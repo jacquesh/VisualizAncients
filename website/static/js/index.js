@@ -11,6 +11,7 @@
              'dir-1', 'dir-2', 'dir-3', 'dir-4', 'dir-5'],
     couriersHidden: false,
     deathsHidden: false,
+    creepHidden: false,
 
     getX: function(data_x) {
       return (data_x - 64) * this.scalef;
@@ -160,7 +161,20 @@
       }
     },
 
-    drawMapCircle: function(x, y, colour, group, name) {
+    updateCreep: function(laneCreepData) {
+      $map.removeLayerGroup('creep');
+      if (!this.creepHidden) {
+        for (var i = 0; i < laneCreepData.length; i++) {
+          var group = laneCreepData[i];
+          var colour = group.isDire ? '#E65609' : '#097FE6';
+          this.drawMapPolygon(group.x, group.y, colour, 'creep', 'creep-' + i, 3 + Math.round(group.creepCount / 2));
+          $map.moveLayer('creep-' + i, 0);
+        }
+      }
+    },
+
+    drawMapCircle: function(x, y, colour, group, name, radius) {
+      radius = radius === undefined ? 8 : radius;
       group = group === undefined ? 'radiant' : group;
 
       $map.drawArc({
@@ -171,7 +185,24 @@
         groups: [group],
         fillStyle: colour,
         x: this.getX(x), y: this.getY(y),
-        radius: 8
+        radius: radius
+      });
+    },
+
+    drawMapPolygon: function(x, y, colour, group, name, radius, sides) {
+      radius = radius === undefined ? 8 : radius;
+      sides = sides === undefined ? 6 : sides;
+
+      $map.drawPolygon({
+        name: name,
+        strokeStyle: '#000',
+        strokeWidth: 2,
+        layer: true,
+        groups: [group],
+        fillStyle: colour,
+        x: this.getX(x), y: this.getY(y),
+        radius: radius,
+        sides: sides
       });
     },
 
@@ -214,6 +245,10 @@
 
     toggleDeaths: function() {
       this.deathsHidden = !this.deathsHidden;
+    },
+
+    toggleCreep: function() {
+      this.creepHidden = !this.creepHidden;
     }
   };
 
@@ -548,6 +583,7 @@
           mapManager.updateCouriers(courierData);
         }
 
+        mapManager.updateCreep(snapshot.laneCreepData);
         runeManager.updateRunes(snapshot.runeData);
         roshanManager.updateRoshan(ui.value);
         wardManager.updateWards(ui.value);
