@@ -98,5 +98,17 @@
     var player_kills_Chart = new Chart(player_kills_ctx).Bar(data, graphSettings);
   };
 
+		var changeGraphUp = function (){
+		var roshan = document.getElementbyId("roshanSmallChart");
+		var ward = document.getElementbyId("wardChart");
+		var player_kills_Chart = document.getElementbyId("player_kills_Chart");
+		if ((player_kills_Chart.style.display=="none") && (ward.style.display=="none"))
+		{
+			roshanSmallChart.style.display="none";
+			wardChart.style.display="block";	
+		}
+		
+	};
   $(document).ready(loadPlayerData);
+  $(document).ready(changeGraphUp);
 })(jQuery);
