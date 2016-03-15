@@ -15,25 +15,29 @@ using SteamKit2.GC.Internal;
 using SteamKit2.GC.Dota;
 using SteamKit2.GC.Dota.Internal;
 using System.IO;
-using Newtonsoft.Json;
 using System.Linq;
 
 namespace demodownloader
 {
     class Dota2Client
     {
-        const int DOTA_APP_ID = 570;
+        public const int DOTA_APP_ID = 570;
+
+        public int ReceivedReplayCount { get { return receivedReplayURLs.Count; } }
 
         private SteamClient steam;
+        private SteamUser user;
+
         private CallbackManager manager;
         private SteamGameCoordinator gameCoordinator;
 
-        private SteamUser user;
-        private string userName;
-        private string userPassword;
-        private List<string> matchIds = new List<string>(); // stores the list of matchIds
+        private bool connected;
+        private bool loggedOn;
+        private bool welcomed;
 
-        public Dota2Client(string accountName, string accountPassword)
+        private List<string> receivedReplayURLs;
+
+        public Dota2Client()
         {
             steam = new SteamClient();
             user = steam.GetHandler<SteamUser>();
@@ -44,8 +48,11 @@ namespace demodownloader
             manager.Subscribe<SteamUser.LoggedOnCallback>(onLogon);
             manager.Subscribe<SteamGameCoordinator.MessageCallback>(onMessage);
 
-            userName = accountName;
-            userPassword = accountPassword;
+            connected = false;
+            loggedOn = false;
+            welcomed = false;
+
+            receivedReplayURLs = new List<string>();
         }
 
         public void Connect()
@@ -54,49 +61,27 @@ namespace demodownloader
             SteamDirectory.Initialize().Wait();
             steam.Connect();
 
-            while(true) //TODO: There is a better way to do this
+            while(!connected)
             {
-                manager.RunWaitCallbacks(TimeSpan.FromSeconds(1));
+                manager.RunWaitCallbacks(TimeSpan.FromMilliseconds(100));
             }
         }
 
-        public void DownloadReplay(ulong matchID, uint clusterID, uint replaySalt)
+        public void LogOn(string userName, string userPassword)
         {
-            string replayURL = String.Format("http://replay{0}.valve.net/{1}/{2}_{3}.dem.bz2", clusterID, DOTA_APP_ID, matchID, replaySalt);
-            string filePath = String.Format("{0}_{1}.dem.bz2", matchID, replaySalt);
-            using (WebClient client = new WebClient())
-            {
-                client.DownloadFile(replayURL, filePath);
-            }
-            //Console.WriteLine("Download complete!");
-        }
-
-        private void onConnect(SteamClient.ConnectedCallback callback)
-        {
-            if (callback.Result != EResult.OK)
-            {
-                //Console.WriteLine("ERROR: Unable to connect to steam: {0}", callback.Result);
-                // TODO: Handle this properly
-                return;
-            }
-
-            Console.Error.WriteLine("Connected");
             SteamUser.LogOnDetails userDetails = new SteamUser.LogOnDetails();
             userDetails.Username = userName;
             userDetails.Password = userPassword;
             user.LogOn(userDetails);
+
+            while (!loggedOn)
+            {
+                manager.RunWaitCallbacks(TimeSpan.FromMilliseconds(100));
+            }
         }
 
-        private void onLogon(SteamUser.LoggedOnCallback callback)
+        public void OpenDota()
         {
-            if (callback.Result != EResult.OK)
-            {
-               //Console.WriteLine("ERROR: Unable to log in as {0}: {1}", userName, callback.Result);
-                // TODO: Handle this properly
-                return;
-            }
-
-            Console.Error.WriteLine("Logged on");
             CMsgClientGamesPlayed.GamePlayed playingDota2 = new CMsgClientGamesPlayed.GamePlayed();
             playingDota2.game_id = new GameID(DOTA_APP_ID);
             ClientMsgProtobuf<CMsgClientGamesPlayed> playMsg = new ClientMsgProtobuf<CMsgClientGamesPlayed>(EMsg.ClientGamesPlayed);
@@ -105,9 +90,61 @@ namespace demodownloader
 
             Thread.Sleep(5000); // TODO: Can we not wait for something a bit more reliable? Like a callback or something?
 
-            ClientGCMsgProtobuf<CMsgClientHello> someMsg = new ClientGCMsgProtobuf<CMsgClientHello>((uint)EGCBaseClientMsg.k_EMsgGCClientHello);
-            someMsg.Body.engine = ESourceEngine.k_ESE_Source2;
-            gameCoordinator.Send(someMsg, DOTA_APP_ID);
+            ClientGCMsgProtobuf<CMsgClientHello> dotaHello = new ClientGCMsgProtobuf<CMsgClientHello>((uint)EGCBaseClientMsg.k_EMsgGCClientHello);
+            dotaHello.Body.engine = ESourceEngine.k_ESE_Source2;
+            gameCoordinator.Send(dotaHello, DOTA_APP_ID);
+
+            while (!welcomed)
+            {
+                manager.RunWaitCallbacks(TimeSpan.FromMilliseconds(100));
+            }
+        }
+
+        public void RequestReplayURL(ulong matchID)
+        {
+            ClientGCMsgProtobuf<CMsgGCMatchDetailsRequest> request = new ClientGCMsgProtobuf<CMsgGCMatchDetailsRequest>((uint)EDOTAGCMsg.k_EMsgGCMatchDetailsRequest);
+            request.Body.match_id = matchID;
+            gameCoordinator.Send(request, DOTA_APP_ID);
+        }
+
+        public void WaitForMessages()
+        {
+            manager.RunWaitCallbacks(TimeSpan.FromMilliseconds(500));
+        }
+
+        public string[] ReceivedReplayURLs()
+        {
+            return receivedReplayURLs.ToArray();
+        }
+
+        public void Disconnect()
+        {
+            user.LogOff();
+            steam.Disconnect();
+        }
+
+        private void onConnect(SteamClient.ConnectedCallback callback)
+        {
+            if (callback.Result != EResult.OK)
+            {
+                Console.Error.WriteLine("ERROR: Unable to connect to steam: {0}", callback.Result);
+                return;
+            }
+
+            connected = true;
+            Console.Error.WriteLine("Connected");
+        }
+
+        private void onLogon(SteamUser.LoggedOnCallback callback)
+        {
+            if (callback.Result != EResult.OK)
+            {
+                Console.Error.WriteLine("ERROR: Unable to log on: {0}", callback.Result);
+                return;
+            }
+
+            loggedOn = true;
+            Console.Error.WriteLine("Logged on");
         }
 
         private void onMessage(SteamGameCoordinator.MessageCallback callback)
@@ -124,92 +161,26 @@ namespace demodownloader
             }
         }
 
-       
-
         private void onWelcomeReceived(IPacketGCMsg msg)
         {
-            ClientGCMsgProtobuf<CMsgGCMatchDetailsRequest> request = new ClientGCMsgProtobuf<CMsgGCMatchDetailsRequest>((uint)EDOTAGCMsg.k_EMsgGCMatchDetailsRequest);
-            RunAsync("57934473", true).Wait();
-            List<string> temp = matchIds.Distinct().ToList();
-            foreach (string x in temp)
-            {
-                request = new ClientGCMsgProtobuf<CMsgGCMatchDetailsRequest>((uint)EDOTAGCMsg.k_EMsgGCMatchDetailsRequest);
-                request.Body.match_id = ulong.Parse(x);
-                gameCoordinator.Send(request, DOTA_APP_ID);
-            }
-            Console.Error.WriteLine("wait 1 sec then close");
-            
-        }
-
-        async Task RunAsync(string pID, bool cont)
-        {
-            string steamAPI = "?key=956B29B784D225393DA5B57301BF7E24";
-            string playerID = pID;
-            int numberOfMatches = 2; // small for testing purposes; larger number -> more matches
-            
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri("http://localhost:9000/");
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                string url = "https://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/V001/"+ steamAPI +"&account_id=" + playerID + "&Matches_Requested="+numberOfMatches+"&format=json";
-                HttpResponseMessage response = await client.GetAsync(url);
-                if (response.IsSuccessStatusCode)
-                { 
-                    var responseValue = string.Empty;
-                    Task task = response.Content.ReadAsStreamAsync().ContinueWith(t =>
-                    {
-                        var stream = t.Result;
-                        using (var reader = new StreamReader(stream))
-                        {
-                            responseValue = reader.ReadToEnd();
-                        }
-                    });
-                    task.Wait();
-                    JObject results = JObject.Parse(responseValue);
-                    List<string> usedPlayerID = new List<string>();
-                    for (int i =0; i < numberOfMatches; i++)
-                    {
-                        if (((string)results["result"]["status"]).Equals("1")) // check user is letting us get their history
-                        {
-                            string matches = (string)results["result"]["matches"][i]["match_id"];
-                            if (cont) // only flood one level down, otherwise it just doesn't stop
-                            {
-                                for (int j = 0; j < 10; j++)
-                                {
-                                    string playerIDx = (string)results["result"]["matches"][i]["players"][j]["account_id"];
-                                    if (!usedPlayerID.Contains(playerIDx))
-                                    {
-                                        usedPlayerID.Add(playerIDx);
-                                        RunAsync(playerIDx, false).Wait();
-                                    }
-                                    
-                                }
-                            }
-                            matchIds.Add(matches);
-                            Console.Error.WriteLine(matches);
-                        }
-                    }
-                }
-            }
-
+            welcomed = true;
+            Console.Error.WriteLine("Welcome received from Game Coordinator");
         }
 
         private void onMatchDetailsReceived(IPacketGCMsg msg)
         {
+            Console.Error.WriteLine("Match Details Received");
             ClientGCMsgProtobuf<CMsgGCMatchDetailsResponse> response = new ClientGCMsgProtobuf<CMsgGCMatchDetailsResponse>(msg);
             if ((EResult)response.Body.result != EResult.OK)
             {
-                //Console.WriteLine("Unable to request match details: {0}", response.Body.result);
+                Console.Error.WriteLine("Unable to request match details: {0}", response.Body.result);
                 return;
             }
 
             CMsgDOTAMatch match = response.Body.match;
-            //Lazy reflection, copied from SteamKit dota example:
-            var fields = typeof(CMsgDOTAMatch).GetProperties(BindingFlags.Public | BindingFlags.Instance);
             if (match.replay_state != CMsgDOTAMatch.ReplayState.REPLAY_AVAILABLE)
             {
-                //Console.WriteLine("Replay unable, cannot download");
+                Console.Error.WriteLine("Replay cannot be downloaded");
                 return;
             }
 
@@ -217,10 +188,8 @@ namespace demodownloader
             ulong matchID = match.match_id;
             uint replaySalt = match.replay_salt;
             string replayURL = String.Format("http://replay{0}.valve.net/{1}/{2}_{3}.dem.bz2", replayCluster, DOTA_APP_ID, matchID, replaySalt);
+            receivedReplayURLs.Add(replayURL);
             Console.WriteLine(replayURL);
-            //DownloadReplay(matchID, replayCluster, replaySalt);
-
-            steam.Disconnect();
         }
     }
 }
