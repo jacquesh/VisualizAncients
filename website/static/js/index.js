@@ -531,11 +531,11 @@
       var $netWorth = $teamStats.find('.net-worth');
       var $totalXp = $teamStats.find('.total-xp');
 
-      $netWorth.text(stats.netWorth);
-      //$netWorth.width('calc('+ (stats.netWorth/this.biggestVal) * 100 +'% - 9%)');
+      $netWorth.find('span').text(stats.netWorth);
+      $netWorth.width('calc('+ (stats.netWorth/this.biggestVal) * 100 +'% - 9%)');
 
-      $totalXp.text(stats.totalXp);
-      //$totalXp.width('calc('+ (stats.totalXp/this.big) * 100 +'% - 9%)');
+      $totalXp.find('span').text(stats.totalXp);
+      $totalXp.width('calc('+ (stats.totalXp/this.biggestVal) * 100 +'% - 9%)');
     }
   };
 

@@ -323,7 +323,6 @@ header > hr {
 
 .team-stats > div {
     height: 23px;
-    position: relative;
 }
 
 .total-xp, .net-worth {
@@ -332,18 +331,22 @@ header > hr {
     display: inline-block;
 }
 
+#radiant .label {
+    position: absolute;
+    left: 11%;
+}
+
+#dire .label {
+    position: absolute;
+    right: 11%;
+}
+
 .total-xp {
     background: #59CBD8;
 }
 
 .net-worth {
     background: #ffff00;
-}
-
-.team-stats > p {
-    position: absolute;
-    width: 100%;
-    margin: 0;
 }
 
 #team-graphs > #radiant > .team-stats img {
