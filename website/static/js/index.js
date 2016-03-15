@@ -371,9 +371,8 @@
       $map.setLayer('roshan', {visible: false});
     },
 
-    showRoshan: function(time) {
+    showRoshan: function() {
       this.hidden = false;
-      this.updateRoshan(time);
     }
   };
 
@@ -656,6 +655,17 @@
         mapManager.hideCreep();
       }
       mapManager.updateCreep(replayData.snapshots[time].laneCreepData);
+      $map.drawLayers();
+    });
+
+    $('#roshan-box').prev().click(function() {
+      var time = +$('#amount').text();
+      if ($(this).next().prop('checked')) {
+        roshanManager.showRoshan();
+      } else {
+        roshanManager.hideRoshan();
+      }
+      roshanManager.updateRoshan(time);
       $map.drawLayers();
     });
   };
