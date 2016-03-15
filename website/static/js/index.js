@@ -61,7 +61,8 @@
             color: col,
             heroName: heroNameMap[playerHeroes[i]],
             imgName: playerHeroes[i].replace('npc_dota_hero_', ''),
-            items: []
+            items: [],
+            alive: false
           }
         })
       }
@@ -85,15 +86,19 @@
           data: layerData
         });
 
-        if (hero.alive) {
+        if (hero.alive && !layerData.alive) {
+          layerData.alive = true;
           $map.setLayer(layer, {
             fillStyle: layerData.color,
-            strokeStyle: '#000'
+            strokeStyle: '#000',
+            data: layerData
           }).moveLayer(layer, $map.getLayers().length);
-        } else {
+        } else if (!hero.alive && layerData.alive) {
+          layerData.alive = false;
           $map.setLayer(layer, {
             fillStyle: 'rgba(255, 0, 0, 0.4)',
-            strokeStyle: 'rgba(0, 0, 0, 0.4)'
+            strokeStyle: 'rgba(0, 0, 0, 0.4)',
+            data: layerData
           }).moveLayer(layer, wardManager.wards.length + 1);
         }
       }
