@@ -59,7 +59,7 @@ var replayData = undefined;
           col = '#097FE6';
           team = 'radiant';
         } else {
-          this.drawMapRect(0, 0, '#E65609', 'dire', layerName);
+          this.drawMapRect(194, 194, '#E65609', 'dire', layerName);
           col = '#E65609';
           team = 'dire';
         }
@@ -97,8 +97,45 @@ var replayData = undefined;
       this.drawMapIcon(0, 0, 0.6, courierPath, 'courier', 'dir-courier');
     },
 
-    drawHeroPaths: function(t0, t1, heroData) {
+    drawHeroPaths: function(t0, t1, snapshots) {
+      $map.removeLayerGroup('radiant-lines');
+      $map.removeLayerGroup('dire-lines');
 
+      for (var i=0; i<10; i++) {
+        var points = [];
+        for (var j=t0; j <= t1; j++) {
+          var hero = snapshots[j].heroData[i];
+          points.push([hero.x, hero.y]);
+        }
+
+        if (i < 5) {
+          this.drawMapLine(points, '#097FE6', true, 'radiant-lines', this.layers[i] + '-line');
+        } else {
+          this.drawMapLine(points, '#E65609', false, 'dire-lines', this.layers[i] + '-line');
+        }
+      }
+    },
+
+    drawMapLine: function(points, colour, dashed, group, name) {
+      var lineSettings = {
+        name: name,
+        strokeStyle: colour,
+        strokeWidth: 4,
+        layer: true,
+        groups: [group],
+        closed: false
+      };
+
+      if (dashed) {
+        lineSettings.strokeDash = [20, 5];
+      }
+
+      // Add the points from the array to the object
+      for (var p=0; p < points.length; p++) {
+        lineSettings['x'+(p+1)] = this.getX(points[p][0]);
+        lineSettings['y'+(p+1)] = this.getY(points[p][1]);
+      }
+      $map.drawLine(lineSettings);
     },
 
     updateHeroLayers: function(heroData) {
@@ -657,7 +694,9 @@ var replayData = undefined;
 
     singleSlide(ui.values[1]);
 
+    mapManager.drawHeroPaths(ui.values[0], ui.values[1], snapshots);
 
+    $map.drawLayers();
 
     $rangeSlider.find('.label.l0').text(('' + time0).toHHMMSS());
     $rangeSlider.find('.label.l1').text(('' + time1).toHHMMSS());
@@ -775,12 +814,18 @@ var replayData = undefined;
 
         $timeSlider.hide();
         $rangeSlider.show();
+
+        mapManager.drawHeroPaths(value, value + 250, replayData.snapshots);
+        console.log($map.getLayerGroup('radiant-lines'));
       } else {
         $('#heatmap-select').hide();
         $('#map-presence').show();
 
         $timeSlider.show();
         $rangeSlider.hide();
+
+        $map.removeLayerGroup('radiant-lines');
+        $map.removeLayerGroup('dire-lines');
         singleSlide(value);
       }
       $map.drawLayers();
