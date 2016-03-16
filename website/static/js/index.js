@@ -684,6 +684,10 @@ var replayData = undefined;
 
         $rangeSlider.find('.label.l0').text(('' + time0).toHHMMSS());
         $rangeSlider.find('.label.l1').text(('' + time1).toHHMMSS());
+
+        // Update single slider
+        $timeSlider.slider("option", "value", ui.values[0]);
+        $timeSlider.find('.label').text(('' + time0).toHHMMSS());
       }
     });
 
@@ -751,6 +755,7 @@ var replayData = undefined;
       } else {
         $('#heatmap-select').hide();
         $('#map-presence').show();
+
         $timeSlider.show();
         $rangeSlider.hide();
       }
