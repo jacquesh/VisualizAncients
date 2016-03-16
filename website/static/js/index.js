@@ -292,8 +292,10 @@
         if (!event.died) {
           this.wards[handle] = {
             start: Math.round((event.time - firstTickTime) * 2) + 1,
+            end: 10000,
             x: event.x,
             y: event.y,
+            dire: event.isDire,
             sentry: event.isSentry
           };
 
@@ -675,11 +677,11 @@
         for(var wardName in wardManager.wards)
         {
             var ward = wardManager.wards[wardName];
-            if((snapshot.time < ward.start) || (ward.hasOwnProperty('end') && snapshot.time >= ward.end))
+            if((snapshot.time < ward.start) || (snapshot.time >= ward.end))
                 continue;
             var wardX = Math.round((ward.x - 64)/2);
             var wardY = Math.round((ward.y - 64)/2);
-            if(ward.isDire)
+            if(ward.dire)
                 teamMultiplier = -1;
             else
                 teamMultiplier = 1;
