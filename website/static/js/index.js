@@ -1,7 +1,8 @@
+var replayData = undefined;
 (function ($) {
   'use strict';
 
-  var replayData = undefined;
+  //var replayData = undefined;
   var $map = $('#dota-map');
 
   var mapManager = {
@@ -133,7 +134,7 @@
           });
 
           $map.setLayer(layerId + '-dead', {
-            x: layer.x, y: layer.y,
+            x: this.getX(hero.x), y: this.getY(hero.y),
             visible: true,
             data: layer.data
           });
@@ -172,6 +173,13 @@
           this.drawMapPolygon(group.x, group.y, colour, 'creep', 'creep-' + i, 3 + Math.round(group.creepCount / 2));
           $map.moveLayer('creep-' + i, 0);
         }
+      }
+    },
+
+    setupSmokeEvents: function(smokeData) {
+      for (var i = 0; i < smokeData.length; i++) {
+        var smoke = smokeData[i];
+        addEvent(false, 'smoke-' + i, 'smoke', statsManager.getTick(smoke.time));
       }
     },
 
@@ -284,14 +292,14 @@
     wards: {},
     hidden: false,
 
-    setupWards: function(wardEvents, firstTickTime) {
+    setupWards: function(wardEvents) {
       for (var i=0; i<wardEvents.length; i++) {
         var event = wardEvents[i];
         var handle = 'w' + event.entityHandle;
 
         if (!event.died) {
           this.wards[handle] = {
-            start: Math.round((event.time - firstTickTime) * 2) + 1,
+            start: statsManager.getTick(event.time),
             sentry: event.isSentry
           };
 
@@ -299,7 +307,7 @@
           this.addWard(event.x, event.y, team, handle);
           $map.setLayer(handle, {visible: false}).moveLayer(handle, 0);
         } else {
-          this.wards[handle].end = Math.round((event.time - firstTickTime) * 2) + 1;
+          this.wards[handle].end = statsManager.getTick(event.time);
         }
       }
     },
@@ -355,11 +363,11 @@
 
         if (!event.died) {
           this.roshanEvents.push({
-            start: Math.round((event.time - firstTickTime) * 2) + 1,
+            start: statsManager.getTick(event.time),
             end: -1
           });
         } else {
-          this.roshanEvents[eventIndex].end = Math.round((event.time - firstTickTime) * 2) + 1;
+          this.roshanEvents[eventIndex].end = statsManager.getTick(event.time);
           eventIndex += 1;
         }
       }
@@ -454,9 +462,18 @@
     }
   };
 
+  var addEvent = function(top, eventId, eventClass, tick) {
+    var place = top ? '#top-events' : '#bottom-events';
+    $(place).append(
+      '<div id="' + eventId + '" class="event ' + eventClass + '"></div>'
+    );
+
+    $('#' + eventId).css('left', 'calc(' + ((tick / statsManager.runTime) * 100) + '% - 7px)');
+  };
+
   var buildingManager = {
     hidden: false,
-    setupBuildings: function(towerEvents, firstTickTime) {
+    setupBuildings: function(towerEvents) {
       // Make barracks for both teams
       for (var i=0; i < 2; i++) {
         var team = (i == 0) ? 'radiant' : 'dire';
@@ -492,10 +509,16 @@
         var team = event.teamIndex == 0 ? 'radiant' : 'dire';
         var type = event.isBarracks ? 'barracks' : 'tower';
 
+        var eventId = team + '-' + event.towerIndex + type;
+        var eventClass = team + ' ' + type;
+        var deadTime = statsManager.getTick(event.time);
+
+        addEvent(true, eventId, eventClass, deadTime);
+
         var layerName = team + '-' + event.towerIndex + '-' + type;
         $map.setLayer(layerName, {
           data: {
-            deadTime: Math.round((event.time - firstTickTime) * 2) + 1
+            deadTime: deadTime
           }
         });
       }
@@ -535,7 +558,28 @@
   };
 
   var statsManager = {
-    biggestVal:0,
+    biggestVal: 0,
+    runTime: 0,
+    firstTime: undefined,
+
+    firstTickTime: function() {
+      if (this.firstTime !== undefined) {
+        return this.firstTime;
+      }
+      for (var i=0; i < replayData.snapshots.length; i++) {
+        if (replayData.snapshots[i].time !== 0) {
+          return replayData.snapshots[i].time
+        }
+      }
+    },
+
+    getTick: function(time) {
+      return Math.round((time - this.firstTickTime()) / this.timeDiff()) + 1
+    },
+
+    timeDiff: function() {
+      return (replayData.snapshots[2].time - replayData.snapshots[1].time);
+    },
 
     setMaxStats: function(stats) {
       var maxGold = Math.max(stats[0].netWorth, stats[1].netWorth);
@@ -575,15 +619,16 @@
     replayData = JSON.parse(dataStr);
 
     var snapshots = replayData.snapshots;
-    var firstTickTime = snapshots[1].time;
 
-    buildingManager.setupBuildings(replayData.towerDeaths, firstTickTime);
+    statsManager.runTime = replayData.snapshots.length - 1;
+
+    buildingManager.setupBuildings(replayData.towerDeaths);
     mapManager.setupLayers(replayData.playerHeroes);
-    roshanManager.setupRoshanEvents(replayData.roshEvents, firstTickTime);
-    wardManager.setupWards(replayData.wardEvents, firstTickTime);
+    roshanManager.setupRoshanEvents(replayData.roshEvents);
+    wardManager.setupWards(replayData.wardEvents);
     runeManager.setupRunes();
 
-    console.log(replayData);
+    mapManager.setupSmokeEvents(replayData.smokeUses);
 
     $map.drawLayers();
 
@@ -628,6 +673,7 @@
     $('#amount').text($timeSlider.slider('value'));
 
     var time = '' + replayData.snapshots[replayData.snapshots.length - 1].time;
+    $('#start-time').text(('' + replayData.snapshots[0].time).toHHMMSS());
     $('#end-time').text(time.toHHMMSS());
   };
 

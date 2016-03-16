@@ -48,8 +48,28 @@ header > hr {
 }
 
 #top-events, #bottom-events {
-    height: 15px;
+    position: relative;
+    height: 17px;
     width: calc(90% - 4px);
+}
+
+.event {
+    position: absolute;
+    height: 100%;
+    width: 8px;
+    left: 0;
+}
+
+.event.smoke {
+    background-color: rgba(97, 29, 216, 0.6);
+}
+
+.event.radiant {
+    background-color: rgba(51, 95, 255, 0.6);
+}
+
+.event.dire {
+    background-color: rgba(255, 7, 18, 0.6);
 }
 
 #time {
@@ -80,9 +100,10 @@ header > hr {
 
 #time > #time-slider .label {
     position: absolute;
+    background-color: rgba(233, 233, 233, 0.6);
     top: 100%;
     left: -100%;
-    font-size: 0.7em;
+    font-size: 0.6em;
     color: #000;
 }
 
