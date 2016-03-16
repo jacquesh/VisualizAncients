@@ -97,6 +97,10 @@ var replayData = undefined;
       this.drawMapIcon(0, 0, 0.6, courierPath, 'courier', 'dir-courier');
     },
 
+    drawHeroPaths: function(t0, t1, heroData) {
+
+    },
+
     updateHeroLayers: function(heroData) {
       for (var i=0; i<10; i++) {
         var layerId = this.layers[i];
@@ -611,6 +615,58 @@ var replayData = undefined;
     return outputArr.join("");
   };
 
+  var singleSlide = function(tick) {
+    var $timeSlider = $('#time-slider');
+    var snapshots = replayData.snapshots;
+
+    $('#amount').text(tick);
+
+    mapManager.resetMap();
+
+    var snapshot = snapshots[tick];
+    var heroData = snapshot.heroData;
+    mapManager.updateHeroLayers(heroData);
+
+    var courierData = snapshot.courierData;
+    if (courierData.length) {
+      mapManager.updateCouriers(courierData);
+    }
+
+    mapManager.updateCreep(snapshot.laneCreepData);
+    runeManager.updateRunes(snapshot.runeData);
+    roshanManager.updateRoshan(tick);
+    wardManager.updateWards(tick);
+    buildingManager.updateBuildings(tick);
+    mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
+
+    statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
+    statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
+
+    $map.drawLayers();
+
+    $timeSlider.find('.label').text(('' + snapshot.time).toHHMMSS());
+  };
+
+  var rangeSlide = function(event, ui) {
+    var $timeSlider = $('#time-slider');
+    var $rangeSlider = $('#time-range-slider');
+    var snapshots = replayData.snapshots;
+
+    var time0 = replayData.snapshots[ui.values[0]].time;
+    var time1 = replayData.snapshots[ui.values[1]].time;
+
+    singleSlide(ui.values[1]);
+
+
+
+    $rangeSlider.find('.label.l0').text(('' + time0).toHHMMSS());
+    $rangeSlider.find('.label.l1').text(('' + time1).toHHMMSS());
+
+    // Update single slider
+    $timeSlider.slider("option", "value", ui.values[0]);
+    $timeSlider.find('.label').text(('' + time0).toHHMMSS());
+  };
+
   var setupPlayerData = function (data) {
     var inflater = new pako.Inflate();
     inflater.push(data, true);
@@ -618,6 +674,7 @@ var replayData = undefined;
     var dataStr = charArr2Str(dataCharArr);
     replayData = JSON.parse(dataStr);
 
+    // Main setup code
     var snapshots = replayData.snapshots;
 
     statsManager.runTime = replayData.snapshots.length - 1;
@@ -642,32 +699,7 @@ var replayData = undefined;
       max: replayData.snapshots.length - 1,
       step: 1,
       slide: function(event, ui) {
-        $('#amount').text(ui.value );
-
-        mapManager.resetMap();
-
-        var snapshot = snapshots[ui.value];
-        var heroData = snapshot.heroData;
-        mapManager.updateHeroLayers(heroData);
-
-        var courierData = snapshot.courierData;
-        if (courierData.length) {
-          mapManager.updateCouriers(courierData);
-        }
-
-        mapManager.updateCreep(snapshot.laneCreepData);
-        runeManager.updateRunes(snapshot.runeData);
-        roshanManager.updateRoshan(ui.value);
-        wardManager.updateWards(ui.value);
-        buildingManager.updateBuildings(ui.value);
-        mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
-
-        statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
-        statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
-
-        $map.drawLayers();
-
-        $timeSlider.find('.label').text(('' + snapshot.time).toHHMMSS());
+        singleSlide(ui.value);
       }
     });
 
@@ -678,17 +710,7 @@ var replayData = undefined;
       min: 0,
       max: replayData.snapshots.length - 1,
       step: 1,
-      slide: function(event, ui) {
-        var time0 = replayData.snapshots[ui.values[0]].time;
-        var time1 = replayData.snapshots[ui.values[1]].time;
-
-        $rangeSlider.find('.label.l0').text(('' + time0).toHHMMSS());
-        $rangeSlider.find('.label.l1').text(('' + time1).toHHMMSS());
-
-        // Update single slider
-        $timeSlider.slider("option", "value", ui.values[0]);
-        $timeSlider.find('.label').text(('' + time0).toHHMMSS());
-      }
+      slide: rangeSlide
     });
 
     $('#amount').text($timeSlider.slider('value'));
@@ -738,8 +760,9 @@ var replayData = undefined;
       var $timeSlider = $('#time-slider');
       var $rangeSlider = $('#time-range-slider');
 
+      var value = $timeSlider.slider("option", "value");
+
       if ($(this).next().prop('checked')) {
-        var value = $timeSlider.slider("option", "value");
         $rangeSlider.slider("option", "values", [value, value + 250]);
         var time0 = replayData.snapshots[value].time;
         var time1 = replayData.snapshots[value+250].time;
@@ -758,6 +781,7 @@ var replayData = undefined;
 
         $timeSlider.show();
         $rangeSlider.hide();
+        singleSlide(value);
       }
       $map.drawLayers();
     });
