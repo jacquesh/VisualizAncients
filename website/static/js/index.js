@@ -215,7 +215,7 @@ var replayData = undefined;
 
     drawMapPolygon: function(x, y, colour, group, name, radius, sides) {
       radius = radius === undefined ? 8 : radius;
-      sides = sides === undefined ? 6 : sides;
+      sides = sides === undefined ? 5 : sides;
 
       $map.drawPolygon({
         name: name,
