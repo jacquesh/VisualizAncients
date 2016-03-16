@@ -1,0 +1,26 @@
+canvas {
+    padding: 0;
+    margin: auto;
+    display: block;
+}
+
+b {
+    padding: 0;
+    margin: auto;
+    display: block;
+    text-align: center;
+    color: Gainsboro;
+}
+
+div.axis {
+    padding: 0;
+    margin: auto;
+    display: block;
+    text-align: center;
+    font-size: 80%;
+    color: Gainsboro;
+}
+
+.container {
+    margin-top: 3%;
+}
