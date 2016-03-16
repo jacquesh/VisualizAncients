@@ -5,13 +5,9 @@
     <title>VisualizAncients</title>
     <link rel="stylesheet" href="/static/vendor/jquery-ui-1.11.4/jquery-ui.min.css">
     <link rel="stylesheet" href="/static/vendor/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/vendor/jquery.alt-checkbox.css">
+    <link rel="stylesheet" href="/static/vendor/jquery.alt-checkbox.icon-font.css">
     <link rel="stylesheet" href="/static/css/index.css">
-    <script rel="script" type="text/javascript" src="/static/vendor/jquery-2.2.0.min.js"></script>
-	<script rel="script" type="text/javascript" src="/static/vendor/pako.min.js"></script>
-	<script rel="script" type="text/javascript" src="/static/vendor/Chart.min.js"></script>
-	<script rel="script" type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-	
-	
 </head>
 <body>
     <main id="content-container">
@@ -21,12 +17,16 @@
         </header>
         <section id="content">
             <div id="time-container">
+                <div id="top-events" class="center-block"></div>
+                <div class="clear-fix"></div>
                 <span id="start-time">00:00</span>
                 <div id="time">
                     <span id="amount"></span>
                     <div id="time-slider"></div>
                 </div>
-                <span id="end-time">40:40</span>
+                <span id="end-time">00:00</span>
+                <div class="clear-fix"></div>
+                <div id="bottom-events" class="center-block"></div>
             </div>
             <div class="clear-fix"></div>
             <div id="graph-bar-container">
@@ -36,17 +36,72 @@
                     <div class="arrow" id="down-arrow"><i id="downarrow" class="fa fa-arrow-down"></i></div>
                 </div>
                 <div id="graph-bar">
-					<canvas id="roshanSmallChart" ></canvas>
-					<canvas id="wardSmallChart"></canvas>
-					<canvas id="playerKillsSmallChart"></canvas>
+                    <canvas id="roshanSmallChart" ></canvas>
+                    <canvas id="wardSmallChart" style="display:none;"></canvas>
+                    <canvas id="playerKillsSmallChart" style="display:none;"></canvas>
                 </div>
-                <div id="open-graphs"><a href="#"><i class="fa fa-bar-chart fa-2x" onclick="location.href='graphs';"></i></a></div>
+                <div id="open-graphs"><a href="/graphs"><i class="fa fa-bar-chart fa-2x"></i></a></div>
             </div>
             <div class="clear-fix"></div>
 
             <div id="left-column" class="column">
                 <div id="toggle-box" class="side-bar border hug-right">
-                    Toggles
+                    <!-- First Column -->
+                    <div class="column">
+                        <div class="deaths">
+                            <span><input type="checkbox" id="death-box">
+                              <label for="death-box"><img src="/static/img/icons/death.png"></label>
+                            </span>
+                        </div>
+                        <div class="wards">
+                            <span><input type="checkbox" id="wards-box">
+                                <label for="wards-box"><img src="/static/img/icons/ward.png"></label>
+                            </span>
+                        </div>
+                        <div class="creep">
+                            <span><input type="checkbox" id="creep-box">
+                                <label for="creep-box"><img src="/static/img/icons/death.png"></label>
+                            </span>
+                        </div>
+                        <div class="roshan">
+                            <span><input type="checkbox" id="roshan-box">
+                                <label for="roshan-box"><img src="/static/img/icons/roshan.png"></label>
+                            </span>
+                        </div>
+                        <div class="courier">
+                            <span><input type="checkbox" id="courier-box">
+                                <label for="courier-box"><img src="/static/img/courier.png"></label>
+                            </span>
+                        </div>
+                    </div>
+                    <!-- Next Column -->
+                    <div class="column">
+                        <div class="solid-path">
+                            <span><input type="checkbox" id="solid-path-box">
+                                <label for="solid-path-box"><img src="/static/img/icons/death.png"></label>
+                            </span>
+                        </div>
+                        <div class="broken-path">
+                            <span><input type="checkbox" id="broken-path-box">
+                                <label for="broken-path-box"><img src="/static/img/icons/death.png"></label>
+                            </span>
+                        </div>
+                        <div class="towers">
+                            <span><input type="checkbox" id="towers-box">
+                                <label for="towers-box"><img src="/static/img/icons/tower.png"></label>
+                            </span>
+                        </div>
+                        <div class="smokes">
+                            <span><input type="checkbox" id="smokes-box">
+                                <label for="smokes-box"><img src="/static/img/icons/smoke.png"></label>
+                            </span>
+                        </div>
+                        <div class="runes">
+                            <span><input type="checkbox" id="runes-box">
+                                <label for="runes-box"><img src="/static/img/icons/runes/dd_rune.png"></label>
+                            </span>
+                        </div>
+                    </div>
                 </div>
                 <div id="map-presence" class="side-bar border hug-right">
                     <div id="dire-control" class="dire team-block">
@@ -92,15 +147,15 @@
             <div id="team-graphs" class="center-block">
                 <div id="radiant" class="radiant score-box border">
                     <div class="team-stats">
-                        <div><img src="/static/img/icons/gold.png"><span class="net-worth">0</span></div>
-                        <div><img src="/static/img/icons/xp.png"><span class="total-xp">0</span></div>
+                        <div><img src="/static/img/icons/gold.png"><span class="net-worth"><span class="label">0</span></span></div>
+                        <div><img src="/static/img/icons/xp.png"><span class="total-xp"><span class="label">0</span></span></div>
                     </div>
                     <div class="kills">Kills <span class="count">0</span></div>
                 </div>
                 <div id="dire" class="dire score-box border">
                     <div class="team-stats">
-                        <div><span class="net-worth">0</span><img src="/static/img/icons/gold.png"></div>
-                        <div><span class="total-xp">0</span><img src="/static/img/icons/xp.png"></div>
+                        <div><span class="net-worth"><span class="label">0</span></span><img src="/static/img/icons/gold.png"></div>
+                        <div><span class="total-xp"><span class="label">0</span></span><img src="/static/img/icons/xp.png"></div>
                     </div>
                     <div class="kills">Kills <span class="count">0</span></div>
                 </div>
@@ -114,9 +169,11 @@
 <script rel="script" type="text/javascript" src="/static/vendor/jquery-2.2.0.min.js"></script>
 <script rel="script" type="text/javascript" src="/static/vendor/jcanvas.min.js"></script>
 <script rel="script" type="text/javascript" src="/static/vendor/jquery-ui-1.11.4/jquery-ui.min.js"></script>
+<script rel="script" type="text/javascript" src="/static/vendor/jquery.alt-checkbox.js"></script>
 <script rel="script" type="text/javascript" src="/static/vendor/pako.min.js"></script>
-<script rel="script" type="text/javascript" src="/static/js/heroNames.js"></script>
+<script rel="script" type="text/javascript" src="/static/vendor/Chart.min.js"></script>
+<script rel="script" type="text/javascript" src="/static/js/dataMaps.js"></script>
 <script rel="script" type="text/javascript" src="/static/js/index.js"></script>
-	<script rel="script" type="text/javascript" src="/static/js/smallGraphDrawer.js"></script>
+<script rel="script" type="text/javascript" src="/static/js/smallGraphDrawer.js"></script>
 
 </html>
