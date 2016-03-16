@@ -329,6 +329,7 @@ header > hr {
     width: 91%;
     height: 70%;
     display: inline-block;
+    vertical-align: middle;
 }
 
 #radiant .label {
