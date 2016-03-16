@@ -246,6 +246,20 @@ header > hr {
     padding-bottom: 5px;
 }
 
+#path-toggle > .path-container {
+    width: 40%;
+}
+
+.input-wrapper {
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+}
+
+.input-wrapper img, .input-wrapper a {
+    vertical-align: middle;
+}
+
 #right-column > #player-info {
     height: 78%;
 }

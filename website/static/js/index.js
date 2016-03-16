@@ -664,6 +664,8 @@
     $toggleBox.find('input').altCheckbox();
     $toggleBox.find('.alt-checkbox').addClass('checked');
 
+    $('#path-box').altCheckbox();
+
     $('#death-box').prev().click(function() {
       var time = +$('#amount').text();
       if ($(this).next().prop('checked')) {
