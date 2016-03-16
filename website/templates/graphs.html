@@ -13,11 +13,15 @@
 	
 	<style>
 	canvas {
-		padding: 0;
+		padding: 200;
 		margin: auto;
 		display: block;}
-	</style>
-	<style>
+	.column {
+    float: left;
+    width: 200;
+    height: 100%;
+}
+
 	b {
 		padding: 0;
 		margin: auto;
@@ -35,18 +39,24 @@
 	}
 	
 	</style>
+	<section id="content">
+	<div id="left-column" class="column">
+		<img src="../static/img/icons/roshan.png" >
+		<img src="../static/img/icons/ward.png">
+		<img src="../static/img/icons/dire.png">
+	</div>
 	<b>Roshan Kills</b>
-    <canvas id="roshanChart" width="1200" height="200"  style="align:center"></canvas>
+    <canvas id="roshanChart" width="600" height="200"  style="align:center"></canvas>
 	<div class="axis">Elapsed Game Time</div>
 	<br><br><br><br>
 	<b>Wards</b>
-	<canvas id="wardChart" width="1200" height="200"></canvas>
+	<canvas id="wardChart" width="600" height="200"></canvas>
 	<div class="axis">Elapsed Game Time</div>
 	<br><br><br><br>
 	<b>Player Kills</b>
-	<canvas id="player_kills_Chart" width="1200" height="200"></canvas>
+	<canvas id="player_kills_Chart" width="600" height="200"></canvas>
 	<div class="axis">Elapsed Game Time</div>
-	
+	</section>
 </head>
 <body>
 
