@@ -635,6 +635,7 @@ var replayData = undefined;
     statsManager.setMaxStats(snapshots[snapshots.length-1].teamStats);
 
     var $timeSlider = $('#time-slider');
+    var $rangeSlider = $('#time-range-slider');
     $timeSlider.slider({
       value: 0,
       min: 0,
@@ -666,10 +667,25 @@ var replayData = undefined;
 
         $map.drawLayers();
 
-        $('.ui-slider-handle').find('.label').text(('' + snapshot.time).toHHMMSS());
+        $timeSlider.find('.label').text(('' + snapshot.time).toHHMMSS());
       }
     });
-    //$timeSlider.slider('option', 'slide').call($timeSlider);
+
+    $rangeSlider.slider({
+      range: true,
+      values: [0, 250],
+      min: 0,
+      max: replayData.snapshots.length - 1,
+      step: 1,
+      slide: function(event, ui) {
+        var time0 = replayData.snapshots[ui.values[0]].time;
+        var time1 = replayData.snapshots[ui.values[1]].time;
+
+        $rangeSlider.find('.label.l0').text(('' + time0).toHHMMSS());
+        $rangeSlider.find('.label.l1').text(('' + time1).toHHMMSS());
+      }
+    });
+
     $('#amount').text($timeSlider.slider('value'));
 
     var time = '' + replayData.snapshots[replayData.snapshots.length - 1].time;
@@ -710,7 +726,30 @@ var replayData = undefined;
     $toggleBox.find('input').altCheckbox();
     $toggleBox.find('.alt-checkbox').addClass('checked');
 
-    $('#path-box').altCheckbox();
+    var $pathBox = $('#path-box');
+    $pathBox.altCheckbox();
+
+    $pathBox.prev().click(function() {
+      var $timeSlider = $('#time-slider');
+      var $rangeSlider = $('#time-range-slider');
+
+      if ($(this).next().prop('checked')) {
+        var value = $timeSlider.slider("option", "value");
+        $rangeSlider.slider("option", "values", [value, value + 250]);
+        var time0 = replayData.snapshots[value].time;
+        var time1 = replayData.snapshots[value+250].time;
+
+        $rangeSlider.find('.label.l0').text(('' + time0).toHHMMSS());
+        $rangeSlider.find('.label.l1').text(('' + time1).toHHMMSS());
+
+        $timeSlider.hide();
+        $rangeSlider.show();
+      } else {
+        $timeSlider.show();
+        $rangeSlider.hide();
+      }
+      $map.drawLayers();
+    });
 
     $('#death-box').prev().click(function() {
       var time = +$('#amount').text();
@@ -800,7 +839,10 @@ var replayData = undefined;
   };
 
   var setupLabel = function() {
-    $('.ui-slider-handle').html('<span class="label">00:00</span>');
+    $('#time-slider').find('.ui-slider-handle').html('<span class="label">00:00</span>');
+    $('#time-range-slider').find('.ui-slider-handle').each(function(i) {
+      $(this).html('<span class="label l' + i +'">00:00</span>');
+    });
   };
 
   $(document).ready(function() {

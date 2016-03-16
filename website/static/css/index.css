@@ -94,17 +94,21 @@ header > hr {
     display: none;
 }
 
-#time > #time-slider {
+#time > #time-slider, #time > #time-range-slider {
     vertical-align: middle;
 }
 
-#time > #time-slider .label {
+#time > #time-slider .label, #time > #time-range-slider .label {
     position: absolute;
     background-color: rgba(233, 233, 233, 0.6);
     top: 100%;
     left: -100%;
     font-size: 0.6em;
     color: #000;
+}
+
+#time > #time-range-slider .label.l1 {
+    top: -50%;
 }
 
 #graph-bar-container {
@@ -507,6 +511,10 @@ footer {
 
 .alt-checkbox.checked::before {
     color: #000;
+}
+
+.ui-widget-header {
+    background: #96ceff;
 }
 
 #uparrow {
