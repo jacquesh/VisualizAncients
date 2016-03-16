@@ -284,14 +284,14 @@
     wards: {},
     hidden: false,
 
-    setupWards: function(wardEvents, firstTickTime) {
+    setupWards: function(wardEvents) {
       for (var i=0; i<wardEvents.length; i++) {
         var event = wardEvents[i];
         var handle = 'w' + event.entityHandle;
 
         if (!event.died) {
           this.wards[handle] = {
-            start: Math.round((event.time - firstTickTime) * 2) + 1,
+            start: event.time,
             end: 10000,
             x: event.x,
             y: event.y,
@@ -303,7 +303,7 @@
           this.addWard(event.x, event.y, team, handle);
           $map.setLayer(handle, {visible: false}).moveLayer(handle, 0);
         } else {
-          this.wards[handle].end = Math.round((event.time - firstTickTime) * 2) + 1;
+          this.wards[handle].end = event.time;
         }
       }
     },
@@ -348,7 +348,7 @@
     roshanEvents: [],
     hidden: false,
 
-    setupRoshanEvents: function(roshanData, firstTickTime) {
+    setupRoshanEvents: function(roshanData) {
       var roshanPath = '/static/img/icons/roshan.png';
       mapManager.drawMapIcon(160, 113, 0.75, roshanPath, 'roshan', 'roshan');
       $map.setLayer('roshan', {visible: false});
@@ -359,11 +359,11 @@
 
         if (!event.died) {
           this.roshanEvents.push({
-            start: Math.round((event.time - firstTickTime) * 2) + 1,
-            end: -1
+            start: event.time,
+            end: 10000
           });
         } else {
-          this.roshanEvents[eventIndex].end = Math.round((event.time - firstTickTime) * 2) + 1;
+          this.roshanEvents[eventIndex].end = event.time;
           eventIndex += 1;
         }
       }
@@ -378,10 +378,7 @@
       for (var i=0; i < this.roshanEvents.length; i++) {
         if (!showRosh) {
           var event = this.roshanEvents[i];
-
-          var neverKilled = ((event.end === -1) && (event.start < time));
-          var aliveTime = ((event.start < time) && (time < event.end));
-          showRosh = neverKilled || aliveTime;
+          showRosh = ((event.start < time) && (time < event.end));
         } else {
           break;
         }
@@ -460,7 +457,7 @@
 
   var buildingManager = {
     hidden: false,
-    setupBuildings: function(towerEvents, firstTickTime) {
+    setupBuildings: function(towerEvents) {
       // Make barracks for both teams
       for (var i=0; i < 2; i++) {
         var team = (i == 0) ? 'radiant' : 'dire';
@@ -470,7 +467,7 @@
           this.addBuilding(pos.x, pos.y, team, true, team + '-buildings', layerName);
           $map.setLayer(layerName, {
             data: {
-              deadTime: -1
+              deadTime: 10000
             }
           });
         }
@@ -485,7 +482,7 @@
           this.addBuilding(pos.x, pos.y, team, false, team + '-buildings', layerName);
           $map.setLayer(layerName, {
             data: {
-              deadTime: -1
+              deadTime: 10000
             }
           });
         }
@@ -499,16 +496,16 @@
         var layerName = team + '-' + event.towerIndex + '-' + type;
         $map.setLayer(layerName, {
           data: {
-            deadTime: Math.round((event.time - firstTickTime) * 2) + 1
+            deadTime: event.time
           }
         });
       }
     },
 
-    updateBuildings: function(tick) {
+    updateBuildings: function(time) {
       var setDead = function(index, layer) {
         var deadTime = layer.data.deadTime;
-        var dead = (deadTime <= tick) && (deadTime !== -1);
+        var dead = (deadTime <= time);
 
         $map.setLayer(layer.name, {
           visible: !dead
@@ -579,12 +576,11 @@
     replayData = JSON.parse(dataStr);
 
     var snapshots = replayData.snapshots;
-    var firstTickTime = snapshots[1].time;
 
-    buildingManager.setupBuildings(replayData.towerDeaths, firstTickTime);
+    buildingManager.setupBuildings(replayData.towerDeaths);
     mapManager.setupLayers(replayData.playerHeroes);
-    roshanManager.setupRoshanEvents(replayData.roshEvents, firstTickTime);
-    wardManager.setupWards(replayData.wardEvents, firstTickTime);
+    roshanManager.setupRoshanEvents(replayData.roshEvents);
+    wardManager.setupWards(replayData.wardEvents);
     runeManager.setupRunes();
 
     $map.drawLayers();
@@ -613,9 +609,9 @@
 
         mapManager.updateCreep(snapshot.laneCreepData);
         runeManager.updateRunes(snapshot.runeData);
-        roshanManager.updateRoshan(ui.value);
-        wardManager.updateWards(ui.value);
-        buildingManager.updateBuildings(ui.value);
+        roshanManager.updateRoshan(snapshot.time);
+        wardManager.updateWards(snapshot.time);
+        buildingManager.updateBuildings(snapshot.time);
         mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
 
         statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
@@ -707,6 +703,7 @@
 
         var pxX = 0;
         var pxY = 0;
+        /*
         $map.setPixels({
             x:0, y:0,
             width:420, height:420,
@@ -734,7 +731,7 @@
                     pxY++;
                 }
             }
-        });
+        });*/
       }
     });
     //$timeSlider.slider('option', 'slide').call($timeSlider);
