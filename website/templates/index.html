@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="/static/vendor/jquery.alt-checkbox.css">
     <link rel="stylesheet" href="/static/vendor/jquery.alt-checkbox.icon-font.css">
     <link rel="stylesheet" href="/static/css/index.css">
+    <script rel="script" type="text/javascript" src="/static/vendor/jquery-2.2.0.min.js"></script>
+	<script rel="script" type="text/javascript" src="/static/vendor/pako.min.js"></script>
+	<script rel="script" type="text/javascript" src="/static/vendor/Chart.min.js"></script>
+	<script rel="script" type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	
+	
 </head>
 <body>
     <main id="content-container">
@@ -27,12 +33,16 @@
             <div class="clear-fix"></div>
             <div id="graph-bar-container">
                 <div id="change-graph-box">
-                    <div class="arrow" id="up-arrow"><i class="fa fa-arrow-up"></i></div>
+                    <div class="arrow" id="up-arrow"><i id="uparrow" class="fa fa-arrow-up" ></i></div>
                     <div id="graph-label">Roshan</div>
-                    <div class="arrow" id="down-arrow"><i class="fa fa-arrow-down"></i></div>
+                    <div class="arrow" id="down-arrow"><i id="downarrow" class="fa fa-arrow-down"></i></div>
                 </div>
-                <div id="graph-bar">Graph Here</div>
-                <div id="open-graphs"><a href="#"><i class="fa fa-bar-chart fa-2x"></i></a></div>
+                <div id="graph-bar">
+					<canvas id="roshanSmallChart" ></canvas>
+					<canvas id="wardSmallChart"></canvas>
+					<canvas id="playerKillsSmallChart"></canvas>
+                </div>
+                <div id="open-graphs"><a href="#"><i class="fa fa-bar-chart fa-2x" onclick="location.href='graphs';"></i></a></div>
             </div>
             <div class="clear-fix"></div>
 
@@ -165,4 +175,6 @@
 <script rel="script" type="text/javascript" src="/static/vendor/pako.min.js"></script>
 <script rel="script" type="text/javascript" src="/static/js/dataMaps.js"></script>
 <script rel="script" type="text/javascript" src="/static/js/index.js"></script>
+	<script rel="script" type="text/javascript" src="/static/js/smallGraphDrawer.js"></script>
+
 </html>

@@ -122,6 +122,12 @@ header > hr {
     margin-right: 1px;
 }
 
+#playerKillsSmallChart{
+	display:none;
+}
+#wardSmallChart{
+	display:none;
+}
 .ui-slider > .ui-slider-handle {
     width: 10px;
 }
