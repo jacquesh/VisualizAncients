@@ -583,6 +583,8 @@
     wardManager.setupWards(replayData.wardEvents, firstTickTime);
     runeManager.setupRunes();
 
+    console.log(replayData);
+
     $map.drawLayers();
 
     statsManager.setMaxStats(snapshots[snapshots.length-1].teamStats);
@@ -618,13 +620,31 @@
         statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
 
         $map.drawLayers();
+
+        $('.ui-slider-handle').find('.label').text(('' + snapshot.time).toHHMMSS());
       }
     });
     //$timeSlider.slider('option', 'slide').call($timeSlider);
     $('#amount').text($timeSlider.slider('value'));
 
-    var time = replayData.snapshots[replayData.snapshots.length - 1].time;
-    $('#end-time').text(Math.round(time / 60) + ':' + Math.round(time % 60));
+    var time = '' + replayData.snapshots[replayData.snapshots.length - 1].time;
+    $('#end-time').text(time.toHHMMSS());
+  };
+
+  String.prototype.toHHMMSS = function () {
+    var sec_num = parseInt(this, 10); // don't forget the second param
+    var hours = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    hours = (hours < 10) ? "0" + hours : hours;
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+    if (hours == "00") {
+      return minutes + ':' + seconds;
+    }
+    return hours + ':' + minutes + ':' + seconds;
   };
 
   var loadPlayerData = function() {
@@ -632,8 +652,9 @@
     req.open("GET", "/static/data.zjson", true);
     req.responseType = "arraybuffer";
     req.onload = function(event) {
-        var bytes = new Uint8Array(req.response);
-        setupPlayerData(bytes);
+      var bytes = new Uint8Array(req.response);
+      setupPlayerData(bytes);
+      setupLabel();
     };
     req.send();
   };
@@ -728,6 +749,10 @@
       runeManager.updateRunes(replayData.snapshots[time].runeData);
       $map.drawLayers();
     });
+  };
+
+  var setupLabel = function() {
+    $('.ui-slider-handle').html('<span class="label">00:00</span>');
   };
 
   $(document).ready(function() {

@@ -41,16 +41,21 @@ header > hr {
 
 #time-container {
     width: 95%;
-    height: 30px;
+    height: 50px;
     margin-left: auto;
     margin-right: auto;
+    padding-bottom: 5px;
+}
+
+#top-events, #bottom-events {
+    height: 15px;
+    width: calc(90% - 4px);
 }
 
 #time {
     width: calc(90% - 4px);
     margin-left: 2px;
     margin-right: 2px;
-    padding-bottom: 10px;
     float: left;
 }
 
@@ -62,6 +67,7 @@ header > hr {
 #time-container > #end-time {
     width: 5%;
     float: left;
+    text-align: right;
 }
 
 #time > #amount {
@@ -70,6 +76,14 @@ header > hr {
 
 #time > #time-slider {
     vertical-align: middle;
+}
+
+#time > #time-slider .label {
+    position: absolute;
+    top: 100%;
+    left: -100%;
+    font-size: 0.7em;
+    color: #000;
 }
 
 #graph-bar-container {
