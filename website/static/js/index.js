@@ -14,6 +14,8 @@ var replayData = undefined;
     deathsHidden: false,
     creepHidden: false,
     smokeHidden: false,
+    radiantLinesHidden: false,
+    direLinesHidden: false,
 
     getX: function(data_x) {
       return (data_x - 64) * this.scalef;
@@ -109,9 +111,15 @@ var replayData = undefined;
         }
 
         if (i < 5) {
-          this.drawMapLine(points, '#097FE6', true, 'radiant-lines', this.layers[i] + '-line');
+          if (!this.radiantLinesHidden) {
+            this.drawMapLine(points, '#097FE6', true, 'radiant-lines', this.layers[i] + '-line');
+            $map.moveLayer(this.layers[i] + '-line', 10);
+          }
         } else {
-          this.drawMapLine(points, '#E65609', false, 'dire-lines', this.layers[i] + '-line');
+          if (!this.direLinesHidden) {
+            this.drawMapLine(points, '#E65609', false, 'dire-lines', this.layers[i] + '-line');
+            $map.moveLayer(this.layers[i] + '-line', 10);
+          }
         }
       }
     },
@@ -306,6 +314,16 @@ var replayData = undefined;
     toggleCouriers: function() {
       this.couriersHidden = !this.couriersHidden;
       $map.setLayerGroup('courier', {visible: !this.couriersHidden});
+    },
+
+    toggleDireLines: function() {
+      this.direLinesHidden = !this.direLinesHidden;
+      $map.setLayerGroup('dire-lines', {visible: !this.direLinesHidden});
+    },
+
+    toggleRadiantLines: function() {
+      this.radiantLinesHidden = !this.radiantLinesHidden;
+      $map.setLayerGroup('radiant-lines', {visible: !this.radiantLinesHidden});
     },
 
     toggleSmokes: function() {
@@ -816,7 +834,6 @@ var replayData = undefined;
         $rangeSlider.show();
 
         mapManager.drawHeroPaths(value, value + 250, replayData.snapshots);
-        console.log($map.getLayerGroup('radiant-lines'));
       } else {
         $('#heatmap-select').hide();
         $('#map-presence').show();
@@ -882,6 +899,16 @@ var replayData = undefined;
       if (courierData.length) {
         mapManager.updateCouriers(courierData);
       }
+      $map.drawLayers();
+    });
+
+    $('#dire-path-box').prev().click(function() {
+      mapManager.toggleDireLines();
+      $map.drawLayers();
+    });
+
+    $('#radiant-path-box').prev().click(function() {
+      mapManager.toggleRadiantLines();
       $map.drawLayers();
     });
 
