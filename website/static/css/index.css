@@ -524,3 +524,21 @@ footer {
 #downarrow {
     cursor: pointer;
 }
+
+#heatmap-select label {
+    display: block;
+}
+
+#heatmap-select #heatmap-dropdown-button {
+    margin-bottom: 10px;
+    margin-left: 10px;
+}
+
+#heatmap-select label {
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+#heatmap-select select {
+    width: 150px;
+}

@@ -671,6 +671,7 @@ var replayData = undefined;
       }
     });
 
+    $('#heatmap-dropdown').selectmenu();
     $rangeSlider.slider({
       range: true,
       values: [0, 250],
@@ -742,9 +743,14 @@ var replayData = undefined;
         $rangeSlider.find('.label.l0').text(('' + time0).toHHMMSS());
         $rangeSlider.find('.label.l1').text(('' + time1).toHHMMSS());
 
+        $('#map-presence').hide();
+        $('#heatmap-select').show();
+
         $timeSlider.hide();
         $rangeSlider.show();
       } else {
+        $('#heatmap-select').hide();
+        $('#map-presence').show();
         $timeSlider.show();
         $rangeSlider.hide();
       }

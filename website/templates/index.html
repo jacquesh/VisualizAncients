@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>VisualizAncients</title>
     <link rel="stylesheet" href="/static/vendor/jquery-ui-1.11.4/jquery-ui.min.css">
+    <link rel="stylesheet" href="/static/vendor/theme.smoothness.css">
     <link rel="stylesheet" href="/static/vendor/font-awesome.min.css">
     <link rel="stylesheet" href="/static/vendor/jquery.alt-checkbox.css">
     <link rel="stylesheet" href="/static/vendor/jquery.alt-checkbox.icon-font.css">
@@ -113,6 +114,17 @@
                         <img src="/static/img/icons/radiant.png">
                         <div class="radiant presence border"><h1>0%</h1></div>
                     </div>
+                </div>
+                <div id="heatmap-select" class="side-bar border hug-right" style="display:none;">
+                    <label for="heatmap-dropdown">Select a heatmap</label>
+                    <select name="heatmap-dropdown" id="heatmap-dropdown">
+                        <option selected="selected">None</option>
+                        <option>Positions</option>
+                        <option >Deaths</option>
+                        <option>Kills</option>
+                        <option>Wards</option>
+                        <option>Smoke</option>
+                    </select>
                 </div>
             </div>
 
