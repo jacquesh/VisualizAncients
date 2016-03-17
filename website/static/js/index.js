@@ -1,4 +1,6 @@
 var replayData = undefined;
+var endTime = 0;
+
 (function ($) {
   'use strict';
 
@@ -428,6 +430,7 @@ var replayData = undefined;
         } else {
           this.roshanEvents[eventIndex].end = statsManager.getTick(event.time);
           eventIndex += 1;
+          addEvent(false, 'rosh'+ eventIndex, 'roshan', statsManager.getTick(event.time));
         }
       }
     },
@@ -735,6 +738,7 @@ var replayData = undefined;
     var snapshots = replayData.snapshots;
 
     statsManager.runTime = replayData.snapshots.length - 1;
+    endTime = Math.ceil(snapshots[statsManager.runTime].time / 60);
 
     buildingManager.setupBuildings(replayData.towerDeaths);
     mapManager.setupLayers(replayData.playerHeroes);
@@ -775,6 +779,8 @@ var replayData = undefined;
     var time = '' + replayData.snapshots[replayData.snapshots.length - 1].time;
     $('#start-time').text(('' + replayData.snapshots[0].time).toHHMMSS());
     $('#end-time').text(time.toHHMMSS());
+
+    smallGraphs($);
   };
 
   String.prototype.toHHMMSS = function () {

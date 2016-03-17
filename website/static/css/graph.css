@@ -1,10 +1,14 @@
-canvas {
+#big-graphs {
+    background: #3c3f41;
+}
+
+#big-graphs canvas {
     padding: 0;
     margin: auto;
     display: block;
 }
 
-b {
+#big-graphs b {
     padding: 0;
     margin: auto;
     display: block;
@@ -12,7 +16,7 @@ b {
     color: Gainsboro;
 }
 
-div.axis {
+#big-graphs div.axis {
     padding: 0;
     margin: auto;
     display: block;
@@ -21,6 +25,66 @@ div.axis {
     color: Gainsboro;
 }
 
-.container {
+#big-graphs .container {
     margin-top: 3%;
+}
+
+#big-graphs .container:first-of-type {
+    margin-top: 0;
+    padding-top: 3%;
+}
+
+#big-graphs .container:last-of-type {
+    padding-bottom: 3%;
+}
+
+#big-graphs img {
+    width: 50px;
+    height: 50px;
+}
+
+#big-graphs canvas {
+    margin-left: 9%;
+    display: block;
+}
+
+#big-graphs .graph b {
+    padding: 0;
+    margin: auto;
+    display: block;
+    text-align: center;
+    color: Gainsboro;
+}
+
+#big-graphs div.axis {
+    padding: 0;
+    margin: auto;
+    display: block;
+    text-align: center;
+    font-size: 80%;
+    color: Gainsboro;
+}
+
+#big-graphs .graph {
+    position: relative;
+}
+
+#big-graphs .graph img {
+    position: absolute;
+    left: 15px;
+    top: 70px;
+    bottom: 30px;
+}
+
+#big-graphs .graph p {
+    transform: rotate(270deg);
+    position: absolute;
+    left: 1%;
+    top: 100px;
+    font-size: 80%;
+    color: Gainsboro;
+}
+
+#big-graphs .graph:first-of-type p {
+    left: 2.3%;
 }

@@ -1,6 +1,6 @@
 var aggregateData = undefined;
 
-(function ($) {
+var smallGraphs = function ($) {
   'use strict';
 
   var $roshanChart = $('#roshanSmallChart');
@@ -9,6 +9,7 @@ var aggregateData = undefined;
   var $graphBar = $('#graph-bar');
   var gHeight = $graphBar.height();
   var gWidth = $graphBar.width();
+  var time = [];
 
   var graphSettings = {
     barValueSpacing: 0,
@@ -20,14 +21,6 @@ var aggregateData = undefined;
     scaleShowHorizontalLines: false,
     showTooltips: false
   };
-
-  var time = (function () {
-    var temp = [];
-    for (var k = 0; k < 61; k++) {
-      temp.push("");
-    }
-    return temp;
-  })();
 
   var charArr2Str = function (charArr) {
     var chunkSize = 0x8000;
@@ -45,6 +38,14 @@ var aggregateData = undefined;
     var dataStr = charArr2Str(dataCharArr);
     aggregateData = JSON.parse(dataStr);
 
+    time = (function () {
+      var temp = [];
+      for (var k = 0; k < endTime; k++) {
+        temp.push("");
+      }
+      return temp;
+    })();
+
     $graphBar.find('canvas').each(function(index) {
       $(this).data('pos', index);
     });
@@ -52,6 +53,8 @@ var aggregateData = undefined;
     drawRoshanChart(aggregateData["roshCounts"]);
     drawWardsChart(aggregateData["wardCounts"]);
     drawPlayerKillsChart(aggregateData["deathCounts"]);
+
+    bigGraphs($);
   };
 
   var loadPlayerData = function () {
@@ -147,4 +150,4 @@ var aggregateData = undefined;
   });
 
   $(document).ready(loadPlayerData);
-})(jQuery);
+};

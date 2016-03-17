@@ -53,15 +53,22 @@ header > hr {
     width: calc(90% - 4px);
 }
 
+#bottom-events {
+    margin-top: -2px;
+}
+
 .event {
     position: absolute;
     height: 100%;
     width: 8px;
-    left: 0;
 }
 
 .event.smoke {
     background-color: rgba(97, 29, 216, 0.6);
+}
+
+.event.roshan {
+    background-color: rgba(178, 34, 34, 0.8);
 }
 
 .event.radiant {
