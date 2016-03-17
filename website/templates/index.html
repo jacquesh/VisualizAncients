@@ -38,9 +38,9 @@
                     <div class="arrow" id="down-arrow"><i id="downarrow" class="fa fa-arrow-down"></i></div>
                 </div>
                 <div id="graph-bar">
-                    <canvas id="roshanSmallChart" ></canvas>
-                    <canvas id="wardSmallChart" style="display:none;"></canvas>
-                    <canvas id="playerKillsSmallChart" style="display:none;"></canvas>
+                    <canvas id="roshanSmallChart" class="selected" data-name="Roshan"></canvas>
+                    <canvas id="wardSmallChart" data-name="Wards" style="display:none;"></canvas>
+                    <canvas id="playerKillsSmallChart" data-name="Kills" style="display:none;"></canvas>
                 </div>
                 <div id="open-graphs"><a href="/graphs"><i class="fa fa-bar-chart fa-2x"></i></a></div>
             </div>
@@ -192,6 +192,6 @@
 <script rel="script" type="text/javascript" src="/static/vendor/Chart.min.js"></script>
 <script rel="script" type="text/javascript" src="/static/js/dataMaps.js"></script>
 <script rel="script" type="text/javascript" src="/static/js/index.js"></script>
-{#<script rel="script" type="text/javascript" src="/static/js/smallGraphDrawer.js"></script>#}
+<script rel="script" type="text/javascript" src="/static/js/smallGraphDrawer.js"></script>
 
 </html>
