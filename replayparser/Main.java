@@ -47,7 +47,7 @@ public class Main
             for(int i=0; i<contents.length; ++i)
             {
                 String contentName = contents[i].getName();
-                String contentPath = inFile.getName()+"/"+contentName;
+                String contentPath = inFile.getPath()+File.separator+contentName;
                 if(contents[i].isFile() && contentName.endsWith(".dem"))
                 {
                     System.out.printf("\n%d/%d: %s\n", i+1, contents.length, contentPath);
