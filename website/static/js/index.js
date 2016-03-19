@@ -350,31 +350,75 @@
         width:420, height:420,
         fromCenter: false,
         each: function(px) {
+          var sign = function(x) {
+            if(x > 0)
+              return 1;
+            else if(x < 0)
+              return -1;
+            return 0;
+          };
           var cellX = Math.round((pxX/420)*64);
           var cellY = 64 - Math.round((pxY/420)*64);
           var cellIndex = cellY*64 + cellX;
           var presenceVal = mapManager.presence[cellIndex];
-          var pxVal = 128 + 128*presenceVal;
-          if(presenceVal > 0)
-          {
-            mapManager.presenceTotals[0] += 1;
-            pxVal = 255;
-          }
-          else if(presenceVal < 0)
-          {
-            mapManager.presenceTotals[1] += 1;
-            pxVal = 0;
-          }
-          else
-            pxVal = 128;
+          var isEdge = false;
+          var cellSign = sign(mapManager.presence[cellIndex]);
+          for(var yOff=-1; yOff<=1; ++yOff) {
+            for(var xOff=-1; xOff<=1; ++xOff) {
+              if((xOff == 0) && (yOff == 0))
+                continue;
 
-          px.r = pxVal;
-          px.g = pxVal;
-          px.b = pxVal;
-          px.a = 200;
+              var x = cellX + xOff;
+              var y = cellY + yOff;
+              if((x < 0) || (x >= 64) || (y < 0) || (y >= 64))
+                continue;
+              var index = y*64 + x;
+              if(sign(mapManager.presence[index]) != cellSign) {
+                isEdge = true;
+              }
+            }
+          }
+
+          if(presenceVal > 0) {
+            mapManager.presenceTotals[0] += 1;
+            if(isEdge) {
+              px.r = 7;
+              px.g = 101;
+              px.b = 178;
+              px.a = 255;
+            }
+            else {
+              px.r = 9;
+              px.g = 127;
+              px.b = 230;
+              px.a = 128;
+            }
+          }
+          else if(presenceVal < 0) {
+            mapManager.presenceTotals[1] += 1;
+            if(isEdge) {
+              px.r = 178;
+              px.g = 64;
+              px.b = 7;
+              px.a = 255;
+            }
+            else {
+              px.r = 230;
+              px.g = 86;
+              px.b = 9;
+              px.a = 128;
+            }
+          }
+          else {
+            var greyVal = 255;
+            px.r = greyVal;
+            px.g = greyVal;
+            px.b = greyVal;
+            px.a = 128;
+          }
+
           pxX++;
-          if(pxX >= 420)
-          {
+          if(pxX >= 420) {
             pxX = 0;
             pxY++;
           }
@@ -384,8 +428,7 @@
       // NOTE: drawLayers clears first, drawLayer does not
       //       We need to not clear in order to not lose the presence data
       var renderLayers = $map.getLayers();
-      for(var i=0; i<renderLayers.length; ++i)
-      {
+      for(var i=0; i<renderLayers.length; ++i) {
         $map.drawLayer(i);
       }
 
