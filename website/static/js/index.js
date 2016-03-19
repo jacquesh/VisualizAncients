@@ -14,6 +14,7 @@
     creepHidden: false,
     smokeHidden: false,
     presence: Array(4096), //64*64
+    presenceTotals: [0,0],
 
     getX: function(data_x) {
       return (data_x - 64) * this.scalef;
@@ -277,13 +278,14 @@
     },
 
     renderMap: function(snapshot) {
-      var heroData = snapshot.heroData;
+      this.presenceTotals[0] = 0;
+      this.presenceTotals[1] = 0;
       for(var i=0; i<4096; i++)
       {
           this.presence[i] = 0;
       }
 
-
+      var heroData = snapshot.heroData;
       var teamMultiplier = 1;
       var heroPresence = 10;
       var heroPresenceRadius = 16;
@@ -354,9 +356,15 @@
           var presenceVal = mapManager.presence[cellIndex];
           var pxVal = 128 + 128*presenceVal;
           if(presenceVal > 0)
+          {
+            mapManager.presenceTotals[0] += 1;
             pxVal = 255;
+          }
           else if(presenceVal < 0)
+          {
+            mapManager.presenceTotals[1] += 1;
             pxVal = 0;
+          }
           else
             pxVal = 128;
 
@@ -380,6 +388,12 @@
       {
         $map.drawLayer(i);
       }
+
+      var presenceMax = this.width*this.width; // The map is a square, so we don't need height
+      var radiantPresence = Math.round(100*(this.presenceTotals[0]/presenceMax));
+      var direPresence = Math.round(100*(this.presenceTotals[1]/presenceMax));
+      $('#radiant-presence').text(radiantPresence+"%");
+      $('#dire-presence').text(direPresence+"%");
     },
 
     toggleCouriers: function() {
