@@ -13,6 +13,7 @@
     deathsHidden: false,
     creepHidden: false,
     smokeHidden: false,
+    presence: Array(4096), //64*64
 
     getX: function(data_x) {
       return (data_x - 64) * this.scalef;
@@ -175,6 +176,7 @@
       }
     },
 
+    // TODO: Change the time window here so that it shows for longer than 1s of game time (which is a basically just 1 tick
     updateSmokes: function(smokeData, time) {
       $map.removeLayerGroup('smoke');
       if (!this.smokeHidden) {
@@ -250,8 +252,134 @@
       });
     },
 
+    applyPresence: function(entityX, entityY, presenceValue, radius, teamSign) {
+      for(var y=-radius; y<radius; y++)
+      {
+        for(var x=-radius; x<radius; x++)
+        {
+          var cellX = entityX + x;
+          var cellY = entityY + y;
+          if((cellX < 0) || (cellX >= 64) || (cellY < 0) || (cellY >= 64))
+          {
+            continue;
+          }
+          var distance = Math.sqrt(x*x + y*y);
+          var cellPresence = presenceValue - (presenceValue/radius)*distance;
+          if(cellPresence < 0) cellPresence = 0;
+          var cellIndex = cellY*64 + cellX;
+          this.presence[cellIndex] += cellPresence*teamSign;
+        }
+      }
+    },
+
     resetMap: function() {
       $map.clearCanvas();
+    },
+
+    renderMap: function(snapshot) {
+      var heroData = snapshot.heroData;
+      for(var i=0; i<4096; i++)
+      {
+          this.presence[i] = 0;
+      }
+
+
+      var teamMultiplier = 1;
+      var heroPresence = 10;
+      var heroPresenceRadius = 16;
+      for(var heroIndex=0; heroIndex<10; heroIndex++)
+      {
+        if(heroIndex == 5) teamMultiplier = -1;
+        var heroX = Math.round((heroData[heroIndex].x - 64)/2);
+        var heroY = Math.round((heroData[heroIndex].y - 64)/2);
+        this.applyPresence(heroX, heroY, heroPresence, heroPresenceRadius, teamMultiplier);
+      }
+
+      var creepPresence = 5;
+      var creepPresenceRadius = 8;
+      for(var creepIndex=0; creepIndex<snapshot.laneCreepData.length; creepIndex++)
+      {
+        var creep = snapshot.laneCreepData[creepIndex];
+        var creepX = Math.round((creep.x - 64)/2);
+        var creepY = Math.round((creep.y - 64)/2);
+        if(creep.isDire)
+          teamMultiplier = -1;
+        else
+          teamMultiplier = 1;
+        this.applyPresence(creepX, creepY, creepPresence, creepPresenceRadius, teamMultiplier);
+      }
+
+      var wardPresence = 7;
+      var wardPresenceRadius = 8;
+      for(var wardName in wardManager.wards)
+      {
+        var ward = wardManager.wards[wardName];
+        if((snapshot.time < ward.start) || (snapshot.time >= ward.end))
+          continue;
+        if(ward.sentry)
+          continue;
+        var wardX = Math.round((ward.x - 64)/2);
+        var wardY = Math.round((ward.y - 64)/2);
+        if(ward.dire)
+          teamMultiplier = -1;
+        else
+          teamMultiplier = 1;
+        this.applyPresence(wardX, wardY, wardPresence, wardPresenceRadius, teamMultiplier);
+      }
+
+      var towerPresence = 15;
+      var towerPresenceRadius = 16;
+      var applyTowerPresence = function(index, tower) {
+        if(snapshot.time >= tower.data.deadTime)
+          return;
+        var towerX = Math.round((tower.data.position.x - 64)/2);
+        var towerY = Math.round((tower.data.position.y - 64)/2);
+        mapManager.applyPresence(towerX, towerY, towerPresence, towerPresenceRadius, teamMultiplier);
+      };
+      teamMultiplier = 1;
+      $.each($map.getLayerGroup('radiant-buildings'), applyTowerPresence);
+      teamMultiplier = -1;
+      $.each($map.getLayerGroup('dire-buildings'), applyTowerPresence);
+
+      var pxX = 0;
+      var pxY = 0;
+      $map.setPixels({
+        x:0, y:0,
+        width:420, height:420,
+        fromCenter: false,
+        each: function(px) {
+          var cellX = Math.round((pxX/420)*64);
+          var cellY = 64 - Math.round((pxY/420)*64);
+          var cellIndex = cellY*64 + cellX;
+          var presenceVal = mapManager.presence[cellIndex];
+          var pxVal = 128 + 128*presenceVal;
+          if(presenceVal > 0)
+            pxVal = 255;
+          else if(presenceVal < 0)
+            pxVal = 0;
+          else
+            pxVal = 128;
+
+          px.r = pxVal;
+          px.g = pxVal;
+          px.b = pxVal;
+          px.a = 200;
+          pxX++;
+          if(pxX >= 420)
+          {
+            pxX = 0;
+            pxY++;
+          }
+        }
+      });
+
+      // NOTE: drawLayers clears first, drawLayer does not
+      //       We need to not clear in order to not lose the presence data
+      var renderLayers = $map.getLayers();
+      for(var i=0; i<renderLayers.length; ++i)
+      {
+        $map.drawLayer(i);
+      }
     },
 
     toggleCouriers: function() {
@@ -587,7 +715,7 @@
     wardManager.setupWards(replayData.wardEvents);
     runeManager.setupRunes();
 
-    $map.drawLayers();
+    mapManager.renderMap(snapshots[0]);
 
     statsManager.setMaxStats(snapshots[snapshots.length-1].teamStats);
 
@@ -621,126 +749,7 @@
         statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
         statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
 
-
-        var presence = Array(4096); //64*64
-        for(var i=0; i<4096; i++)
-        {
-            presence[i] = 0;
-        }
-        var applyPresence = function(entityX, entityY, presenceValue, radius, teamSign) {
-          for(var y=-radius; y<radius; y++)
-          {
-            for(var x=-radius; x<radius; x++)
-            {
-              var cellX = entityX + x;
-              var cellY = entityY + y;
-              if((cellX < 0) || (cellX >= 64) || (cellY < 0) || (cellY >= 64))
-              {
-                continue;
-              }
-              var distance = Math.sqrt(x*x + y*y);
-              var cellPresence = presenceValue - (presenceValue/radius)*distance;
-              if(cellPresence < 0) cellPresence = 0;
-              var cellIndex = cellY*64 + cellX;
-              presence[cellIndex] += cellPresence*teamSign;
-            }
-          }
-        }
-        var teamMultiplier = 1;
-        var heroPresence = 10;
-        var heroPresenceRadius = 16;
-        for(var heroIndex=0; heroIndex<10; heroIndex++)
-        {
-          if(heroIndex == 5) teamMultiplier = -1;
-          var heroX = Math.round((heroData[heroIndex].x - 64)/2);
-          var heroY = Math.round((heroData[heroIndex].y - 64)/2);
-          applyPresence(heroX, heroY, heroPresence, heroPresenceRadius, teamMultiplier);
-        }
-
-        var creepPresence = 5;
-        var creepPresenceRadius = 8;
-        for(var creepIndex=0; creepIndex<snapshot.laneCreepData.length; creepIndex++)
-        {
-          var creep = snapshot.laneCreepData[creepIndex];
-          var creepX = Math.round((creep.x - 64)/2);
-          var creepY = Math.round((creep.y - 64)/2);
-          if(creep.isDire)
-            teamMultiplier = -1;
-          else
-            teamMultiplier = 1;
-          applyPresence(creepX, creepY, creepPresence, creepPresenceRadius, teamMultiplier);
-        }
-
-        var wardPresence = 7;
-        var wardPresenceRadius = 8;
-        for(var wardName in wardManager.wards)
-        {
-          var ward = wardManager.wards[wardName];
-          if((snapshot.time < ward.start) || (snapshot.time >= ward.end))
-            continue;
-          if(ward.sentry)
-            continue;
-          var wardX = Math.round((ward.x - 64)/2);
-          var wardY = Math.round((ward.y - 64)/2);
-          if(ward.dire)
-            teamMultiplier = -1;
-          else
-            teamMultiplier = 1;
-          applyPresence(wardX, wardY, wardPresence, wardPresenceRadius, teamMultiplier);
-        }
-
-        var towerPresence = 15;
-        var towerPresenceRadius = 16;
-        var applyTowerPresence = function(index, tower) {
-          if(snapshot.time >= tower.data.deadTime)
-            return;
-          var towerX = Math.round((tower.data.position.x - 64)/2);
-          var towerY = Math.round((tower.data.position.y - 64)/2);
-          applyPresence(towerX, towerY, towerPresence, towerPresenceRadius, teamMultiplier);
-        };
-        teamMultiplier = 1;
-        $.each($map.getLayerGroup('radiant-buildings'), applyTowerPresence);
-        teamMultiplier = -1;
-        $.each($map.getLayerGroup('dire-buildings'), applyTowerPresence);
-
-        var pxX = 0;
-        var pxY = 0;
-        $map.setPixels({
-          x:0, y:0,
-          width:420, height:420,
-          fromCenter: false,
-          each: function(px) {
-            var cellX = Math.round((pxX/420)*64);
-            var cellY = 64 - Math.round((pxY/420)*64);
-            var cellIndex = cellY*64 + cellX;
-            var pxVal = 128 + 128*(presence[cellIndex]/1);
-            if(presence[cellIndex] > 0)
-              pxVal = 255;
-            else if(presence[cellIndex] < 0)
-              pxVal = 0;
-            else
-              pxVal = 128;
-
-            px.r = pxVal;
-            px.g = pxVal;
-            px.b = pxVal;
-            px.a = 200;
-            pxX++;
-            if(pxX >= 420)
-            {
-              pxX = 0;
-              pxY++;
-            }
-          }
-        });
-
-        // NOTE: drawLayers clears first, drawLayer does not
-        //       We need to not clear in order to not lose the presence data
-        var renderLayers = $map.getLayers();
-        for(var i=0; i<renderLayers.length; ++i)
-        {
-          $map.drawLayer(i);
-        }
+        mapManager.renderMap(snapshot);
       }
     });
     //$timeSlider.slider('option', 'slide').call($timeSlider);
@@ -773,8 +782,9 @@
       } else {
         mapManager.hideDeaths();
       }
-      mapManager.updateHeroLayers(replayData.snapshots[time].heroData);
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      mapManager.updateHeroLayers(snapshot.heroData);
+      mapManager.renderMap(snapshot);
     });
 
     $('#wards-box').prev().click(function () {
@@ -784,8 +794,9 @@
       } else {
         wardManager.hideWards();
       }
-      wardManager.updateWards(time);
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      wardManager.updateWards(snapshot.time);
+      mapManager.renderMap(snapshot);
     });
 
     $('#creep-box').prev().click(function() {
@@ -795,8 +806,9 @@
       } else {
         mapManager.hideCreep();
       }
-      mapManager.updateCreep(replayData.snapshots[time].laneCreepData);
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      mapManager.updateCreep(snapshot.laneCreepData);
+      mapManager.renderMap(snapshot);
     });
 
     $('#roshan-box').prev().click(function() {
@@ -806,8 +818,9 @@
       } else {
         roshanManager.hideRoshan();
       }
-      roshanManager.updateRoshan(time);
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      roshanManager.updateRoshan(snapshot.time);
+      mapManager.renderMap(snapshot);
     });
 
     $('#courier-box').prev().click(function() {
@@ -817,7 +830,8 @@
       if (courierData.length) {
         mapManager.updateCouriers(courierData);
       }
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      mapManager.renderMap(snapshot);
     });
 
     $('#towers-box').prev().click(function() {
@@ -827,17 +841,18 @@
       } else {
         buildingManager.hideBuildings();
       }
-
-      buildingManager.updateBuildings(time);
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      buildingManager.updateBuildings(snapshot.time);
+      mapManager.renderMap(snapshot);
     });
 
     $('#smokes-box').prev().click(function() {
       var time = +$('#amount').text();
       mapManager.toggleSmokes();
 
-      mapManager.updateSmokes(replayData.smokeUses, replayData.snapshots[time].time);
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
+      mapManager.renderMap(snapshot);
     });
 
     $('#runes-box').prev().click(function() {
@@ -847,9 +862,9 @@
       } else {
         runeManager.hideRunes();
       }
-
-      runeManager.updateRunes(replayData.snapshots[time].runeData);
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      runeManager.updateRunes(snapshot.runeData);
+      mapManager.renderMap(snapshot);
     });
   };
 
