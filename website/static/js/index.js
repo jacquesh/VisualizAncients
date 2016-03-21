@@ -16,6 +16,8 @@ var endTime = 0;
     deathsHidden: false,
     creepHidden: false,
     smokeHidden: false,
+    showPresence: true,
+    presenceTotals: [0,0],
     radiantLinesHidden: false,
     direLinesHidden: false,
 
@@ -253,10 +255,11 @@ var endTime = 0;
     setupSmokeEvents: function(smokeData) {
       for (var i = 0; i < smokeData.length; i++) {
         var smoke = smokeData[i];
-        addEvent(false, 'smoke-' + i, 'smoke', statsManager.getTick(smoke.time));
+        addEvent(false, 'smoke-' + i, 'smoke', smoke.time);
       }
     },
 
+    // TODO: Change the time window here so that it shows for longer than 1s of game time (which is a basically just 1 tick
     updateSmokes: function(smokeData, time) {
       $map.removeLayerGroup('smoke');
       if (!this.smokeHidden) {
@@ -336,6 +339,61 @@ var endTime = 0;
       $map.clearCanvas();
     },
 
+    renderMap: function(snapshot) {
+      if(this.showPresence) {
+        this.presenceTotals[0] = 0;
+        this.presenceTotals[1] = 0;
+
+        var pxX = 0;
+        var pxY = 0;
+        var colours = [{r:255, g:255, b:255, a:128},
+                       {},
+                       {r:9, g:127, b:230, a:128},
+                       {r:7, g:101, b:178, a:255},
+                       {r:230, g:86, b:9, a:128},
+                       {r:178, g:64, b:7, a:255}];
+        $map.setPixels({
+          x:0, y:0,
+          width:420, height:420,
+          fromCenter: false,
+          each: function(px) {
+            var cellX = Math.floor((pxX/420)*64);
+            var cellY = 63 - Math.floor((pxY/420)*64);
+            var cellIndex = cellY*64 + cellX;
+            var presenceVal = snapshot.presenceData[cellIndex];
+            px.r = colours[presenceVal].r;
+            px.g = colours[presenceVal].g;
+            px.b = colours[presenceVal].b;
+            px.a = colours[presenceVal].a;
+
+            if(presenceVal != 0) {
+              var teamIndex = Math.floor((presenceVal - 2)/2);
+              mapManager.presenceTotals[teamIndex] += 1;
+            }
+
+            pxX++;
+            if(pxX >= 420) {
+              pxX = 0;
+              pxY++;
+            }
+          }
+        });
+
+        var presenceMax = this.width*this.width; // The map is a square, so we don't need height
+        var radiantPresence = Math.round(100*(this.presenceTotals[0]/presenceMax));
+        var direPresence = Math.round(100*(this.presenceTotals[1]/presenceMax));
+        $('#radiant-presence').text(radiantPresence+"%");
+        $('#dire-presence').text(direPresence+"%");
+      }
+
+      // NOTE: drawLayers clears first, drawLayer does not
+      //       We need to not clear in order to not lose the presence data
+      var renderLayers = $map.getLayers();
+      for(var i=0; i<renderLayers.length; ++i) {
+        $map.drawLayer(i);
+      }
+    },
+
     toggleCouriers: function() {
       this.couriersHidden = !this.couriersHidden;
       $map.setLayerGroup('courier', {visible: !this.couriersHidden});
@@ -383,7 +441,8 @@ var endTime = 0;
 
         if (!event.died) {
           this.wards[handle] = {
-            start: statsManager.getTick(event.time),
+            start: event.time,
+            end: 10000,
             sentry: event.isSentry
           };
 
@@ -391,7 +450,7 @@ var endTime = 0;
           this.addWard(event.x, event.y, team, handle);
           $map.setLayer(handle, {visible: false}).moveLayer(handle, 0);
         } else {
-          this.wards[handle].end = statsManager.getTick(event.time);
+          this.wards[handle].end = event.time;
         }
       }
     },
@@ -436,7 +495,7 @@ var endTime = 0;
     roshanEvents: [],
     hidden: false,
 
-    setupRoshanEvents: function(roshanData, firstTickTime) {
+    setupRoshanEvents: function(roshanData) {
       var roshanPath = '/static/img/icons/roshan.png';
       mapManager.drawMapIcon(160, 113, 0.75, roshanPath, 'roshan', 'roshan');
       $map.setLayer('roshan', {visible: false});
@@ -447,13 +506,13 @@ var endTime = 0;
 
         if (!event.died) {
           this.roshanEvents.push({
-            start: statsManager.getTick(event.time),
-            end: -1
+            start: event.time,
+            end: 10000
           });
         } else {
-          this.roshanEvents[eventIndex].end = statsManager.getTick(event.time);
+          this.roshanEvents[eventIndex].end = event.time;
           eventIndex += 1;
-          addEvent(false, 'rosh'+ eventIndex, 'roshan', statsManager.getTick(event.time));
+          addEvent(false, 'rosh'+ eventIndex, 'roshan', event.time);
         }
       }
     },
@@ -467,10 +526,7 @@ var endTime = 0;
       for (var i=0; i < this.roshanEvents.length; i++) {
         if (!showRosh) {
           var event = this.roshanEvents[i];
-
-          var neverKilled = ((event.end === -1) && (event.start < time));
-          var aliveTime = ((event.start < time) && (time < event.end));
-          showRosh = neverKilled || aliveTime;
+          showRosh = ((event.start < time) && (time < event.end));
         } else {
           break;
         }
@@ -547,13 +603,13 @@ var endTime = 0;
     }
   };
 
-  var addEvent = function(top, eventId, eventClass, tick) {
+  var addEvent = function(top, eventId, eventClass, time) {
     var place = top ? '#top-events' : '#bottom-events';
     $(place).append(
       '<div id="' + eventId + '" class="event ' + eventClass + '"></div>'
     );
 
-    $('#' + eventId).css('left', 'calc(' + ((tick / statsManager.runTime) * 100) + '% - 7px)');
+    $('#' + eventId).css('left', (time / statsManager.barF) + 'px');
   };
 
   var buildingManager = {
@@ -568,7 +624,7 @@ var endTime = 0;
           this.addBuilding(pos.x, pos.y, team, true, team + '-buildings', layerName);
           $map.setLayer(layerName, {
             data: {
-              deadTime: -1
+              deadTime: 10000
             }
           });
         }
@@ -583,7 +639,7 @@ var endTime = 0;
           this.addBuilding(pos.x, pos.y, team, false, team + '-buildings', layerName);
           $map.setLayer(layerName, {
             data: {
-              deadTime: -1
+              deadTime: 10000
             }
           });
         }
@@ -596,23 +652,22 @@ var endTime = 0;
 
         var eventId = team + '-' + event.towerIndex + type;
         var eventClass = team + ' ' + type;
-        var deadTime = statsManager.getTick(event.time);
 
-        addEvent(true, eventId, eventClass, deadTime);
+        addEvent(true, eventId, eventClass, event.time);
 
         var layerName = team + '-' + event.towerIndex + '-' + type;
         $map.setLayer(layerName, {
           data: {
-            deadTime: deadTime
+            deadTime: event.time
           }
         });
       }
     },
 
-    updateBuildings: function(tick) {
+    updateBuildings: function(time) {
       var setDead = function(index, layer) {
         var deadTime = layer.data.deadTime;
-        var dead = (deadTime <= tick) && (deadTime !== -1);
+        var dead = (deadTime <= time);
 
         $map.setLayer(layer.name, {
           visible: !dead
@@ -645,26 +700,7 @@ var endTime = 0;
   var statsManager = {
     biggestVal: 0,
     runTime: 0,
-    firstTime: undefined,
-
-    firstTickTime: function() {
-      if (this.firstTime !== undefined) {
-        return this.firstTime;
-      }
-      for (var i=0; i < replayData.snapshots.length; i++) {
-        if (replayData.snapshots[i].time !== 0) {
-          return replayData.snapshots[i].time
-        }
-      }
-    },
-
-    getTick: function(time) {
-      return Math.round((time - this.firstTickTime()) / this.timeDiff()) + 1
-    },
-
-    timeDiff: function() {
-      return (replayData.snapshots[2].time - replayData.snapshots[1].time);
-    },
+    barF: 0,
 
     setMaxStats: function(stats) {
       var maxGold = Math.max(stats[0].netWorth, stats[1].netWorth);
@@ -723,7 +759,7 @@ var endTime = 0;
     statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
     statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
 
-    $map.drawLayers();
+    mapManager.renderMap(snapshot);
 
     $timeSlider.find('.label').text(('' + snapshot.time).toHHMMSS());
   };
@@ -760,8 +796,9 @@ var endTime = 0;
     // Main setup code
     var snapshots = replayData.snapshots;
 
-    statsManager.runTime = replayData.snapshots.length - 1;
-    endTime = Math.ceil(snapshots[statsManager.runTime].time / 60);
+    statsManager.runTime = snapshots[snapshots.length - 1].time;
+    statsManager.barF = statsManager.runTime / $('#time-container').width();
+    endTime = Math.ceil(snapshots[snapshots.length - 1].time / 60);
 
     buildingManager.setupBuildings(replayData.towerDeaths);
     mapManager.setupLayers(replayData.playerHeroes);
@@ -769,6 +806,7 @@ var endTime = 0;
     wardManager.setupWards(replayData.wardEvents);
     runeManager.setupRunes();
 
+    mapManager.renderMap(snapshots[0]);
     mapManager.setupSmokeEvents(replayData.smokeUses);
 
     $map.drawLayers();
@@ -811,7 +849,6 @@ var endTime = 0;
     var hours = Math.floor(sec_num / 3600);
     var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
     var seconds = sec_num - (hours * 3600) - (minutes * 60);
-
     hours = (hours < 10) ? "0" + hours : hours;
     minutes = (minutes < 10) ? "0" + minutes : minutes;
     seconds = (seconds < 10) ? "0" + seconds : seconds;
@@ -884,8 +921,9 @@ var endTime = 0;
       } else {
         mapManager.hideDeaths();
       }
-      mapManager.updateHeroLayers(replayData.snapshots[time].heroData);
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      mapManager.updateHeroLayers(snapshot.heroData);
+      mapManager.renderMap(snapshot);
     });
 
     $('#wards-box').prev().click(function () {
@@ -895,8 +933,9 @@ var endTime = 0;
       } else {
         wardManager.hideWards();
       }
-      wardManager.updateWards(time);
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      wardManager.updateWards(snapshot.time);
+      mapManager.renderMap(snapshot);
     });
 
     $('#creep-box').prev().click(function() {
@@ -906,8 +945,9 @@ var endTime = 0;
       } else {
         mapManager.hideCreep();
       }
-      mapManager.updateCreep(replayData.snapshots[time].laneCreepData);
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      mapManager.updateCreep(snapshot.laneCreepData);
+      mapManager.renderMap(snapshot);
     });
 
     $('#roshan-box').prev().click(function() {
@@ -917,8 +957,9 @@ var endTime = 0;
       } else {
         roshanManager.hideRoshan();
       }
-      roshanManager.updateRoshan(time);
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      roshanManager.updateRoshan(snapshot.time);
+      mapManager.renderMap(snapshot);
     });
 
     $('#courier-box').prev().click(function() {
@@ -928,7 +969,8 @@ var endTime = 0;
       if (courierData.length) {
         mapManager.updateCouriers(courierData);
       }
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      mapManager.renderMap(snapshot);
     });
 
     $('#dire-path-box').prev().click(function() {
@@ -948,17 +990,18 @@ var endTime = 0;
       } else {
         buildingManager.hideBuildings();
       }
-
-      buildingManager.updateBuildings(time);
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      buildingManager.updateBuildings(snapshot.time);
+      mapManager.renderMap(snapshot);
     });
 
     $('#smokes-box').prev().click(function() {
       var time = +$('#amount').text();
       mapManager.toggleSmokes();
 
-      mapManager.updateSmokes(replayData.smokeUses, replayData.snapshots[time].time);
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
+      mapManager.renderMap(snapshot);
     });
 
     $('#runes-box').prev().click(function() {
@@ -968,9 +1011,9 @@ var endTime = 0;
       } else {
         runeManager.hideRunes();
       }
-
-      runeManager.updateRunes(replayData.snapshots[time].runeData);
-      $map.drawLayers();
+      var snapshot = replayData.snapshots[time];
+      runeManager.updateRunes(snapshot.runeData);
+      mapManager.renderMap(snapshot);
     });
   };
 

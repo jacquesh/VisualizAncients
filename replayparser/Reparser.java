@@ -50,12 +50,12 @@ public class Reparser
 {
     private final int NULL_HANDLE = 16777215;
 
-    private final float[][][] towerPositions = {
+    public static final float[][][] towerPositions = {
         {{97.749268f,80.249512f},{92.004395f,96.000000f},{76.250244f,101.999268f},{123.639893f,80.366699f},{166.492432f,80.482178f},{100.566895f,106.304688f},{80.000244f,121.491455f},{80.375244f,142.366455f},{83.629395f,89.875000f},{85.879395f,87.625000f},{115.348145f,116.250000f}},
         {{166.765625f,165.374756f},{128.000000f,174.999756f},{91.000000f,174.999756f},{147.500000f,144.499756f},{135.999756f,130.499756f},{176.500000f,114.999756f},{177.000000f,130.999756f},{177.031250f,151.312256f},{155.375000f,173.124756f},{161.000000f,156.991943f},{169.250000f,162.624756f}}
     };
 
-    private final float[][][] barracksPositions = {
+    public static final float[][][] barracksPositions = {
         {{91.375000f, 92.632568f},{88.593750f, 95.390381f},{94.937500f, 78.281006f},{94.945068f, 82.241943f},{78.250000f, 99.015625f},{74.281250f, 99.007568f}},
         {{179.062256f, 154.125000f},{174.937500f, 153.999756f},{161.499756f, 160.304443f},{164.359375f, 157.500000f},{158.078125f, 171.062256f},{158.046875f, 175.195068f}}
     };
@@ -627,10 +627,91 @@ public class Reparser
         }
         out.write("],\n");
 
+        ArrayList<WardEvent> activeWards = new ArrayList<WardEvent>();
+        int nextWardEventIndex = 0;
+        WardEvent nextWardEvent = wardEvents.get(0);
+        ArrayList<TowerEvent> activeTowers = new ArrayList<TowerEvent>();
+        int nextTowerEventIndex = 0;
+        TowerEvent nextTowerEvent = towerDeaths.get(0);
+        for(int i=0; i<11; ++i)
+        {
+            for(int team=0; team<2; ++team)
+            {
+                TowerEvent towerEvt = new TowerEvent();
+                towerEvt.teamIndex = team;
+                towerEvt.towerIndex = i;
+                towerEvt.isBarracks = false;
+                activeTowers.add(towerEvt);
+            }
+            if(i < 6)
+            {
+                for(int team=0; team<2; ++team)
+                {
+                    TowerEvent towerEvt = new TowerEvent();
+                    towerEvt.teamIndex = team;
+                    towerEvt.towerIndex = i;
+                    towerEvt.isBarracks = true;
+                    activeTowers.add(towerEvt);
+                }
+            }
+        }
         out.write("\"snapshots\":[\n");
         for(int i=0; i<snapshotList.size(); i+=snapshotInterval)
         {
-            snapshotList.get(i).write(out);
+            Snapshot ss = snapshotList.get(i);
+            while(nextWardEvent.time < ss.time)
+            {
+                if(nextWardEvent.died)
+                {
+                    for(int j=0; j<activeWards.size(); ++j)
+                    {
+                        if(nextWardEvent.entityHandle == activeWards.get(j).entityHandle)
+                        {
+                            activeWards.remove(j);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    activeWards.add(nextWardEvent);
+                }
+                nextWardEventIndex++;
+                if(nextWardEventIndex < wardEvents.size())
+                {
+                    nextWardEvent = wardEvents.get(nextWardEventIndex);
+                }
+                else
+                {
+                    nextWardEvent.time = snapshotList.get(snapshotList.size()-1).time + 1;
+                }
+            }
+
+            while(nextTowerEvent.time < ss.time)
+            {
+                for(int j=0; j<activeTowers.size(); ++j)
+                {
+                    TowerEvent evt = activeTowers.get(j);
+                    if((nextTowerEvent.teamIndex == evt.teamIndex) &&
+                            (nextTowerEvent.towerIndex == evt.towerIndex) &&
+                            (nextTowerEvent.isBarracks == evt.isBarracks))
+                    {
+                        activeTowers.remove(j);
+                        break;
+                    }
+                }
+                nextTowerEventIndex++;
+                if(nextTowerEventIndex < towerDeaths.size())
+                {
+                    nextTowerEvent = towerDeaths.get(nextTowerEventIndex);
+                }
+                else
+                {
+                    nextTowerEvent.time = snapshotList.get(snapshotList.size()-1).time + 1;
+                }
+            }
+
+            ss.write(out, activeWards, activeTowers);
             if(i+snapshotInterval < snapshotList.size())
             {
                 out.write(",");
