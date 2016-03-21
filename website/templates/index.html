@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="/static/vendor/font-awesome.min.css">
     <link rel="stylesheet" href="/static/vendor/jquery.alt-checkbox.css">
     <link rel="stylesheet" href="/static/vendor/jquery.alt-checkbox.icon-font.css">
-    <link rel="stylesheet" href="/static/vendor/colorbox.css">
     <link rel="stylesheet" href="/static/css/graph.css">
     <link rel="stylesheet" href="/static/css/index.css">
 </head>
@@ -180,36 +179,41 @@
                     <div class="kills">Kills <span class="count">0</span></div>
                 </div>
             </div>
-            <div style="display: none">
-                <div id="big-graphs">
-                    <div class="graph container">
-                        <b>Roshan Kills</b>
-                        <img src="/static/img/icons/roshan.png">
-                        <canvas id="roshanChart"></canvas>
-                        <div class="axis">Elapsed Game Time (min)</div>
-                        <p>Times Roshan killed</p>
-                    </div>
-                    <div class="graph container">
-                        <b>Wards</b>
-                        <img src="/static/img/icons/ward.png">
-                        <canvas id="wardChart"></canvas>
-                        <div class="axis">Elapsed Game Time (min)</div>
-                        <p>Number of wards placed</p>
-                    </div>
-                    <div class="graph container">
-                        <b>Player Kills</b>
-                        <img src="/static/img/icons/death.png">
-                        <canvas id="player_kills_Chart"></canvas>
-                        <div class="axis">Elapsed Game Time (min)</div>
-                        <p>Number of players killed</p>
-                    </div>
-                </div>
-            </div>
         </section>
         <footer>
             Made by: Alan Berman, Jacques Heunis, Jethro Muller, and Timothy Gwynn.
         </footer>
     </main>
+    <div id="big-graph-overlay" style="display: none">
+        <div id="big-graph-container">
+            <div>
+                <button id="close-button" class="close-button"><span>Back</span></button>
+            </div>
+            <div id="big-graphs">
+                <div class="graph container">
+                    <b>Roshan Kills</b>
+                    <img src="/static/img/icons/roshan.png">
+                    <canvas id="roshanChart"></canvas>
+                    <div class="axis">Elapsed Game Time (min)</div>
+                    <p>Times Roshan killed</p>
+                </div>
+                <div class="graph container">
+                    <b>Wards</b>
+                    <img src="/static/img/icons/ward.png">
+                    <canvas id="wardChart"></canvas>
+                    <div class="axis">Elapsed Game Time (min)</div>
+                    <p>Number of wards placed</p>
+                </div>
+                <div class="graph container">
+                    <b>Player Kills</b>
+                    <img src="/static/img/icons/death.png">
+                    <canvas id="player_kills_Chart"></canvas>
+                    <div class="axis">Elapsed Game Time (min)</div>
+                    <p>Number of players killed</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 <script rel="script" type="text/javascript" src="/static/vendor/jquery-2.2.0.min.js"></script>
 <script rel="script" type="text/javascript" src="/static/vendor/jcanvas.min.js"></script>
@@ -217,7 +221,6 @@
 <script rel="script" type="text/javascript" src="/static/vendor/jquery.alt-checkbox.js"></script>
 <script rel="script" type="text/javascript" src="/static/vendor/pako.min.js"></script>
 <script rel="script" type="text/javascript" src="/static/vendor/Chart.min.js"></script>
-<script rel="script" type="text/javascript" src="/static/vendor/jquery.colorbox-min.js"></script>
 <script rel="script" type="text/javascript" src="/static/js/dataMaps.js"></script>
 <script rel="script" type="text/javascript" src="/static/js/index.js"></script>
 <script rel="script" type="text/javascript" src="/static/js/smallGraphDrawer.js"></script>
@@ -225,7 +228,13 @@
 
 <script>
     $(document).ready(function() {
-      $("#open-graphs").find("a.graphs").colorbox({inline: true, width: '80%'});
+      $('#open-graphs').click(function() {
+          $('#big-graph-overlay').toggle();
+      });
+
+      $('#close-button').click(function() {
+          $('#big-graph-overlay').toggle();
+      })
     });
 </script>
 

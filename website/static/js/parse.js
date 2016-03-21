@@ -13,7 +13,7 @@ var bigGraphs = function ($) {
   })();
 
   var setupGraphs = function () {
-    gWidth = $('#content-container').width() - 150;
+    gWidth = ($('#big-graph-overlay').width() * 0.8) - 165;
     drawRoshanChart(aggregateData["roshCounts"]);
     drawWardsChart(aggregateData["wardCounts"]);
     drawPlayerKillsChart(aggregateData["deathCounts"]);
