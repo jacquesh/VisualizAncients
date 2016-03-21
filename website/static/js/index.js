@@ -1,7 +1,10 @@
+var replayData = undefined;
+var endTime = 0;
+
 (function ($) {
   'use strict';
 
-  var replayData = undefined;
+  //var replayData = undefined;
   var $map = $('#dota-map');
 
   var mapManager = {
@@ -15,6 +18,8 @@
     smokeHidden: false,
     showPresence: true,
     presenceTotals: [0,0],
+    radiantLinesHidden: false,
+    direLinesHidden: false,
 
     getX: function(data_x) {
       return (data_x - 64) * this.scalef;
@@ -60,7 +65,7 @@
           col = '#097FE6';
           team = 'radiant';
         } else {
-          this.drawMapRect(0, 0, '#E65609', 'dire', layerName);
+          this.drawMapRect(194, 194, '#E65609', 'dire', layerName);
           col = '#E65609';
           team = 'dire';
         }
@@ -96,6 +101,76 @@
       var courierPath = '/static/img/courier.png';
       this.drawMapIcon(0, 0, 0.6, courierPath, 'courier', 'rad-courier');
       this.drawMapIcon(0, 0, 0.6, courierPath, 'courier', 'dir-courier');
+    },
+
+    drawHeroPaths: function(t0, t1, snapshots) {
+      $map.removeLayerGroup('radiant-lines');
+      $map.removeLayerGroup('dire-lines');
+
+      for (var i=0; i<10; i++) {
+        var points = [];
+        for (var j=t0; j <= t1; j++) {
+          var hero = snapshots[j].heroData[i];
+          points.push([hero.x, hero.y]);
+        }
+
+        if (i < 5) {
+          if (!this.radiantLinesHidden) {
+            this.drawMapLine(points, '#097FE6', true, 'radiant-lines', this.layers[i] + '-line');
+            $map.moveLayer(this.layers[i] + '-line', 10);
+          }
+        } else {
+          if (!this.direLinesHidden) {
+            this.drawMapLine(points, '#E65609', false, 'dire-lines', this.layers[i] + '-line');
+            $map.moveLayer(this.layers[i] + '-line', 10);
+          }
+        }
+      }
+    },
+
+    drawMapLine: function(points, colour, dashed, group, name) {
+      var lineSettings = {
+        mouseover: function(layer) {
+          var playerLayer = layer.name.substr(0, 5);
+          mapManager.handleHoverOn($map.getLayer(playerLayer));
+          $map.setLayerGroup('all-lines', {
+            strokeStyle: 'rgba(0, 0, 0, 0.8)'
+          }).setLayer(layer, {
+            strokeStyle: '#FFF500',
+            strokeDash: [20, 10]
+          }).moveLayer(layer, 20);
+          $map.drawLayers();
+        },
+        mouseout: function(layer) {
+          var playerLayer = layer.name.substr(0, 5);
+          mapManager.handleHoverOff($map.getLayer(playerLayer));
+          $map.setLayerGroup('radiant-lines', {strokeStyle: '#097FE6'});
+          $map.setLayerGroup('dire-lines', {
+            strokeStyle: '#E65609',
+            strokeDash: undefined
+          });
+          $map.moveLayer(layer, 10);
+          $map.drawLayers();
+        },
+        name: name,
+        strokeStyle: colour,
+        strokeWidth: 4,
+        strokeCap: 'round',
+        layer: true,
+        groups: ['all-lines', group],
+        closed: false
+      };
+
+      if (dashed) {
+        lineSettings.strokeDash = [20, 8];
+      }
+
+      // Add the points from the array to the object
+      for (var p=0; p < points.length; p++) {
+        lineSettings['x'+(p+1)] = this.getX(points[p][0]);
+        lineSettings['y'+(p+1)] = this.getY(points[p][1]);
+      }
+      $map.drawLine(lineSettings);
     },
 
     updateHeroLayers: function(heroData) {
@@ -135,7 +210,7 @@
           });
 
           $map.setLayer(layerId + '-dead', {
-            x: layer.x, y: layer.y,
+            x: this.getX(hero.x), y: this.getY(hero.y),
             visible: true,
             data: layer.data
           });
@@ -177,6 +252,13 @@
       }
     },
 
+    setupSmokeEvents: function(smokeData) {
+      for (var i = 0; i < smokeData.length; i++) {
+        var smoke = smokeData[i];
+        addEvent(false, 'smoke-' + i, 'smoke', smoke.time);
+      }
+    },
+
     // TODO: Change the time window here so that it shows for longer than 1s of game time (which is a basically just 1 tick
     updateSmokes: function(smokeData, time) {
       $map.removeLayerGroup('smoke');
@@ -210,7 +292,7 @@
 
     drawMapPolygon: function(x, y, colour, group, name, radius, sides) {
       radius = radius === undefined ? 8 : radius;
-      sides = sides === undefined ? 6 : sides;
+      sides = sides === undefined ? 5 : sides;
 
       $map.drawPolygon({
         name: name,
@@ -317,6 +399,16 @@
       $map.setLayerGroup('courier', {visible: !this.couriersHidden});
     },
 
+    toggleDireLines: function() {
+      this.direLinesHidden = !this.direLinesHidden;
+      $map.setLayerGroup('dire-lines', {visible: !this.direLinesHidden});
+    },
+
+    toggleRadiantLines: function() {
+      this.radiantLinesHidden = !this.radiantLinesHidden;
+      $map.setLayerGroup('radiant-lines', {visible: !this.radiantLinesHidden});
+    },
+
     toggleSmokes: function() {
       this.smokeHidden = !this.smokeHidden;
     },
@@ -420,6 +512,7 @@
         } else {
           this.roshanEvents[eventIndex].end = event.time;
           eventIndex += 1;
+          addEvent(false, 'rosh'+ eventIndex, 'roshan', event.time);
         }
       }
     },
@@ -510,6 +603,15 @@
     }
   };
 
+  var addEvent = function(top, eventId, eventClass, time) {
+    var place = top ? '#top-events' : '#bottom-events';
+    $(place).append(
+      '<div id="' + eventId + '" class="event ' + eventClass + '"></div>'
+    );
+
+    $('#' + eventId).css('left', (time / statsManager.barF) + 'px');
+  };
+
   var buildingManager = {
     hidden: false,
     setupBuildings: function(towerEvents) {
@@ -547,6 +649,11 @@
         var event = towerEvents[i];
         var team = event.teamIndex == 0 ? 'radiant' : 'dire';
         var type = event.isBarracks ? 'barracks' : 'tower';
+
+        var eventId = team + '-' + event.towerIndex + type;
+        var eventClass = team + ' ' + type;
+
+        addEvent(true, eventId, eventClass, event.time);
 
         var layerName = team + '-' + event.towerIndex + '-' + type;
         $map.setLayer(layerName, {
@@ -591,7 +698,9 @@
   };
 
   var statsManager = {
-    biggestVal:0,
+    biggestVal: 0,
+    runTime: 0,
+    barF: 0,
 
     setMaxStats: function(stats) {
       var maxGold = Math.max(stats[0].netWorth, stats[1].netWorth);
@@ -623,6 +732,60 @@
     return outputArr.join("");
   };
 
+  var singleSlide = function(tick) {
+    var $timeSlider = $('#time-slider');
+    var snapshots = replayData.snapshots;
+
+    $('#amount').text(tick);
+
+    mapManager.resetMap();
+
+    var snapshot = snapshots[tick];
+    var heroData = snapshot.heroData;
+    mapManager.updateHeroLayers(heroData);
+
+    var courierData = snapshot.courierData;
+    if (courierData.length) {
+      mapManager.updateCouriers(courierData);
+    }
+
+    mapManager.updateCreep(snapshot.laneCreepData);
+    runeManager.updateRunes(snapshot.runeData);
+    roshanManager.updateRoshan(tick);
+    wardManager.updateWards(tick);
+    buildingManager.updateBuildings(tick);
+    mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
+
+    statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
+    statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
+
+    mapManager.renderMap(snapshot);
+
+    $timeSlider.find('.label').text(('' + snapshot.time).toHHMMSS());
+  };
+
+  var rangeSlide = function(event, ui) {
+    var $timeSlider = $('#time-slider');
+    var $rangeSlider = $('#time-range-slider');
+    var snapshots = replayData.snapshots;
+
+    var time0 = replayData.snapshots[ui.values[0]].time;
+    var time1 = replayData.snapshots[ui.values[1]].time;
+
+    singleSlide(ui.values[1]);
+
+    mapManager.drawHeroPaths(ui.values[0], ui.values[1], snapshots);
+
+    $map.drawLayers();
+
+    $rangeSlider.find('.label.l0').text(('' + time0).toHHMMSS());
+    $rangeSlider.find('.label.l1').text(('' + time1).toHHMMSS());
+
+    // Update single slider
+    $timeSlider.slider("option", "value", ui.values[0]);
+    $timeSlider.find('.label').text(('' + time0).toHHMMSS());
+  };
+
   var setupPlayerData = function (data) {
     var inflater = new pako.Inflate();
     inflater.push(data, true);
@@ -630,7 +793,12 @@
     var dataStr = charArr2Str(dataCharArr);
     replayData = JSON.parse(dataStr);
 
+    // Main setup code
     var snapshots = replayData.snapshots;
+
+    statsManager.runTime = snapshots[snapshots.length - 1].time;
+    statsManager.barF = statsManager.runTime / $('#time-container').width();
+    endTime = Math.ceil(snapshots[snapshots.length - 1].time / 60);
 
     buildingManager.setupBuildings(replayData.towerDeaths);
     mapManager.setupLayers(replayData.playerHeroes);
@@ -639,47 +807,56 @@
     runeManager.setupRunes();
 
     mapManager.renderMap(snapshots[0]);
+    mapManager.setupSmokeEvents(replayData.smokeUses);
+
+    $map.drawLayers();
 
     statsManager.setMaxStats(snapshots[snapshots.length-1].teamStats);
 
     var $timeSlider = $('#time-slider');
+    var $rangeSlider = $('#time-range-slider');
     $timeSlider.slider({
       value: 0,
       min: 0,
       max: replayData.snapshots.length - 1,
       step: 1,
       slide: function(event, ui) {
-        $('#amount').text(ui.value );
-
-        mapManager.resetMap();
-
-        var snapshot = snapshots[ui.value];
-        var heroData = snapshot.heroData;
-        mapManager.updateHeroLayers(heroData);
-
-        var courierData = snapshot.courierData;
-        if (courierData.length) {
-          mapManager.updateCouriers(courierData);
-        }
-
-        mapManager.updateCreep(snapshot.laneCreepData);
-        runeManager.updateRunes(snapshot.runeData);
-        roshanManager.updateRoshan(snapshot.time);
-        wardManager.updateWards(snapshot.time);
-        buildingManager.updateBuildings(snapshot.time);
-        mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
-
-        statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
-        statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
-
-        mapManager.renderMap(snapshot);
+        singleSlide(ui.value);
       }
     });
-    //$timeSlider.slider('option', 'slide').call($timeSlider);
+
+    $('#heatmap-dropdown').selectmenu();
+    $rangeSlider.slider({
+      range: true,
+      values: [0, 250],
+      min: 0,
+      max: replayData.snapshots.length - 1,
+      step: 1,
+      slide: rangeSlide
+    });
+
     $('#amount').text($timeSlider.slider('value'));
 
-    var time = replayData.snapshots[replayData.snapshots.length - 1].time;
-    $('#end-time').text(Math.round(time / 60) + ':' + Math.round(time % 60));
+    var time = '' + replayData.snapshots[replayData.snapshots.length - 1].time;
+    $('#start-time').text(('' + replayData.snapshots[0].time).toHHMMSS());
+    $('#end-time').text(time.toHHMMSS());
+
+    smallGraphs($);
+  };
+
+  String.prototype.toHHMMSS = function () {
+    var sec_num = parseInt(this, 10); // don't forget the second param
+    var hours = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+    hours = (hours < 10) ? "0" + hours : hours;
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+    if (hours == "00") {
+      return minutes + ':' + seconds;
+    }
+    return hours + ':' + minutes + ':' + seconds;
   };
 
   var loadPlayerData = function() {
@@ -687,8 +864,9 @@
     req.open("GET", "/static/data.zjson", true);
     req.responseType = "arraybuffer";
     req.onload = function(event) {
-        var bytes = new Uint8Array(req.response);
-        setupPlayerData(bytes);
+      var bytes = new Uint8Array(req.response);
+      setupPlayerData(bytes);
+      setupLabel();
     };
     req.send();
   };
@@ -697,6 +875,44 @@
     var $toggleBox = $('#toggle-box');
     $toggleBox.find('input').altCheckbox();
     $toggleBox.find('.alt-checkbox').addClass('checked');
+
+    var $pathBox = $('#path-box');
+    $pathBox.altCheckbox();
+
+    $pathBox.prev().click(function() {
+      var $timeSlider = $('#time-slider');
+      var $rangeSlider = $('#time-range-slider');
+
+      var value = $timeSlider.slider("option", "value");
+
+      if ($(this).next().prop('checked')) {
+        $rangeSlider.slider("option", "values", [value, value + 250]);
+        var time0 = replayData.snapshots[value].time;
+        var time1 = replayData.snapshots[value+250].time;
+
+        $rangeSlider.find('.label.l0').text(('' + time0).toHHMMSS());
+        $rangeSlider.find('.label.l1').text(('' + time1).toHHMMSS());
+
+        $('#map-presence').hide();
+        $('#heatmap-select').show();
+
+        $timeSlider.hide();
+        $rangeSlider.show();
+
+        mapManager.drawHeroPaths(value, value + 250, replayData.snapshots);
+      } else {
+        $('#heatmap-select').hide();
+        $('#map-presence').show();
+
+        $timeSlider.show();
+        $rangeSlider.hide();
+
+        $map.removeLayerGroup('radiant-lines');
+        $map.removeLayerGroup('dire-lines');
+        singleSlide(value);
+      }
+      $map.drawLayers();
+    });
 
     $('#death-box').prev().click(function() {
       var time = +$('#amount').text();
@@ -757,6 +973,16 @@
       mapManager.renderMap(snapshot);
     });
 
+    $('#dire-path-box').prev().click(function() {
+      mapManager.toggleDireLines();
+      $map.drawLayers();
+    });
+
+    $('#radiant-path-box').prev().click(function() {
+      mapManager.toggleRadiantLines();
+      $map.drawLayers();
+    });
+
     $('#towers-box').prev().click(function() {
       var time = +$('#amount').text();
       if ($(this).next().prop('checked')) {
@@ -788,6 +1014,13 @@
       var snapshot = replayData.snapshots[time];
       runeManager.updateRunes(snapshot.runeData);
       mapManager.renderMap(snapshot);
+    });
+  };
+
+  var setupLabel = function() {
+    $('#time-slider').find('.ui-slider-handle').html('<span class="label">00:00</span>');
+    $('#time-range-slider').find('.ui-slider-handle').each(function(i) {
+      $(this).html('<span class="label l' + i +'">00:00</span>');
     });
   };
 

@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <title>VisualizAncients</title>
     <link rel="stylesheet" href="/static/vendor/jquery-ui-1.11.4/jquery-ui.min.css">
+    <link rel="stylesheet" href="/static/vendor/theme.smoothness.css">
     <link rel="stylesheet" href="/static/vendor/font-awesome.min.css">
     <link rel="stylesheet" href="/static/vendor/jquery.alt-checkbox.css">
     <link rel="stylesheet" href="/static/vendor/jquery.alt-checkbox.icon-font.css">
+    <link rel="stylesheet" href="/static/css/graph.css">
     <link rel="stylesheet" href="/static/css/index.css">
 </head>
 <body>
@@ -17,12 +19,17 @@
         </header>
         <section id="content">
             <div id="time-container">
+                <div id="top-events" class="center-block"></div>
+                <div class="clear-fix"></div>
                 <span id="start-time">00:00</span>
                 <div id="time">
                     <span id="amount"></span>
                     <div id="time-slider"></div>
+                    <div id="time-range-slider" style="display:none"></div>
                 </div>
-                <span id="end-time">40:40</span>
+                <span id="end-time">00:00</span>
+                <div class="clear-fix"></div>
+                <div id="bottom-events" class="center-block"></div>
             </div>
             <div class="clear-fix"></div>
             <div id="graph-bar-container">
@@ -32,11 +39,11 @@
                     <div class="arrow" id="down-arrow"><i id="downarrow" class="fa fa-arrow-down"></i></div>
                 </div>
                 <div id="graph-bar">
-                    <canvas id="roshanSmallChart" ></canvas>
-                    <canvas id="wardSmallChart" style="display:none;"></canvas>
-                    <canvas id="playerKillsSmallChart" style="display:none;"></canvas>
+                    <canvas id="roshanSmallChart" class="selected" data-name="Roshan"></canvas>
+                    <canvas id="wardSmallChart" data-name="Wards" style="display:none;"></canvas>
+                    <canvas id="playerKillsSmallChart" data-name="Kills" style="display:none;"></canvas>
                 </div>
-                <div id="open-graphs"><a href="/graphs"><i class="fa fa-bar-chart fa-2x"></i></a></div>
+                <div id="open-graphs"><a class='graphs' href="#big-graphs"><i class="fa fa-bar-chart fa-2x"></i></a></div>
             </div>
             <div class="clear-fix"></div>
 
@@ -45,56 +52,56 @@
                     <!-- First Column -->
                     <div class="column">
                         <div class="deaths">
-                            <span><input type="checkbox" id="death-box">
-                              <label for="death-box"><img src="/static/img/icons/death.png"></label>
+                            <span class="input-wrapper"><input type="checkbox" id="death-box">
+                              <label for="death-box"><img alt="Deaths" src="/static/img/icons/death.png"><span>Deaths</span></label>
                             </span>
                         </div>
                         <div class="wards">
-                            <span><input type="checkbox" id="wards-box">
-                                <label for="wards-box"><img src="/static/img/icons/ward.png"></label>
+                            <span class="input-wrapper"><input type="checkbox" id="wards-box">
+                                <label for="wards-box"><img src="/static/img/icons/ward.png"><span>Wards</span></label>
                             </span>
                         </div>
                         <div class="creep">
-                            <span><input type="checkbox" id="creep-box">
-                                <label for="creep-box"><img src="/static/img/icons/death.png"></label>
+                            <span class="input-wrapper"><input type="checkbox" id="creep-box">
+                                <label for="creep-box"><img src="/static/img/icons/creep.png"><span>Creep</span></label>
                             </span>
                         </div>
                         <div class="roshan">
-                            <span><input type="checkbox" id="roshan-box">
-                                <label for="roshan-box"><img src="/static/img/icons/roshan.png"></label>
+                            <span class="input-wrapper"><input type="checkbox" id="roshan-box">
+                                <label for="roshan-box"><img src="/static/img/icons/roshan.png"><span>Roshan</span></label>
                             </span>
                         </div>
                         <div class="courier">
-                            <span><input type="checkbox" id="courier-box">
-                                <label for="courier-box"><img src="/static/img/courier.png"></label>
+                            <span class="input-wrapper"><input type="checkbox" id="courier-box">
+                                <label for="courier-box"><img src="/static/img/courier.png"><span>Couriers</span></label>
                             </span>
                         </div>
                     </div>
                     <!-- Next Column -->
                     <div class="column">
-                        <div class="solid-path">
-                            <span><input type="checkbox" id="solid-path-box">
-                                <label for="solid-path-box"><img src="/static/img/icons/death.png"></label>
+                        <div class="dire-path">
+                            <span class="input-wrapper"><input type="checkbox" id="dire-path-box">
+                                <label for="dire-path-box"><img src="/static/img/icons/dire-path.png"><span>Dire Paths</span></label>
                             </span>
                         </div>
-                        <div class="broken-path">
-                            <span><input type="checkbox" id="broken-path-box">
-                                <label for="broken-path-box"><img src="/static/img/icons/death.png"></label>
+                        <div class="radiant-path">
+                            <span class="input-wrapper"><input type="checkbox" id="radiant-path-box">
+                                <label for="radiant-path-box"><img src="/static/img/icons/radiant-path.png"><span>Radiant Paths</span></label>
                             </span>
                         </div>
                         <div class="towers">
-                            <span><input type="checkbox" id="towers-box">
-                                <label for="towers-box"><img src="/static/img/icons/tower.png"></label>
+                            <span class="input-wrapper"><input type="checkbox" id="towers-box">
+                                <label for="towers-box"><img src="/static/img/icons/tower.png"><span>Tower</span></label>
                             </span>
                         </div>
                         <div class="smokes">
-                            <span><input type="checkbox" id="smokes-box">
-                                <label for="smokes-box"><img src="/static/img/icons/smoke.png"></label>
+                            <span class="input-wrapper"><input type="checkbox" id="smokes-box">
+                                <label for="smokes-box"><img src="/static/img/icons/smoke.png"><span>Smokes</span></label>
                             </span>
                         </div>
                         <div class="runes">
-                            <span><input type="checkbox" id="runes-box">
-                                <label for="runes-box"><img src="/static/img/icons/runes/dd_rune.png"></label>
+                            <span class="input-wrapper"><input type="checkbox" id="runes-box">
+                                <label for="runes-box"><img src="/static/img/icons/runes/dd_rune.png"><span>Runes</span></label>
                             </span>
                         </div>
                     </div>
@@ -109,6 +116,17 @@
                         <div class="dire presence border"><h1 id="dire-presence">0%</h1></div>
                     </div>
                 </div>
+                <div id="heatmap-select" class="side-bar border hug-right" style="display:none;">
+                    <label for="heatmap-dropdown">Select a heatmap</label>
+                    <select name="heatmap-dropdown" id="heatmap-dropdown">
+                        <option selected="selected">None</option>
+                        <option>Positions</option>
+                        <option >Deaths</option>
+                        <option>Kills</option>
+                        <option>Wards</option>
+                        <option>Smoke</option>
+                    </select>
+                </div>
             </div>
 
             <div id="map-container">
@@ -118,7 +136,12 @@
             <div id="right-column" class="column">
                 <div id="path-toggle" class="side-bar hug-left border">
                     <h4 class="heading">Toggle Paths</h4>
-                    <img src="http://placehold.it/50x50" class="center-block">
+                    <div class="path-container center-block">
+                        <span class="input-wrapper">
+                            <input type="checkbox" id="path-box">
+                            <label for="path-box"><img src="/static/img/icons/paths.png"></label>
+                        </span>
+                    </div>
                 </div>
                 <div id="player-info" class="side-bar hug-left border">
                     <h1 id="character-name" class="hidden-text">Character Name</h1>
@@ -161,6 +184,34 @@
             Made by: Alan Berman, Jacques Heunis, Jethro Muller, and Timothy Gwynn.
         </footer>
     </main>
+    <div id="big-graph-overlay" style="display: none">
+        <div id="big-graph-container">
+            <button id="close-button" class="close-button"><span>Back</span></button>
+            <div id="big-graphs">
+                <div class="graph container">
+                    <b>Roshan Kills</b>
+                    <img src="/static/img/icons/roshan.png">
+                    <canvas id="roshanChart"></canvas>
+                    <div class="axis">Elapsed Game Time (min)</div>
+                    <p>Times Roshan killed</p>
+                </div>
+                <div class="graph container">
+                    <b>Wards</b>
+                    <img src="/static/img/icons/ward.png">
+                    <canvas id="wardChart"></canvas>
+                    <div class="axis">Elapsed Game Time (min)</div>
+                    <p>Number of wards placed</p>
+                </div>
+                <div class="graph container">
+                    <b>Player Kills</b>
+                    <img src="/static/img/icons/death.png">
+                    <canvas id="player_kills_Chart"></canvas>
+                    <div class="axis">Elapsed Game Time (min)</div>
+                    <p>Number of players killed</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 <script rel="script" type="text/javascript" src="/static/vendor/jquery-2.2.0.min.js"></script>
 <script rel="script" type="text/javascript" src="/static/vendor/jcanvas.min.js"></script>
@@ -171,5 +222,18 @@
 <script rel="script" type="text/javascript" src="/static/js/dataMaps.js"></script>
 <script rel="script" type="text/javascript" src="/static/js/index.js"></script>
 <script rel="script" type="text/javascript" src="/static/js/smallGraphDrawer.js"></script>
+<script rel="script" type="text/javascript" src="/static/js/parse.js"></script>
+
+<script>
+    $(document).ready(function() {
+      $('#open-graphs').click(function() {
+          $('#big-graph-overlay').toggle();
+      });
+
+      $('#close-button').click(function() {
+          $('#big-graph-overlay').toggle();
+      })
+    });
+</script>
 
 </html>

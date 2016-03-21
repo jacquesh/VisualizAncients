@@ -41,16 +41,48 @@ header > hr {
 
 #time-container {
     width: 95%;
-    height: 30px;
+    height: 50px;
     margin-left: auto;
     margin-right: auto;
+    padding-bottom: 5px;
+}
+
+#top-events, #bottom-events {
+    position: relative;
+    height: 17px;
+    width: calc(90% - 4px);
+}
+
+#bottom-events {
+    margin-top: -2px;
+}
+
+.event {
+    position: absolute;
+    height: 100%;
+    width: 8px;
+}
+
+.event.smoke {
+    background-color: rgba(97, 29, 216, 0.6);
+}
+
+.event.roshan {
+    background-color: rgba(178, 34, 34, 0.8);
+}
+
+.event.radiant {
+    background-color: rgba(51, 95, 255, 0.6);
+}
+
+.event.dire {
+    background-color: rgba(255, 7, 18, 0.6);
 }
 
 #time {
     width: calc(90% - 4px);
     margin-left: 2px;
     margin-right: 2px;
-    padding-bottom: 10px;
     float: left;
 }
 
@@ -62,14 +94,29 @@ header > hr {
 #time-container > #end-time {
     width: 5%;
     float: left;
+    text-align: right;
 }
 
 #time > #amount {
     display: none;
 }
 
-#time > #time-slider {
+#time > #time-slider, #time > #time-range-slider {
     vertical-align: middle;
+}
+
+#time > #time-slider .label, #time > #time-range-slider .label {
+    position: absolute;
+    background-color: rgba(233, 233, 233, 0.6);
+    top: 100%;
+    left: -100%;
+    font-size: 0.6em;
+    font-weight: bold;
+    color: #000;
+}
+
+#time > #time-range-slider .label.l1 {
+    top: -50%;
 }
 
 #graph-bar-container {
@@ -165,7 +212,11 @@ header > hr {
 #toggle-box > div.column {
     float: left;
     height: 100%;
-    width: 50%;
+    width: 40%;
+}
+
+#toggle-box > div.column:nth-of-type(1) {
+    margin-right: 10%;
 }
 
 #toggle-box > div.column > div {
@@ -179,16 +230,34 @@ header > hr {
 }
 
 #toggle-box > div.column label {
+    position: relative;
     display: inline-block;
-    width: 32px;
-    height: 32px;
+    width: calc(100% - 1.6em - 5%);
+    height: 100%;
+}
+
+#toggle-box > div.column label span {
+    background-color: rgba(233, 233, 233, 0.8);
+    text-align: center;
+    display: inline-block;
+    visibility: hidden;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    font-size: 0.7em;
+}
+
+#toggle-box > div.column label:hover span {
+    visibility: visible;
+}
+
+#toggle-box > div.column label img {
     margin-top: 5%;
     margin-left: 5%;
 }
 
 #toggle-box > div.column img {
-    width: 32px;
-    height: 32px;
+    height: 80%;
     vertical-align: middle;
 }
 
@@ -230,6 +299,20 @@ header > hr {
 #right-column > #path-toggle > .heading {
     text-align: center;
     padding-bottom: 5px;
+}
+
+#path-toggle > .path-container {
+    width: 40%;
+}
+
+.input-wrapper {
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+}
+
+.input-wrapper img, .input-wrapper a {
+    vertical-align: middle;
 }
 
 #right-column > #player-info {
@@ -329,6 +412,7 @@ header > hr {
     width: 91%;
     height: 70%;
     display: inline-block;
+    vertical-align: middle;
 }
 
 #radiant .label {
@@ -437,10 +521,99 @@ footer {
     color: #000;
 }
 
+.ui-widget-header {
+    background: #96ceff;
+}
+
 #uparrow {
     cursor: pointer;
 }
 
 #downarrow {
     cursor: pointer;
+}
+
+#heatmap-select label {
+    display: block;
+}
+
+#heatmap-select #heatmap-dropdown-button {
+    margin-bottom: 10px;
+    margin-left: 10px;
+}
+
+#heatmap-select label {
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+#heatmap-select select {
+    width: 150px;
+}
+
+#big-graph-overlay {
+    z-index: 99;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+#big-graph-container {
+    margin-top: 0.5%;
+    z-index: 100;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    height: 98%;
+}
+
+#big-graphs {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.close-button {
+    display: inline-block;
+    border-radius: 4px;
+    background-color: #4169E1;
+    border: none;
+    color: #FFFFFF;
+    text-align: center;
+    font-size: 16px;
+    padding: 5px;
+    width: 100px;
+    transition: all 0.5s;
+    vertical-align: middle;
+    cursor: pointer;
+    overflow: hidden;
+    position: absolute;
+    z-index: 101;
+}
+
+.close-button span {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.5s;
+}
+
+.close-button span:after {
+    content: '«';
+    position: absolute;
+    visibility: hidden;
+    top: 0;
+    left: -50px;
+    transition: 0.5s;
+}
+
+.close-button:hover span {
+    padding-left: 25px;
+}
+
+.close-button:hover span:after {
+    visibility: visible;
+    right: 0;
 }
