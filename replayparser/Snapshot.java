@@ -48,7 +48,7 @@ public class Snapshot
                 if((cellX < 0) || (cellX >= 64))
                     continue;
 
-                float distance = xOff*xOff + yOff*yOff;
+                float distance = (float)Math.sqrt(xOff*xOff + yOff*yOff);
                 float cellPresence = newPresence - (newPresence/radius)*distance;
                 if(cellPresence < 0.0f)
                     cellPresence = 0.0f;
@@ -113,7 +113,7 @@ public class Snapshot
                 positions = Reparser.barracksPositions;
             else
                 positions = Reparser.towerPositions;
-            teamMultiplier = (tower.teamIndex*2) - 1;
+            teamMultiplier = 1 - (tower.teamIndex*2);
             int towerX = (int)Math.round((positions[tower.teamIndex][tower.towerIndex][0] - 64.0f)/2);
             int towerY = (int)Math.round((positions[tower.teamIndex][tower.towerIndex][1] - 64.0f)/2);
             applyPresence(presenceVals, towerX, towerY,
@@ -157,7 +157,10 @@ public class Snapshot
                 {
                     if((xOff == 0) && (yOff == 0))
                         continue;
-                    int tempVal = presence[i + (64*yOff + xOff)];
+                    int tempIndex = i + (64*yOff + xOff);
+                    if((tempIndex < 0) || (tempIndex >= 4096))
+                        continue;
+                    int tempVal = presence[tempIndex];
                     if((tempVal & val) == 0)
                     {
                         presence[i] |= 1;
