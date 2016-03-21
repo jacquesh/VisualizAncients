@@ -42,7 +42,7 @@
     "snapshots": [
         {
             "time": float,
-            "teamStats" [
+            "teamStats": [
                 {
                     "netWorth": int,
                     "totalXP": int,
@@ -77,7 +77,8 @@
                 },
                 ...
             ],
-            "runeData": [int, int]
+            "runeData": [int, int],
+            "presenceData": [int, ...]
         },
         ...
     ]
