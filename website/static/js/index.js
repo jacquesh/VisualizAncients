@@ -282,141 +282,32 @@
       if(this.showPresence) {
         this.presenceTotals[0] = 0;
         this.presenceTotals[1] = 0;
-        for(var i=0; i<4096; i++)
-        {
-            this.presence[i] = 0;
-        }
-
-        var heroData = snapshot.heroData;
-        var teamMultiplier = 1;
-        var heroPresence = 10;
-        var heroPresenceRadius = 16;
-        for(var heroIndex=0; heroIndex<10; heroIndex++)
-        {
-          if(heroIndex == 5) teamMultiplier = -1;
-          var heroX = Math.round((heroData[heroIndex].x - 64)/2);
-          var heroY = Math.round((heroData[heroIndex].y - 64)/2);
-          this.applyPresence(heroX, heroY, heroPresence, heroPresenceRadius, teamMultiplier);
-        }
-
-        var creepPresence = 5;
-        var creepPresenceRadius = 8;
-        for(var creepIndex=0; creepIndex<snapshot.laneCreepData.length; creepIndex++)
-        {
-          var creep = snapshot.laneCreepData[creepIndex];
-          var creepX = Math.round((creep.x - 64)/2);
-          var creepY = Math.round((creep.y - 64)/2);
-          if(creep.isDire)
-            teamMultiplier = -1;
-          else
-            teamMultiplier = 1;
-          this.applyPresence(creepX, creepY, creepPresence, creepPresenceRadius, teamMultiplier);
-        }
-
-        var wardPresence = 7;
-        var wardPresenceRadius = 8;
-        for(var wardName in wardManager.wards)
-        {
-          var ward = wardManager.wards[wardName];
-          if((snapshot.time < ward.start) || (snapshot.time >= ward.end))
-            continue;
-          if(ward.sentry)
-            continue;
-          var wardX = Math.round((ward.x - 64)/2);
-          var wardY = Math.round((ward.y - 64)/2);
-          if(ward.dire)
-            teamMultiplier = -1;
-          else
-            teamMultiplier = 1;
-          this.applyPresence(wardX, wardY, wardPresence, wardPresenceRadius, teamMultiplier);
-        }
-
-        var towerPresence = 15;
-        var towerPresenceRadius = 16;
-        var applyTowerPresence = function(index, tower) {
-          if(snapshot.time >= tower.data.deadTime)
-            return;
-          var towerX = Math.round((tower.data.position.x - 64)/2);
-          var towerY = Math.round((tower.data.position.y - 64)/2);
-          mapManager.applyPresence(towerX, towerY, towerPresence, towerPresenceRadius, teamMultiplier);
-        };
-        teamMultiplier = 1;
-        $.each($map.getLayerGroup('radiant-buildings'), applyTowerPresence);
-        teamMultiplier = -1;
-        $.each($map.getLayerGroup('dire-buildings'), applyTowerPresence);
 
         var pxX = 0;
         var pxY = 0;
+        var colours = [{r:255, g:255, b:255, a:128},
+                       {},
+                       {r:9, g:127, b:230, a:128},
+                       {r:7, g:101, b:178, a:255},
+                       {r:230, g:86, b:9, a:128},
+                       {r:178, g:64, b:7, a:255}];
         $map.setPixels({
           x:0, y:0,
           width:420, height:420,
           fromCenter: false,
           each: function(px) {
-            var sign = function(x) {
-              if(x > 0)
-                return 1;
-              else if(x < 0)
-                return -1;
-              return 0;
-            };
-            var cellX = Math.round((pxX/420)*64);
-            var cellY = 64 - Math.round((pxY/420)*64);
+            var cellX = Math.floor((pxX/420)*64);
+            var cellY = 63 - Math.floor((pxY/420)*64);
             var cellIndex = cellY*64 + cellX;
-            var presenceVal = mapManager.presence[cellIndex];
-            var isEdge = false;
-            var cellSign = sign(mapManager.presence[cellIndex]);
-            for(var yOff=-1; yOff<=1; ++yOff) {
-              for(var xOff=-1; xOff<=1; ++xOff) {
-                if((xOff == 0) && (yOff == 0))
-                  continue;
+            var presenceVal = snapshot.presenceData[cellIndex];
+            px.r = colours[presenceVal].r;
+            px.g = colours[presenceVal].g;
+            px.b = colours[presenceVal].b;
+            px.a = colours[presenceVal].a;
 
-                var x = cellX + xOff;
-                var y = cellY + yOff;
-                if((x < 0) || (x >= 64) || (y < 0) || (y >= 64))
-                  continue;
-                var index = y*64 + x;
-                if(sign(mapManager.presence[index]) != cellSign) {
-                  isEdge = true;
-                }
-              }
-            }
-
-            if(presenceVal > 0) {
-              mapManager.presenceTotals[0] += 1;
-              if(isEdge) {
-                px.r = 7;
-                px.g = 101;
-                px.b = 178;
-                px.a = 255;
-              }
-              else {
-                px.r = 9;
-                px.g = 127;
-                px.b = 230;
-                px.a = 128;
-              }
-            }
-            else if(presenceVal < 0) {
-              mapManager.presenceTotals[1] += 1;
-              if(isEdge) {
-                px.r = 178;
-                px.g = 64;
-                px.b = 7;
-                px.a = 255;
-              }
-              else {
-                px.r = 230;
-                px.g = 86;
-                px.b = 9;
-                px.a = 128;
-              }
-            }
-            else {
-              var greyVal = 255;
-              px.r = greyVal;
-              px.g = greyVal;
-              px.b = greyVal;
-              px.a = 128;
+            if(presenceVal != 0) {
+              var teamIndex = Math.floor((presenceVal - 2)/2);
+              mapManager.presenceTotals[teamIndex] += 1;
             }
 
             pxX++;
