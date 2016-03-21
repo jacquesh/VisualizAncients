@@ -14,7 +14,6 @@
     creepHidden: false,
     smokeHidden: false,
     showPresence: true,
-    presence: Array(4096), //64*64
     presenceTotals: [0,0],
 
     getX: function(data_x) {
@@ -254,26 +253,6 @@
       });
     },
 
-    applyPresence: function(entityX, entityY, presenceValue, radius, teamSign) {
-      for(var y=-radius; y<radius; y++)
-      {
-        for(var x=-radius; x<radius; x++)
-        {
-          var cellX = entityX + x;
-          var cellY = entityY + y;
-          if((cellX < 0) || (cellX >= 64) || (cellY < 0) || (cellY >= 64))
-          {
-            continue;
-          }
-          var distance = Math.sqrt(x*x + y*y);
-          var cellPresence = presenceValue - (presenceValue/radius)*distance;
-          if(cellPresence < 0) cellPresence = 0;
-          var cellIndex = cellY*64 + cellX;
-          this.presence[cellIndex] += cellPresence*teamSign;
-        }
-      }
-    },
-
     resetMap: function() {
       $map.clearCanvas();
     },
@@ -372,9 +351,6 @@
           this.wards[handle] = {
             start: event.time,
             end: 10000,
-            x: event.x,
-            y: event.y,
-            dire: event.isDire,
             sentry: event.isSentry
           };
 
@@ -546,7 +522,6 @@
           this.addBuilding(pos.x, pos.y, team, true, team + '-buildings', layerName);
           $map.setLayer(layerName, {
             data: {
-              position: pos,
               deadTime: 10000
             }
           });
@@ -562,7 +537,6 @@
           this.addBuilding(pos.x, pos.y, team, false, team + '-buildings', layerName);
           $map.setLayer(layerName, {
             data: {
-              position: pos,
               deadTime: 10000
             }
           });
@@ -575,10 +549,8 @@
         var type = event.isBarracks ? 'barracks' : 'tower';
 
         var layerName = team + '-' + event.towerIndex + '-' + type;
-        var layer = $map.getLayer(layerName);
         $map.setLayer(layerName, {
           data: {
-            position: layer.data.position,
             deadTime: event.time
           }
         });
