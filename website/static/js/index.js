@@ -95,7 +95,7 @@ var endTime = 0;
             items: [],
             alive: false
           }
-        }).moveLayer(deathName, 0);
+        }).moveLayer(deathName, 1);
       }
 
       var courierPath = '/static/img/courier.png';
@@ -117,12 +117,12 @@ var endTime = 0;
         if (i < 5) {
           if (!this.radiantLinesHidden) {
             this.drawMapLine(points, '#097FE6', true, 'radiant-lines', this.layers[i] + '-line');
-            $map.moveLayer(this.layers[i] + '-line', 10);
+            $map.moveLayer(this.layers[i] + '-line', 11);
           }
         } else {
           if (!this.direLinesHidden) {
             this.drawMapLine(points, '#E65609', false, 'dire-lines', this.layers[i] + '-line');
-            $map.moveLayer(this.layers[i] + '-line', 10);
+            $map.moveLayer(this.layers[i] + '-line', 11);
           }
         }
       }
@@ -138,7 +138,7 @@ var endTime = 0;
           }).setLayer(layer, {
             strokeStyle: '#FFF500',
             strokeDash: [20, 10]
-          }).moveLayer(layer, 20);
+          }).moveLayer(layer, 21);
           $map.drawLayers();
         },
         mouseout: function(layer) {
@@ -149,7 +149,7 @@ var endTime = 0;
             strokeStyle: '#E65609',
             strokeDash: undefined
           });
-          $map.moveLayer(layer, 10);
+          $map.moveLayer(layer, 11);
           $map.drawLayers();
         },
         name: name,
@@ -247,7 +247,7 @@ var endTime = 0;
           var group = laneCreepData[i];
           var colour = group.isDire ? '#E65609' : '#097FE6';
           this.drawMapPolygon(group.x, group.y, colour, 'creep', 'creep-' + i, 3 + Math.round(group.creepCount / 2));
-          $map.moveLayer('creep-' + i, 0);
+          $map.moveLayer('creep-' + i, 1);
         }
       }
     },
@@ -340,6 +340,7 @@ var endTime = 0;
     },
 
     renderMap: function(snapshot) {
+      var $presence = $('#presence');
       if(this.showPresence) {
         this.presenceTotals[0] = 0;
         this.presenceTotals[1] = 0;
@@ -352,7 +353,7 @@ var endTime = 0;
                        {r:7, g:101, b:178, a:255},
                        {r:230, g:86, b:9, a:128},
                        {r:178, g:64, b:7, a:255}];
-        $map.setPixels({
+        $presence.setPixels({
           x:0, y:0,
           width:420, height:420,
           fromCenter: false,
@@ -389,6 +390,8 @@ var endTime = 0;
       // NOTE: drawLayers clears first, drawLayer does not
       //       We need to not clear in order to not lose the presence data
       var renderLayers = $map.getLayers();
+      $presence.find('img').prop('src', $presence.getCanvasImage());
+
       for(var i=0; i<renderLayers.length; ++i) {
         $map.drawLayer(i);
       }
@@ -448,7 +451,7 @@ var endTime = 0;
 
           var team = event.isDire ? 'dire' : 'radiant';
           this.addWard(event.x, event.y, team, handle);
-          $map.setLayer(handle, {visible: false}).moveLayer(handle, 0);
+          $map.setLayer(handle, {visible: false}).moveLayer(handle, 1);
         } else {
           this.wards[handle].end = event.time;
         }
@@ -799,6 +802,19 @@ var endTime = 0;
     statsManager.runTime = snapshots[snapshots.length - 1].time;
     statsManager.barF = statsManager.runTime / $('#time-container').width();
     endTime = Math.ceil(snapshots[snapshots.length - 1].time / 60);
+
+    var $presence = $('#presence');
+    var presenceImg = $presence.find('img');
+    presenceImg.prop('src', $presence.getCanvasImage());
+    $map.drawImage({
+      layer: true,
+      name: 'presence',
+      groups: ['presence'],
+      source: presenceImg[0],
+      x: 0, y: 0,
+      scale: 1,
+      fromCenter: false
+    });
 
     buildingManager.setupBuildings(replayData.towerDeaths);
     mapManager.setupLayers(replayData.playerHeroes);
