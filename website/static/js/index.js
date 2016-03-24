@@ -764,7 +764,13 @@ var endTime = 0;
 
     mapManager.renderMap(snapshot);
 
-    $timeSlider.find('.label').text(('' + snapshot.time).toHHMMSS());
+    var gameTime = snapshot.time - replayData.startTime;
+    if(gameTime >= 0) {
+      $timeSlider.find('.label').text(('' + gameTime).toHHMMSS());
+    }
+    else {
+      $timeSlider.find('.label').text('-'+('' + -gameTime).toHHMMSS());
+    }
   };
 
   var rangeSlide = function(event, ui) {
