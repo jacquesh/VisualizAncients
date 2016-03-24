@@ -754,9 +754,9 @@ var endTime = 0;
 
     mapManager.updateCreep(snapshot.laneCreepData);
     runeManager.updateRunes(snapshot.runeData);
-    roshanManager.updateRoshan(tick);
-    wardManager.updateWards(tick);
-    buildingManager.updateBuildings(tick);
+    roshanManager.updateRoshan(snapshot.time);
+    wardManager.updateWards(snapshot.time);
+    buildingManager.updateBuildings(snapshot.time);
     mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
 
     statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
