@@ -4,6 +4,15 @@ import java.io.IOException;
 
 public class Snapshot
 {
+    private final float[][][] BARRACKS_POSITIONS = {
+        {{80.375244f, 142.366455f},{80.000244f, 121.491455f},{76.250244f, 101.999268f},{115.348145f, 116.250000f},{100.566895f, 106.304688f},{92.004395f, 96.000000f},{166.492432f, 80.482178f},{123.639893f, 80.366699f},{97.749268f, 80.249512f},{83.629395f, 89.875000f},{85.879395f, 87.625000f}},
+        {{91.000000f, 174.999756f},{128.000000f, 174.999756f},{155.375000f, 173.124756f},{135.999756f, 130.499756f},{147.500000f, 144.499756f},{161.000000f, 156.991943f},{176.500000f, 114.999756f},{177.000000f, 130.999756f},{177.031250f, 151.312256f},{166.765625f, 165.374756f},{169.250000f, 162.624756f}}
+    };
+    private final float[][][] TOWER_POSITIONS = {
+        {{80.375244f, 142.366455f},{80.000244f, 121.491455f},{76.250244f, 101.999268f},{115.348145f, 116.250000f},{100.566895f, 106.304688f},{92.004395f, 96.000000f},{166.492432f, 80.482178f},{123.639893f, 80.366699f},{97.749268f, 80.249512f},{83.629395f, 89.875000f},{85.879395f, 87.625000f}},
+        {{91.000000f, 174.999756f},{128.000000f, 174.999756f},{155.375000f, 173.124756f},{135.999756f, 130.499756f},{147.500000f, 144.499756f},{161.000000f, 156.991943f},{176.500000f, 114.999756f},{177.000000f, 130.999756f},{177.031250f, 151.312256f},{166.765625f, 165.374756f},{169.250000f, 162.624756f}}
+    };
+
     public float time;
 
     public TeamData[] teams;
@@ -110,9 +119,9 @@ public class Snapshot
         {
             float[][][] positions;
             if(tower.isBarracks)
-                positions = Reparser.barracksPositions;
+                positions = BARRACKS_POSITIONS;
             else
-                positions = Reparser.towerPositions;
+                positions = TOWER_POSITIONS;
             teamMultiplier = 1 - (tower.teamIndex*2);
             int towerX = (int)Math.round((positions[tower.teamIndex][tower.towerIndex][0] - 64.0f)/2);
             int towerY = (int)Math.round((positions[tower.teamIndex][tower.towerIndex][1] - 64.0f)/2);
