@@ -50,16 +50,6 @@ public class Reparser
 {
     private final int NULL_HANDLE = 16777215;
 
-    public static final float[][][] towerPositions = {
-        {{97.749268f,80.249512f},{92.004395f,96.000000f},{76.250244f,101.999268f},{123.639893f,80.366699f},{166.492432f,80.482178f},{100.566895f,106.304688f},{80.000244f,121.491455f},{80.375244f,142.366455f},{83.629395f,89.875000f},{85.879395f,87.625000f},{115.348145f,116.250000f}},
-        {{166.765625f,165.374756f},{128.000000f,174.999756f},{91.000000f,174.999756f},{147.500000f,144.499756f},{135.999756f,130.499756f},{176.500000f,114.999756f},{177.000000f,130.999756f},{177.031250f,151.312256f},{155.375000f,173.124756f},{161.000000f,156.991943f},{169.250000f,162.624756f}}
-    };
-
-    public static final float[][][] barracksPositions = {
-        {{91.375000f, 92.632568f},{88.593750f, 95.390381f},{94.937500f, 78.281006f},{94.945068f, 82.241943f},{78.250000f, 99.015625f},{74.281250f, 99.007568f}},
-        {{179.062256f, 154.125000f},{174.937500f, 153.999756f},{161.499756f, 160.304443f},{164.359375f, 157.500000f},{158.078125f, 171.062256f},{158.046875f, 175.195068f}}
-    };
-
     // String.format is slow, but StringBuilder is fast and javac optimizes String+ to StringBuilder code, so we precompute these and just use +
     private final String[] int4Str = {"0000", "0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009"};
 
@@ -479,45 +469,6 @@ public class Reparser
             evt.died = true;
             wardEvents.add(evt);
         }
-        else if(className.equals("CDOTA_BaseNPC_Tower")
-                || className.equals("CDOTA_BaseNPC_Barracks"))
-        {
-            int cellX = ent.getProperty("CBodyComponent.m_cellX");
-            int cellY = ent.getProperty("CBodyComponent.m_cellY");
-            float subCellX = ent.getProperty("CBodyComponent.m_vecX");
-            float subCellY = ent.getProperty("CBodyComponent.m_vecY");
-            float x = (float)cellX + (subCellX/128.0f);
-            float y = (float)cellY + (subCellY/128.0f);
-            boolean isRax = className.equals("CDOTA_BaseNPC_Barracks");
-            float[][][] buildings = towerPositions;
-            if(isRax)
-                buildings = barracksPositions;
-
-            int teamNumber = ent.getProperty("m_iTeamNum");
-            int teamIndex = teamNumber - 2;
-            int towerIndex = -1;
-            for(int i=0; i<buildings[teamIndex].length; ++i)
-            {
-                float dx = buildings[teamIndex][i][0] - x;
-                float dy = buildings[teamIndex][i][1] - y;
-                if(dx*dx + dy*dy < 0.1f)
-                {
-                    towerIndex = i;
-                    break;
-                }
-            }
-            if(towerIndex == -1)
-            {
-                System.out.printf("ERROR: Unknown tower at (%f,%f)\n", x,y);
-            }
-
-            TowerEvent evt = new TowerEvent();
-            evt.time = currentSnapshot.time;
-            evt.teamIndex = teamIndex;
-            evt.towerIndex = towerIndex;
-            evt.isBarracks = isRax;
-            towerDeaths.add(evt);
-        }
     }
 
     @OnStringTableCreated
@@ -560,6 +511,81 @@ public class Reparser
                 evt.x = currentSnapshot.heroes[playerIndex].x;
                 evt.y = currentSnapshot.heroes[playerIndex].y;
                 smokeUses.add(evt);
+            }
+        }
+        else if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_TEAM_BUILDING_KILL)
+        {
+            String deadName = entry.getTargetName();
+            boolean isTower = deadName.contains("_tower");
+            boolean isRax = deadName.contains("_rax");
+            boolean isAncient = deadName.endsWith("_fort");
+            if(isTower || isRax)
+            {
+                TowerEvent evt = new TowerEvent();
+                evt.time = currentSnapshot.time;
+                evt.isBarracks = isRax;
+                if(deadName.startsWith("npc_dota_goodguys_"))
+                {
+                    evt.teamIndex = 0;
+                    deadName = deadName.substring(18);
+                }
+                else if(deadName.startsWith("npc_dota_badguys_"))
+                {
+                    evt.teamIndex = 1;
+                    deadName = deadName.substring(17);
+                }
+                if(isRax)
+                {
+                    if(deadName.equals("melee_rax_bot"))
+                        evt.towerIndex = 0;
+                    else if(deadName.equals("range_rax_bot"))
+                        evt.towerIndex = 1;
+                    else if(deadName.equals("melee_rax_mid"))
+                        evt.towerIndex = 2;
+                    else if(deadName.equals("range_rax_mid"))
+                        evt.towerIndex = 3;
+                    else if(deadName.equals("melee_rax_top"))
+                        evt.towerIndex = 4;
+                    else if(deadName.equals("range_rax_top"))
+                        evt.towerIndex = 5;
+                }
+                else
+                {
+                    if(deadName.equals("tower1_top"))
+                        evt.towerIndex = 0;
+                    else if(deadName.equals("tower2_top"))
+                        evt.towerIndex = 1;
+                    else if(deadName.equals("tower3_top"))
+                        evt.towerIndex = 2;
+
+                    else if(deadName.equals("tower1_mid"))
+                        evt.towerIndex = 3;
+                    else if(deadName.equals("tower2_mid"))
+                        evt.towerIndex = 4;
+                    else if(deadName.equals("tower3_mid"))
+                        evt.towerIndex = 5;
+
+                    else if(deadName.equals("tower1_bot"))
+                        evt.towerIndex = 6;
+                    else if(deadName.equals("tower2_bot"))
+                        evt.towerIndex = 7;
+                    else if(deadName.equals("tower3_bot"))
+                        evt.towerIndex = 8;
+
+                    else if(deadName.equals("tower4"))
+                    {
+                        // TODO: HOW DO WE DIFFERENTIATE BETWEEN EACH OF THESE TWO?
+                        // We're gonna have to just store all 4 of these and then each time one dies, check which one is now not alive any more and make it that one
+                        evt.towerIndex = 9;
+                        evt.towerIndex = 10;
+                    }
+
+                    else if(deadName.equals("fort"))
+                    {
+                        // TODO
+                    }
+                }
+                towerDeaths.add(evt);
             }
         }
         else if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_DEATH)
