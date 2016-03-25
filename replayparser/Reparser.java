@@ -276,6 +276,13 @@ public class Reparser
         for(int i=0; i<laneCreepList.size(); ++i)
         {
             Entity creep = laneCreepList.get(i);
+            int lifeState = creep.getProperty("m_lifeState");
+            if(lifeState != 0)
+            {
+                laneCreepList.remove(i);
+                i -= 1;
+                continue;
+            }
             int cellX = creep.getProperty("CBodyComponent.m_cellX");
             int cellY = creep.getProperty("CBodyComponent.m_cellY");
             float subCellX = creep.getProperty("CBodyComponent.m_vecX");
@@ -447,20 +454,7 @@ public class Reparser
     public void onEntityDeleted(Context ctx, Entity ent)
     {
         String className = ent.getDtClass().getDtName();
-        if(className.equals("CDOTA_BaseNPC_Creep_Lane")
-                || className.equals("CDOTA_BaseNPC_Creep_Siege"))
-        {
-            int entityHandle = ent.getHandle();
-            for(int i=0; i<laneCreepList.size(); ++i)
-            {
-                if(laneCreepList.get(i).getHandle() == entityHandle)
-                {
-                    laneCreepList.remove(i);
-                    break;
-                }
-            }
-        }
-        else if(className.equals("CDOTA_Item_Rune"))
+        if(className.equals("CDOTA_Item_Rune"))
         {
             int cellX = ent.getProperty("CBodyComponent.m_cellX");
             int cellY = ent.getProperty("CBodyComponent.m_cellY");
