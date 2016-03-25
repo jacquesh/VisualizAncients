@@ -859,9 +859,10 @@ var endTime = 0;
 
     $('#amount').text($timeSlider.slider('value'));
 
-    var time = '' + replayData.snapshots[replayData.snapshots.length - 1].time;
-    $('#start-time').text(('' + replayData.snapshots[0].time).toHHMMSS());
-    $('#end-time').text(time.toHHMMSS());
+    var firstTime = replayData.snapshots[0].time - replayData.startTime;
+    $('#start-time').text('-'+(''+ -firstTime).toHHMMSS());
+    var lastTime = replayData.snapshots[replayData.snapshots.length - 1].time - replayData.startTime;
+    $('#end-time').text((''+lastTime).toHHMMSS());
 
     smallGraphs($);
   };
