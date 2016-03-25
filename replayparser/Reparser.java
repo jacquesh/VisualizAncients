@@ -463,13 +463,6 @@ public class Reparser
             else
                 System.out.printf("ERROR: Unrecognised rune spawn location: (%d,%d)\n", cellX, cellY);
         }
-        if(className.equals("CDOTA_Unit_Roshan"))
-        {
-            RoshanEvent evt = new RoshanEvent();
-            evt.time = currentSnapshot.time;
-            evt.died = true;
-            roshEvents.add(evt);
-        }
         else if(className.equals("CDOTA_NPC_Observer_Ward")
                 || className.equals("CDOTA_NPC_Observer_Ward_TrueSight"))
         {
@@ -567,6 +560,18 @@ public class Reparser
                 evt.x = currentSnapshot.heroes[playerIndex].x;
                 evt.y = currentSnapshot.heroes[playerIndex].y;
                 smokeUses.add(evt);
+            }
+        }
+        else if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_DEATH)
+        {
+            String deadName = entry.getTargetName();
+            boolean isRosh = deadName.equals("npc_dota_roshan");
+            if(isRosh)
+            {
+                RoshanEvent evt = new RoshanEvent();
+                evt.time = currentSnapshot.time;
+                evt.died = true;
+                roshEvents.add(evt);
             }
         }
     }
