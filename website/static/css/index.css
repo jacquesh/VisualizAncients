@@ -245,6 +245,7 @@ header > hr {
     bottom: 0;
     left: 0;
     font-size: 0.7em;
+    font-weight: bold;
 }
 
 #toggle-box > div.column label:hover span {
