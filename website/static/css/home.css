@@ -1,0 +1,112 @@
+html, body {
+    background-color: Snow;
+    margin:0;
+    padding:0;
+    height:100%;
+}
+header {
+	background-color:SteelBlue;
+    color:white;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    text-align:center;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+p {
+	margin-right: 50px;
+    margin-left: 50px;
+	text-align: justify;
+	font-size: 14px;
+	font-family: "Verdana", sans-serif;
+}
+#contents-bar {
+	padding: 0px;
+	line-height:30px;
+    height:100%;
+    text-align: left;
+    width:190px;
+    font-size: 15px;
+	float: left;
+}
+ul {
+	list-style:none;
+    padding-left:2px;
+}
+figure > figcaption {
+	text-align:center;
+    font-size: 12px;
+	font-family: "Verdana", sans-serif;
+}
+figure > img {
+	padding-top: 55px;
+	padding-bottom: 10px;
+	display: block;
+	height: auto;
+	width: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+#content {
+	padding-top: 50px;
+	display: inline;
+    position: absolute;
+    
+}
+.segment {
+	float: left;
+	display:inline;
+	padding-bottom: 50px;
+}
+
+#sub-header {
+	font-weight: bold;
+	font-size: 35px;
+	font-family: "Verdana", sans-serif;
+	padding-left: 40px;
+	color: Gray;
+	padding-bottom: 20px;	
+}
+
+#sub-sub-header {
+	font-weight: bold;
+	font-size: 20px;
+	font-family: "Verdana", sans-serif;
+	padding-left: 45px;
+	color: Gray;
+}
+#sub-sub-sub-header {
+	font-weight: bold;
+	font-size: 18px;
+	font-family: "Verdana", sans-serif;
+	padding-left: 48px;
+	color: Gray;
+}
+
+a {
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+#queries > ul 
+{
+	padding-left: 80px;
+	list-style-type: circle;
+	text-align: justify;
+	font-size: 14px;
+	font-family: "Verdana", sans-serif;
+}
+
+a:link {
+	text-decoration: none;
+	color: DimGray;
+}
+
+a:hover {
+	color: SlateGray;
+}
+a:visited {
+    color: DimGray;
+}
+
+a:active {
+	font-weight: bold;
+}

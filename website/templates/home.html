@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>VisualizAncients</title>
+    <link rel="stylesheet" href="/static/vendor/jquery-ui-1.11.4/jquery-ui.min.css">
+    <link rel="stylesheet" href="/static/vendor/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/vendor/jquery.alt-checkbox.css">
+    <link rel="stylesheet" href="/static/vendor/jquery.alt-checkbox.icon-font.css">
+    <link rel="stylesheet" href="/static/css/home.css">
+</head>
+<body>
+	<header>
+		<h1>VisualizAncients - a DotA 2 visualization</h1>
+	</header>
+	<div id="contents-bar">
+		<ul>
+			<li><a href="#intro" class="active">Introduction</a></li>
+			<li><a href="#other-work" class="active">Related Work</a></li>
+			<li><a href="#concept" class="active">Concept</a></li>
+			<li><a href="#queries" class="active">Visual Queries</a></li>
+			<li><a href="#iterations" class="active">Design Iterations</a></li>
+			<li><a href="#strengths-weaknesses" class="active">Strengths and Weaknesses</a></li>
+			<li><a href="#conclusion" class="active">Conclusion</a></li>
+			<li><a href="#teamwork" class="active">Team Roles</a></li>
+		</ul>
+	</div>
+	<div id="content">
+		<div class="segment" id="intro">
+			<div id="sub-header">Introduction</div>
+			<div id="sub-sub-header">What is Dota 2?</div>
+			<p>
+			DotA 2 (Defense of the Ancients 2) is a Multiplayer Online Battle Arena [MOBA] game for the PC.
+			It is one of the world's most popular video games on any platform; Valve, Dota2's developer, estimates
+			the game has over 12 million regular players. The game also has a thriving and lucrative competitive circuit;
+			teams of elite players from around the world compete in tournaments such as Valve's annual 'The International',
+			which has a prize pool of over $18 million.
+			
+			In a DotA 2 game, two teams of 5 players, the Dire and the Radiant, attempt to destroy the other's Ancient.
+			Ancients are team strongholds located at opposite corners of the game map. When a team destroys its opposing team's
+			Ancient, the game is over and the former is declared the winner. Each player contains a single character on a team.
+			These characters, or heroes, have different roles and characteristics. Some heroes favour an aggressive
+			playstyle, others aim to heal or aid their teammates. Throughout the course of a game, players earn gold and experience
+			by killing enemy heroes and 'creeps' (computer-controlled enemies not affiliated with either team). An example of a
+			powerful creep is Roshan, who bestows a large bonus on the team who defeats him. With gold, players
+			buy items that improve their hero's performance. Player objectives also include destroying towers (watchtowers that
+			protect a team's base). To hide their location, or reveal the location of enemy heroes, players may deploy Wards
+			or smoke.
+			</p>
+			<div id="sub-sub-header">Why did we choose Dota 2?</div>
+			<p>
+			Aside from Alan, our team are regular players of DotA 2. Given the game's massive playerbase and thriving competitive
+			scene, there exists a wealth of data on tournament games as well as casual games. Players are able to download replays
+			of past games, and if able, can analyse and scrutinise their play at every second of a match.The team was keen to use a
+			visualization to succinctly and effectively glean overall trends in game events through aggregating many games. Though 
+			this data can be extracted without the use of a visualization, it was hoped that a successful visualization could not only
+			give the team insights into their game and DotA 2 games in general, but would allow the team to infer good strategies
+			and ultimately improve their play. 
+			
+			While DotA 2 visualizations exist, the overwhelming majority thereof are combat-focused. However, there are almost no visualizations that
+			display location or positional data, such as the routes different heroes travel on the map. The team felt a visualization
+			that displayed such data would yield valuable insight on the impact and importance of location in DotA 2. 
+			</p>
+			<figure>
+				<img src="/static/img/dota2-map.jpg" alt="The DotA 2 Game Map">
+				<figcaption>The DotA 2 Game (Mini)Map</figcaption>
+			</figure>
+		</div>
+		<div class="segment" id="other-work">
+			<div id="sub-header">Related Work</div>
+			<div id="sub-sub-header">DotA 2 and other MOBA Visualizations</div>
+			<p>
+				As mentioned previously, the vast majority of DotA 2 visualizations are combat-focused. These visualizations 
+				aim to inform the viewer of game combat statistics. These statistics include total player and team deaths and kills,
+				average player lifespan and player overall score.  Interestingly, this trend of combat-focused visualizations can be
+				found in other MOBA games such as League of Legends (LoL).
+			</p>
+			<figure>
+				<img src="/static/img/dota_vis.png" alt="steenhuisen" >
+				<figcaption>DotA 2 Endgame Kill Score Visualization</figcaption>
+			</figure>
+			<figure>
+				<img src="/static/img/lol_graphs.jpg" alt="Lol" >
+				<figcaption>The DotA 2 Game Map</figcaption>
+			</figure>
+			<p>
+				While these visualizations are on the whole informative and useful, they are nevertheless homogenous. Moreover, the
+				visualizations often use ineffective colour codes that are devoid of significance (such as the above DotA 2 visualization)
+				. These visualizations do not allow the viewer to easily interrogate or make comparisons with the data, only allow
+				for basic visual queries to be answered, and do not display the (often low-dimensional) data on a variety of levels.
+				
+				Most importantly however, is that the majority of these combat-focused visualizations can be used only
+				to glean information on a player or team's <b>combat performance</b>. One is only able to deduce whether one or
+				one's team has performed to a certain standard over a whole game. Through these visualizations, one is not able to 
+				gain insights into strategies, effective and innefective choices nor make any non-combat-focused inferences.
+			</p>
+			<div id="sub-sub-header">MOBA Location Visualizations</div>
+			<p>
+				Current MOBA location visualizations “provide no meaningful statistics to an individual and show too little
+				information”. While not many exist, most of the MOBA visualizations that focus on locational data use are heatmaps
+				superimposed onto the MOBA's game map. Though heatmaps provide useful information, namely popular areas on 
+				the game's map, there is often insufficient chromatic contrast between the map and the heatmap. The colour
+				palette used for the heatmaps is the traditional green-to-red scale, which blends into the largely green background
+				of MOBA game maps. This leads less-popular (colder) areas to be difficult to see, as the little-to-no feature tuning
+				makes overlapping regions difficult to locate. Additionally, these visualizations
+				make little to no use of depth, words and symbols, and have no textural differentation; their grain, orientation and contrast are constant
+				throughout. 
+			</p>
+			<figure>
+				<img src="/static/img/heatmap.jpg" alt="lolheat" >
+				<figcaption>LoL early, middle and late-game Heat Map visualization</figcaption>
+			</figure>
+			<div id="sub-sub-header">Other Location Visualizations</div>
+			<p>
+				In our research of related work, the team decided to research other fields' work in visualising location-based data.
+				This was not only due to the lack of location-based DotA 2 and other MOBA visualizations, but also so as to better equip
+				the team to produce an effective and informative visualization. The team researched the location visualizations of two
+				fields where location is incredibly important: sports and the military.
+			</p>
+			<div id="sub-sub-sub-header">Sports Location Visualizations</div>
+			<p>
+				Many of the location-based sports visualizations involved heatmaps. However, some used innovative and appropriate spins 
+				on the traditional heatmap, such as a visualization displaying the location of NBA shots from the 2007-2008 season:	 
+			</p>
+			<figure>
+				<img src="/static/img/bball.jpg" alt="nba" >
+				<figcaption>Position of all NBA shots from the 2007-2008 season</figcaption>
+			</figure>
+			<p>
+				The above visualization succinctly and cleverly displayed the shot data in an intuitive way. While it is difficult to 
+				compare areas with relatively low numbers of shots, the goal of the visualization was to identify the major shot positions,
+				in which it is successful. The use of depth and a basketball court-esque graphs neatly ties the graphic in with its
+				theme and helps the viewer identify it as basketball-related. The luminance contrast is also very effective. The team 
+				viewed this visualization as an example of a highly effective location visualization, and we emulated aspects of its
+				design, such as luminance contrast.
+				
+				A visualization of the final plays during the fourth quarter of the 2010 NFL Superbowl was one of the few location-based
+				visualizations that displayed a feature our team wished to display in our visualization: player movements/routes throughout
+				the game. While the Superbowl graphic uses an unsuccessful color scale, intuitively one who is familiar with the game
+				knows that it shows a players' 'runs'. When designing our visualization, we endeavoured to replicate this NFL visualization's
+				ease of identification of theme and data.
+			</p>
+			<figure>
+				<img src="/static/img/nfl.png" alt="nfl" >
+				<figcaption>Final plays during the fourth quarter of the 2010 Superbowl</figcaption>
+			</figure>
+			<div id="sub-sub-sub-header">Military Location Visualizations</div>
+			<p>
+				Of the military location visualizations we found, the most effective and helpful is Minard's famous map
+				of Napoleon's march to Moscow. The map shows locations and their significance in an innovative, effective and clear way.
+				The map fits a lot of information into a small space, and is both simple and intricate, as one is presented with both 
+				an overview of the march as well as information on specific locations. Our team endeavoured to display our data as
+				succinctly, neatly and effectively as Minard.
+			</p>
+		</div>
+		<div class="segment" id="concept">
+			<div id="sub-header">Our idea</div>
+			<p>
+				Our idea for the visualization was one showing aggregated DotA 2 positional and locational data.
+				As mentioned previously, this is an area of the game that has thus far been largely neglected in
+				not only DotA 2 but other MOBA games. Our visualization would be one that showed as much information
+				as possible, so as not to completely divorce locational aspects of the game from the rest, and allow 
+				the viewer to infer relationships between e.g. combat and location. The visualization would show positional
+				data throughout the course of a game (using a time slider) and also allow the viewer to view the data of a 
+				time period (e.g. from the beginning of the game up until the end of the first 10 minutes). This would allow
+				for multiple levels of display of the data.
+				
+				Specifically, our idea was to display data on:
+					- Hero positioning
+					- Placement of wards
+					- Uses of smoke
+				
+				By viewing the positional and locational data as displayed in our visualization, the team felt this would allow
+				the viewer to learn the common routes of players during a game, common combat zones and popular sites for placement
+				of wards and smoke. Players of DotA 2 (such as members of our team) would be able to not only better understand
+				the game, but their individual and team playstyle as well. This would allow them to improve their game and observe
+				the pitfalls and successes of popular strategies.
+				</p>
+		</div>
+		<div class="segment" id="queries">
+			<div id="sub-header">Visual Queries</div>
+			<div id="sub-sub-header">Our initial visual queries</div>
+			<ul>
+				<li>Which team has better control of the map at any given time?</li>
+				<li>How closely does the hero-traffic in this area resemble how often/well it gets warded?</li>
+				<li>Was this hero in a clearly-dangerous area when they died in this match?</li>
+				<li>Does the presence of friendly wards have a significant effect on hero positioning?</li>
+				<li>What are some of the common locations for teams to smoke from?</li>
+				<li>Is there any relationship between Roshan being alive and the placement of wards (particularly around where Roshan spawns)?</li>
+			</ul>
+			<div id="sub-sub-sub-header">Initial visual queries feedback</div>
+			<p>
+				The team received very helpful feedback on our visual queries, which needed much revision. It was felt that our
+				visual queries were too high-level. Additionally, some of our visual queries used ambiguous/relative language such
+				as "better". Many of our visual queries asked questions that would not be easily answered, such as how closely the
+				hero-traffic in an area of the map resembles how often/well it becomes warded. This, like many of our visual queries,
+				was compounded of many sub-questions.
+				
+				We built on the feedback received and revised our visual queries to be less high-level and more easily answered.
+				We also decided to group our (longer) list of visual queries into three categories: General, Team-Based, and Historical
+				Data-Based. Though we have many visual queries, we believe they are all questions DotA 2 players would want to be 
+				able to answer from a DotA 2 visualization, and we believe the majority of them are quickly and correctly answerable.
+			</p>
+			<div id="sub-sub-header">Revised Visual Queries</div><br>
+			<div id="sub-sub-sub-header">General Visual Queries</div>
+			<ul>
+				<li>Where are all players at any point in the game?</li>
+				<li>Is a player dead or alive?</li>
+				<li>What hero is being played by a specific player?</li>
+				<li>What items does a specific player own at any point in the game?</li>
+				<li>Where have all players been running in a defined time window?</li>
+				<li>When and what events have happened at certain points in the game?</li>
+				<li>Which towers are destroyed/ alive?</li>
+				<li>Is Roshan alive?</li>
+				<li>Where are wards located?</li>
+				<li>Has smoke been used recently? If so, where?</li>
+				<li>Where are creep waves for each team?</li>
+				<li>Where are couriers?</li>
+				<li>Are Runes present?</li>
+				<li>How long was the game?</li>
+				<li>What moment/ window of the game is currently being shown?</li>
+			</ul>
+			<div id="sub-sub-sub-header">Team-Based Visual Queries</div>
+			<ul>
+				<li>Which team is more present on which part of the map at any given time?</li>
+				<li>Which team has more presence on the map at any given time?</li>
+				<li>How much gold, XP and kills has a team gained/made in total at any point in the game?</li>
+				<li>How much gold, XP and kills has a team gained/made in a certain time window?</li>
+			</ul>
+			<div id="sub-sub-sub-header">Historical Data-Based Visual Queries</div>
+			<ul>
+				<li>How often are Roshan/Towers/Players killed over the course of a game?</li>
+				<li>How do these trends compare to each other as well as to events in the game being reviewed?</li>
+				<li>Where are wards often placed in a given time window?</li>
+				<li>Where is smoke often used in a given time window?</li>
+				<li>Where are players often positioned in a given time window?</li>
+				<li>Where do kills often happen in a given time window?</li>
+			</ul>
+		</div>
+		<div class="segment" id="iterations">
+		</div>
+		<div class="segment" id="strengths-weaknesses">
+		</div>
+		<div class="segment" id="conclusion">
+		</div>
+		<div class="segment" id="teamwork">
+		</div>
+	</div>
+</body>
+</html>
