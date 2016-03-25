@@ -265,30 +265,39 @@ header > hr {
     height: 43%;
 }
 
-#left-column > #map-presence > .team-block{
-    height: 50%;
+#left-column > #map-presence > .team-block {
+    height: 65%;
+    float: left;
+    width: calc(50% - 2px);
 }
 
-#map-presence > .team-block > img {
-    margin-top: 2%;
-    margin-left: 2%;
-    height: 90%;
-}
-
-#map-presence > .team-block > .presence {
-    margin-top: 1.5%;
-    margin-right: 2%;
-    float: right;
-    width: 50%;
-    height: 90%;
-    border-radius: 10px;
-}
-
-#map-presence > .team-block > .presence > h1 {
-    margin-top: 20%;
+#map-presence > .team-block > h1 {
+    margin-top: 30%;
     font-size: 2em;
     vertical-align: middle;
     text-align: center;
+    background: rgba(17, 17, 17, 0.8);
+    color: #f5f5f5;
+}
+
+#toggle-presence-label > label {
+    padding-left: 5%;
+    padding-top: 1%;
+    display: inline-block;
+    width: 60%;
+    height: 100%;
+    font-size: 1.5em;
+    vertical-align: middle;
+    font-weight: bold;
+}
+
+#toggle-presence-label > .input-wrapper {
+    display: inline;
+    margin-left: 5%;
+}
+
+#toggle-presence {
+    vertical-align: middle;
 }
 
 #right-column > #path-toggle {
@@ -369,6 +378,19 @@ header > hr {
 #map-container > canvas#dota-map {
     background-size: cover;
     background-image: url("/static/img/dota2-map.jpg");
+}
+
+.radiant.team-block {
+    background-image: url("/static/img/icons/radiant.png");
+}
+
+.dire.team-block {
+    background-image: url("/static/img/icons/dire.png");
+}
+
+.team-block {
+    background-position: 50%;
+    background-size: cover;
 }
 
 .radiant {

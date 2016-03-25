@@ -341,7 +341,7 @@ var endTime = 0;
 
     renderMap: function(snapshot) {
       var $presence = $('#presence');
-      if(this.showPresence) {
+      if (this.showPresence) {
         this.presenceTotals[0] = 0;
         this.presenceTotals[1] = 0;
 
@@ -383,18 +383,14 @@ var endTime = 0;
         var presenceMax = this.width*this.width; // The map is a square, so we don't need height
         var radiantPresence = Math.round(100*(this.presenceTotals[0]/presenceMax));
         var direPresence = Math.round(100*(this.presenceTotals[1]/presenceMax));
+
         $('#radiant-presence').text(radiantPresence+"%");
         $('#dire-presence').text(direPresence+"%");
+
+        $presence.find('img').prop('src', $presence.getCanvasImage());
       }
 
-      // NOTE: drawLayers clears first, drawLayer does not
-      //       We need to not clear in order to not lose the presence data
-      var renderLayers = $map.getLayers();
-      $presence.find('img').prop('src', $presence.getCanvasImage());
-
-      for(var i=0; i<renderLayers.length; ++i) {
-        $map.drawLayer(i);
-      }
+      $map.drawLayers();
     },
 
     toggleCouriers: function() {
@@ -414,6 +410,10 @@ var endTime = 0;
 
     toggleSmokes: function() {
       this.smokeHidden = !this.smokeHidden;
+    },
+
+    togglePresenceOverlay: function() {
+      this.showPresence = !this.showPresence;
     },
 
     showDeaths: function() {
@@ -933,6 +933,16 @@ var endTime = 0;
         $map.removeLayerGroup('dire-lines');
         singleSlide(value);
       }
+      $map.drawLayers();
+    });
+
+    var $presenceBox = $('#toggle-presence');
+    $presenceBox.altCheckbox();
+    $presenceBox.parent().find('.alt-checkbox').addClass('checked');
+
+    $presenceBox.prev().click(function() {
+      mapManager.togglePresenceOverlay();
+      $map.setLayer('presence', {visible: mapManager.showPresence});
       $map.drawLayers();
     });
 
