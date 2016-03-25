@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.zip.DeflaterOutputStream;
 
@@ -71,6 +72,7 @@ public class Reparser
     private ArrayList<Entity> courierList;
     private ArrayList<Entity> laneCreepList;
 
+    private HashSet<Integer> seenWards;
     private ArrayList<WardEvent> wardEvents;
     private ArrayList<RoshanEvent> roshEvents;
     private ArrayList<TowerEvent> towerDeaths;
@@ -103,6 +105,7 @@ public class Reparser
         courierList = new ArrayList<Entity>(2);
         laneCreepList = new ArrayList<Entity>(64);
 
+        seenWards = new HashSet<Integer>();
         wardEvents = new ArrayList<WardEvent>();
         roshEvents = new ArrayList<RoshanEvent>();
         towerDeaths = new ArrayList<TowerEvent>();
@@ -409,6 +412,37 @@ public class Reparser
         }
     }
 
+    @OnEntityUpdated
+    public void onEntityUpdated(Context ctx, Entity ent, FieldPath[] fields, int num)
+    {
+        String className = ent.getDtClass().getDtName();
+        boolean isWard = className.equals("CDOTA_NPC_Observer_Ward");
+        boolean isSentry = className.equals("CDOTA_NPC_Observer_Ward_TrueSight");
+        if(isWard || isSentry)
+        {
+            int handle = ent.getHandle();
+            int lifeState = ent.getProperty("m_lifeState");
+            if(lifeState != 0)
+            {
+                if(!seenWards.contains(handle))
+                {
+                    seenWards.add(handle);
+
+                    boolean isDire = (ent.getProperty("m_iTeamNum") == 3);
+                    WardEvent evt = new WardEvent();
+                    evt.time = currentSnapshot.time;
+                    evt.x = 0.0f;
+                    evt.y = 0.0f;
+                    evt.entityHandle = handle;
+                    evt.isDire = isDire;
+                    evt.isSentry = isSentry;
+                    evt.died = true;
+                    wardEvents.add(evt);
+                }
+            }
+        }
+    }
+
     @OnEntityDeleted
     public void onEntityDeleted(Context ctx, Entity ent)
     {
@@ -452,22 +486,6 @@ public class Reparser
             }
             else
                 System.out.printf("ERROR: Unrecognised rune spawn location: (%d,%d)\n", cellX, cellY);
-        }
-        else if(className.equals("CDOTA_NPC_Observer_Ward")
-                || className.equals("CDOTA_NPC_Observer_Ward_TrueSight"))
-        {
-            boolean isSentry = className.endsWith("TrueSight");
-            boolean isDire = (ent.getProperty("m_iTeamNum") == 3);
-
-            WardEvent evt = new WardEvent();
-            evt.time = currentSnapshot.time;
-            evt.x = 0.0f;
-            evt.y = 0.0f;
-            evt.entityHandle = ent.getHandle();
-            evt.isDire = isDire;
-            evt.isSentry = isSentry;
-            evt.died = true;
-            wardEvents.add(evt);
         }
     }
 
