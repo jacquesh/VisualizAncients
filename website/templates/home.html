@@ -35,7 +35,8 @@
 			the game has over 12 million regular players. The game also has a thriving and lucrative competitive circuit;
 			teams of elite players from around the world compete in tournaments such as Valve's annual 'The International',
 			which has a prize pool of over $18 million.
-			
+			</p>
+			<p>
 			In a DotA 2 game, two teams of 5 players, the Dire and the Radiant, attempt to destroy the other's Ancient.
 			Ancients are team strongholds located at opposite corners of the game map. When a team destroys its opposing team's
 			Ancient, the game is over and the former is declared the winner. Each player contains a single character on a team.
@@ -164,12 +165,16 @@
 				data throughout the course of a game (using a time slider) and also allow the viewer to view the data of a 
 				time period (e.g. from the beginning of the game up until the end of the first 10 minutes). This would allow
 				for multiple levels of display of the data.
-				
+			</p>
+			<p>
 				Specifically, our idea was to display data on:
-					- Hero positioning
-					- Placement of wards
-					- Uses of smoke
-				
+			</p>
+			<ul>
+					<li>Hero positioning</li>
+					<li>Placement of wards</li>
+					<li>Uses of smoke</li>
+			</ul>
+			<p>	
 				By viewing the positional and locational data as displayed in our visualization, the team felt this would allow
 				the viewer to learn the common routes of players during a game, common combat zones and popular sites for placement
 				of wards and smoke. Players of DotA 2 (such as members of our team) would be able to not only better understand
@@ -238,6 +243,50 @@
 			</ul>
 		</div>
 		<div class="segment" id="iterations">
+			<div id="sub-header">Design Iterations</div>
+			<div id="sub-sub-header">Our first design</div>
+			<p>
+				Our first design was a webpage with two pages. The first and main page consisted of a time slider
+				representing the related DotA 2 game. The slider featured circles representing events at a particular moment of
+				the game, such as a player death. Below the slider we placed a collection of small bar graphs, corresponding to
+				miniature versions of the four graphs on our Graphs page: Roshan Kills, Wards, Player Kills and Teleports. The
+				graphs were contained in a thin rectangle, and were displayed one-by-one using a toggle.
+				
+			</p>
+			<p>
+			
+				The left side of the page featured two boxes: one containing a toggle-able set of dimensions to show on our main
+				information source, the game minimap. These dimensions included e.g. Roshan. Below this box was one showing the two
+				teams' map control in percentage at that instant of the game. At the center of our design was a replica of DotA 2's
+				minimap, which displayed any of the toggled dimensions. The minimap was able to be switched between displaying
+				teams' map control, players' movements/routes on the map and a heatmap. To the right of this minimap was a box
+				containing the selected player's Hero name and the items that player was using at that instant of a game. If a player
+				was unselected, these fields would revert to an empty default item list and the DotA 2 logo in place of the Hero's 
+				character icon. Finally, at the bottom of the page were two boxes containing each team's number of deaths, total
+				experience points and gold earned at that instant of the game.
+				</p>
+			<p>
+				The second page, which was loadable by clicking on a small clipart image of a bar graph to the right of the
+				miniature graph collection, was the expanded, full-size version of those graphs. To the left of each differently-
+				coloured graph was the corresponding game icon/symbol, such as the game's icon for Roshan.
+			</p>
+			<figure>
+				<img src="/static/img/design1_1.jpg">
+				<figcaption>Team Map Control [First page]</figcaption>
+			</figure>
+			<figure>
+				<img src="/static/img/design1_2.jpg">
+				<figcaption>Player Movement [First page]</figcaption>
+			</figure>
+			<figure>
+				<img src="/static/img/design1_3.jpg">
+				<figcaption>Hero Position Heatmap [First page]</figcaption>
+			</figure>
+			<figure>
+				<img src="/static/img/design1_4.png">
+				<figcaption>Roshan, Wards, Kills and Teleports Charts [Second page]</figcaption>
+			</figure>
+			
 		</div>
 		<div class="segment" id="strengths-weaknesses">
 		</div>

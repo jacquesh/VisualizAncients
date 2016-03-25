@@ -95,6 +95,15 @@ a {
 	font-family: "Verdana", sans-serif;
 }
 
+#concept > ul 
+{
+	padding-left: 80px;
+	list-style-type: circle;
+	text-align: justify;
+	font-size: 14px;
+	font-family: "Verdana", sans-serif;
+}
+
 a:link {
 	text-decoration: none;
 	color: DimGray;
