@@ -1,5 +1,4 @@
 var replayData = undefined;
-var endTime = 0;
 
 (function ($) {
   'use strict';
@@ -601,7 +600,14 @@ var endTime = 0;
       '<div id="' + eventId + '" class="event ' + eventClass + '"></div>'
     );
 
-    $('#' + eventId).css('left', (time / statsManager.barF) + 'px');
+    var startTime = replayData.snapshots[0].time;
+    var endTime = replayData.snapshots[replayData.snapshots.length-1].time;
+    var totalTime = endTime - startTime;
+    var barLength = $('#time').width();
+    var timeFraction =  (time-startTime)/totalTime;
+    var eventTimeLoc = timeFraction * barLength;
+
+    $('#' + eventId).css('left', eventTimeLoc + 'px');
   };
 
   var buildingManager = {
@@ -692,7 +698,6 @@ var endTime = 0;
   var statsManager = {
     biggestVal: 0,
     runTime: 0,
-    barF: 0,
 
     setMaxStats: function(stats) {
       var maxGold = Math.max(stats[0].netWorth, stats[1].netWorth);
@@ -794,9 +799,7 @@ var endTime = 0;
     // Main setup code
     var snapshots = replayData.snapshots;
 
-    statsManager.runTime = snapshots[snapshots.length - 1].time;
-    statsManager.barF = statsManager.runTime / $('#time-container').width();
-    endTime = Math.ceil(snapshots[snapshots.length - 1].time / 60);
+    statsManager.runTime = snapshots[snapshots.length - 1].time - snapshots[0].time;
 
     var $presence = $('#presence');
     var presenceImg = $presence.find('img');
