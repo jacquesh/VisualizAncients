@@ -274,7 +274,6 @@ var replayData = undefined;
       }
     },
 
-    // TODO: Change the time window here so that it shows for longer than 1s of game time (which is a basically just 1 tick
     updateSmokes: function(smokeData, time) {
       $map.removeLayerGroup('smoke');
       if (!this.smokeHidden) {
@@ -282,7 +281,7 @@ var replayData = undefined;
         for (var i = 0; i < smokeData.length; i++) {
           var smoke = smokeData[i];
           var timeDiff = time - smoke.time;
-          if ((0 < timeDiff) && (timeDiff < 1)) {
+          if ((0 < timeDiff) && (timeDiff < 5)) {
             this.drawMapCircle(smoke.x, smoke.y, colour, 'smoke', 'smoke-' + i, 15);
           }
         }
