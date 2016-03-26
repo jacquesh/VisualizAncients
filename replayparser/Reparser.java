@@ -80,11 +80,15 @@ public class Reparser
 
     private int heroCount;
     private float startTime;
+    private int firstHeroSpawnTick;
+    private int ancientDeathTick;
 
     public Reparser()
     {
         heroCount = 0;
         startTime = 0.0f;
+        firstHeroSpawnTick = 0;
+        ancientDeathTick = 0;
 
         snapshotList = new ArrayList<Snapshot>(1024);
         currentSnapshot = new Snapshot(0);
@@ -276,6 +280,13 @@ public class Reparser
         for(int i=0; i<laneCreepList.size(); ++i)
         {
             Entity creep = laneCreepList.get(i);
+            int lifeState = creep.getProperty("m_lifeState");
+            if(lifeState != 0)
+            {
+                laneCreepList.remove(i);
+                i -= 1;
+                continue;
+            }
             int cellX = creep.getProperty("CBodyComponent.m_cellX");
             int cellY = creep.getProperty("CBodyComponent.m_cellY");
             float subCellX = creep.getProperty("CBodyComponent.m_vecX");
@@ -410,6 +421,13 @@ public class Reparser
             else if(teamNumber == 3)
                 teamEntities[1] = ent;
         }
+        else if(className.startsWith("CDOTA_Unit_Hero"))
+        {
+            if(firstHeroSpawnTick == 0)
+            {
+                firstHeroSpawnTick = snapshotList.size();
+            }
+        }
     }
 
     @OnEntityUpdated
@@ -447,20 +465,7 @@ public class Reparser
     public void onEntityDeleted(Context ctx, Entity ent)
     {
         String className = ent.getDtClass().getDtName();
-        if(className.equals("CDOTA_BaseNPC_Creep_Lane")
-                || className.equals("CDOTA_BaseNPC_Creep_Siege"))
-        {
-            int entityHandle = ent.getHandle();
-            for(int i=0; i<laneCreepList.size(); ++i)
-            {
-                if(laneCreepList.get(i).getHandle() == entityHandle)
-                {
-                    laneCreepList.remove(i);
-                    break;
-                }
-            }
-        }
-        else if(className.equals("CDOTA_Item_Rune"))
+        if(className.equals("CDOTA_Item_Rune"))
         {
             int cellX = ent.getProperty("CBodyComponent.m_cellX");
             int cellY = ent.getProperty("CBodyComponent.m_cellY");
@@ -597,13 +602,15 @@ public class Reparser
                         evt.towerIndex = 9;
                         evt.towerIndex = 10;
                     }
-
-                    else if(deadName.equals("fort"))
-                    {
-                        // TODO
-                    }
                 }
                 towerDeaths.add(evt);
+            }
+            else if(isAncient)
+            {
+                if(ancientDeathTick == 0)
+                {
+                    ancientDeathTick = snapshotList.size();
+                }
             }
         }
         else if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_DEATH)
@@ -705,8 +712,15 @@ public class Reparser
             }
         }
         out.write("\"snapshots\":[\n");
-        for(int i=0; i<snapshotList.size(); i+=snapshotInterval)
+        int firstTick = firstHeroSpawnTick - 1;
+        int lastTick = ancientDeathTick + snapshotInterval;
+        for(int i=firstTick; i<lastTick; i+=snapshotInterval)
         {
+            if(i > firstTick)
+            {
+                out.write(",");
+            }
+
             Snapshot ss = snapshotList.get(i);
             while(nextWardEvent.time < ss.time)
             {
@@ -761,15 +775,9 @@ public class Reparser
             }
 
             ss.write(out, activeWards, activeTowers);
-            if(i+snapshotInterval < snapshotList.size())
-            {
-                out.write(",");
-            }
             out.write("\n");
         }
-        out.write("]\n");
-
-        out.write("}");
+        out.write("]\n}");
 
         out.close();
         zipOutStream.finish();

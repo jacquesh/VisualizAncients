@@ -21,6 +21,8 @@ public class Snapshot
     public ArrayList<LaneCreepData> laneCreeps;
     public int[] runes;
 
+    private int[] presenceTotals;
+
     public Snapshot(int courierCount)
     {
         teams = new TeamData[2];
@@ -40,6 +42,7 @@ public class Snapshot
         }
 
         runes = new int[2];
+        presenceTotals = new int[2];
     }
 
     private void applyPresence(float[] presenceVals, int x, int y,
@@ -137,6 +140,8 @@ public class Snapshot
          * 4 = 0b100 = Dire
          * 5 = 0b101 = Dire border
          */
+        presenceTotals[0] = 0;
+        presenceTotals[1] = 0;
         for(int i=0; i<4096; ++i)
         {
             if(presenceVals[i] == 0.0f)
@@ -145,10 +150,12 @@ public class Snapshot
             }
             if(presenceVals[i] > 0.0f)
             {
+                presenceTotals[0] += 1;
                 presence[i] = 2;
             }
             else if(presenceVals[i] < 0.0f)
             {
+                presenceTotals[1] += 1;
                 presence[i] = 4;
             }
         }
@@ -226,14 +233,19 @@ public class Snapshot
 
         int[] presence = new int[64*64];
         computePresence(presence, activeWards, activeTowers);
-        out.write("\"presenceData\":[");
+        out.write("\"presenceData\":{");
+        out.write("\"percentages\":");
+        out.write(String.format("[%d,%d],",
+                    (int)Math.round(100.0f*((float)presenceTotals[0])/4096.0f),
+                    (int)Math.round(100.0f*((float)presenceTotals[1])/4096.0f)));
+        out.write("\"map\":[");
         for(int i=0; i<4096; ++i)
         {
             if(i > 0)
                 out.write(",");
             out.write(""+presence[i]);
         }
-        out.write("]");
+        out.write("]}");
 
 
         out.write("}");

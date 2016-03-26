@@ -78,7 +78,10 @@
                 ...
             ],
             "runeData": [int, int],
-            "presenceData": [int, ...]
+            "presenceData": {
+                "percentages": [int, int],
+                "map": [int, ...]
+            }
         },
         ...
     ]
