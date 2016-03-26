@@ -36,11 +36,17 @@ var replayData = undefined;
       $('#character-name').text(layer.data.heroName).removeClass('hidden-text');
       var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
       $('#player-info').addClass(team);
-      $('#items').find('.table-cell').each(function(index, elem) {
-        if (layer.data.items[index] !== '') {
-          assignImage(elem, 'items', layer.data.items[index].replace('item_', ''));
-        }
-      });
+      if(layer.data.hasOwnProperty('items')) {
+        $('#items').css("visibility", "visible");
+        $('#items').find('.table-cell').each(function(index, elem) {
+          if (layer.data.items[index] !== '') {
+            assignImage(elem, 'items', layer.data.items[index].replace('item_', ''));
+          }
+        });
+      }
+      else {
+        $('#items').css("visibility", "hidden");
+      }
       assignImage('#hero-icon', 'heroes', layer.data.imgName);
     },
 
@@ -48,6 +54,7 @@ var replayData = undefined;
       $('#character-name').addClass('hidden-text');
       var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
       $('#player-info').removeClass(team);
+      $('#items').css("visibility", "visible");
       $('#items').find('.table-cell').html('');
       $('#hero-icon').html('');
     },
@@ -244,8 +251,18 @@ var replayData = undefined;
         for (var i = 0; i < laneCreepData.length; i++) {
           var group = laneCreepData[i];
           var colour = group.isDire ? '#E65609' : '#097FE6';
+          var teamName = group.isDire ? 'dire' : 'radiant';
           this.drawMapPolygon(group.x, group.y, colour, 'creep', 'creep-' + i, 3 + Math.round(group.creepCount / 2));
           $map.moveLayer('creep-' + i, 1);
+          $map.setLayer('creep-' + i, {
+            mouseover: mapManager.handleHoverOn,
+            mouseout: mapManager.handleHoverOff,
+            data: {
+              color: colour,
+              heroName: 'Creep Wave',
+              imgName: 'creep_'+teamName,
+            }
+          });
         }
       }
     },
@@ -489,7 +506,16 @@ var replayData = undefined;
     setupRoshanEvents: function(roshanData) {
       var roshanPath = '/static/img/icons/roshan.png';
       mapManager.drawMapIcon(160, 113, 0.75, roshanPath, 'roshan', 'roshan');
-      $map.setLayer('roshan', {visible: false});
+      $map.setLayer('roshan', {
+          visible: false,
+          mouseover: mapManager.handleHoverOn,
+          mouseout: mapManager.handleHoverOff,
+          data: {
+              color: '#FFFFFF',
+              heroName: 'Roshan',
+              imgName: 'roshan',
+          }
+      });
 
       var eventIndex = 0;
       for (var i=0; i < roshanData.length; i++) {
@@ -621,7 +647,11 @@ var replayData = undefined;
           var layerName = team + '-' + j + '-' + 'barracks';
           this.addBuilding(pos.x, pos.y, team, true, team + '-buildings', layerName);
           $map.setLayer(layerName, {
+            mouseover: mapManager.handleHoverOn,
+            mouseout: mapManager.handleHoverOff,
             data: {
+              heroName: 'Barracks',
+              imgName: 'tower_'+team,
               deadTime: 10000
             }
           });
@@ -636,7 +666,11 @@ var replayData = undefined;
           var layerName = team + '-' + j + '-' + 'tower';
           this.addBuilding(pos.x, pos.y, team, false, team + '-buildings', layerName);
           $map.setLayer(layerName, {
+            mouseover: mapManager.handleHoverOn,
+            mouseout: mapManager.handleHoverOff,
             data: {
+              heroName: 'Tower',
+              imgName: 'tower_'+team,
               deadTime: 10000
             }
           });
@@ -654,11 +688,7 @@ var replayData = undefined;
         addEvent(true, eventId, eventClass, event.time);
 
         var layerName = team + '-' + event.towerIndex + '-' + type;
-        $map.setLayer(layerName, {
-          data: {
-            deadTime: event.time
-          }
-        });
+        $map.getLayer(layerName).data.deadTime = event.time;
       }
     },
 
