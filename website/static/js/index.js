@@ -43,6 +43,17 @@ var endTime = 0;
         }
       });
       assignImage('#hero-icon', 'heroes', layer.data.imgName);
+
+      if ($('#time-range-slider').is(':visible')) {
+        var lineLayer = layer.name + '-line';
+        $map.setLayerGroup('all-lines', {
+          strokeStyle: 'rgba(0, 0, 0, 0.8)'
+        }).setLayer(lineLayer, {
+          strokeStyle: '#FFF500',
+          index: 21
+        });
+        $map.drawLayers();
+      }
     },
 
     handleHoverOff: function(layer) {
@@ -51,6 +62,12 @@ var endTime = 0;
       $('#player-info').removeClass(team);
       $('#items').find('.table-cell').html('');
       $('#hero-icon').html('');
+
+      if ($('#time-range-slider').is(':visible')) {
+        $map.setLayerGroup('radiant-lines', {strokeStyle: '#097FE6'});
+        $map.setLayerGroup('dire-lines', {strokeStyle: '#E65609'});
+        $map.drawLayers();
+      }
     },
 
     setupLayers: function(playerHeroes) {
@@ -129,28 +146,6 @@ var endTime = 0;
 
     drawMapLine: function(points, colour, dashed, group, name) {
       var lineSettings = {
-        mouseover: function(layer) {
-          var playerLayer = layer.name.substr(0, 5);
-          mapManager.handleHoverOn($map.getLayer(playerLayer));
-          $map.setLayerGroup('all-lines', {
-            strokeStyle: 'rgba(0, 0, 0, 0.8)'
-          }).setLayer(layer, {
-            strokeStyle: '#FFF500',
-            strokeDash: [20, 10]
-          }).moveLayer(layer, 21);
-          $map.drawLayers();
-        },
-        mouseout: function(layer) {
-          var playerLayer = layer.name.substr(0, 5);
-          mapManager.handleHoverOff($map.getLayer(playerLayer));
-          $map.setLayerGroup('radiant-lines', {strokeStyle: '#097FE6'});
-          $map.setLayerGroup('dire-lines', {
-            strokeStyle: '#E65609',
-            strokeDash: undefined
-          });
-          $map.moveLayer(layer, 11);
-          $map.drawLayers();
-        },
         name: name,
         strokeStyle: colour,
         strokeWidth: 4,
