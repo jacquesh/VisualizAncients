@@ -1,4 +1,5 @@
 var replayData = undefined;
+var endTime = 0;
 
 (function ($) {
   'use strict';
@@ -829,6 +830,7 @@ var replayData = undefined;
     var snapshots = replayData.snapshots;
 
     statsManager.runTime = snapshots[snapshots.length - 1].time - snapshots[0].time;
+    endTime = Math.ceil(statsManager.runTime / 60);
 
     var $presence = $('#presence');
     var presenceImg = $presence.find('img');

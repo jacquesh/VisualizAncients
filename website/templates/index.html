@@ -41,6 +41,7 @@
                 <div id="graph-bar">
                     <canvas id="roshanSmallChart" class="selected" data-name="Roshan"></canvas>
                     <canvas id="wardSmallChart" data-name="Wards" style="display:none;"></canvas>
+                    <canvas id="sentrySmallChart" data-name="Sentries" style="display:none;"></canvas>
                     <canvas id="playerKillsSmallChart" data-name="Kills" style="display:none;"></canvas>
                 </div>
                 <div id="open-graphs"><a class='graphs' href="#big-graphs"><i class="fa fa-bar-chart fa-2x"></i></a></div>
@@ -201,6 +202,13 @@
                     <canvas id="wardChart"></canvas>
                     <div class="axis">Elapsed Game Time (min)</div>
                     <p>Number of wards placed</p>
+                </div>
+                <div class="graph container">
+                    <b>Sentries</b>
+                    <img src="/static/img/icons/sentry.png">
+                    <canvas id="sentryChart"></canvas>
+                    <div class="axis">Elapsed Game Time (min)</div>
+                    <p>Number of sentries placed</p>
                 </div>
                 <div class="graph container">
                     <b>Player Kills</b>
