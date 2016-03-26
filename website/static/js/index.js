@@ -17,7 +17,6 @@ var endTime = 0;
     creepHidden: false,
     smokeHidden: false,
     showPresence: true,
-    presenceTotals: [0,0],
     radiantLinesHidden: false,
     direLinesHidden: false,
 
@@ -342,9 +341,6 @@ var endTime = 0;
     renderMap: function(snapshot) {
       var $presence = $('#presence');
       if(this.showPresence) {
-        this.presenceTotals[0] = 0;
-        this.presenceTotals[1] = 0;
-
         var pxX = 0;
         var pxY = 0;
         var colours = [{r:255, g:255, b:255, a:128},
@@ -361,16 +357,11 @@ var endTime = 0;
             var cellX = Math.floor((pxX/420)*64);
             var cellY = 63 - Math.floor((pxY/420)*64);
             var cellIndex = cellY*64 + cellX;
-            var presenceVal = snapshot.presenceData[cellIndex];
+            var presenceVal = snapshot.presenceData.map[cellIndex];
             px.r = colours[presenceVal].r;
             px.g = colours[presenceVal].g;
             px.b = colours[presenceVal].b;
             px.a = colours[presenceVal].a;
-
-            if(presenceVal != 0) {
-              var teamIndex = Math.floor((presenceVal - 2)/2);
-              mapManager.presenceTotals[teamIndex] += 1;
-            }
 
             pxX++;
             if(pxX >= 420) {
@@ -380,12 +371,10 @@ var endTime = 0;
           }
         });
 
-        var presenceMax = this.width*this.width; // The map is a square, so we don't need height
-        var radiantPresence = Math.round(100*(this.presenceTotals[0]/presenceMax));
-        var direPresence = Math.round(100*(this.presenceTotals[1]/presenceMax));
-        $('#radiant-presence').text(radiantPresence+"%");
-        $('#dire-presence').text(direPresence+"%");
       }
+
+      $('#radiant-presence').text(snapshot.presenceData.percentages[0]+"%");
+      $('#dire-presence').text(snapshot.presenceData.percentages[1]+"%");
 
       // NOTE: drawLayers clears first, drawLayer does not
       //       We need to not clear in order to not lose the presence data
