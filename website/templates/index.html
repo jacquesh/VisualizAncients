@@ -32,23 +32,23 @@
                 <div id="bottom-events" class="center-block"></div>
             </div>
             <div class="clear-fix"></div>
-            <div id="graph-bar-container">
-                <div id="change-graph-box">
+            <div id="graph-bar-container" class="drop-shadow">
+                <div id="change-graph-box" class="colour-container">
                     <div class="arrow" id="up-arrow"><i id="uparrow" class="fa fa-arrow-up" ></i></div>
                     <div id="graph-label">Roshan</div>
                     <div class="arrow" id="down-arrow"><i id="downarrow" class="fa fa-arrow-down"></i></div>
                 </div>
-                <div id="graph-bar">
+                <div id="graph-bar" class="colour-container">
                     <canvas id="roshanSmallChart" class="selected" data-name="Roshan"></canvas>
                     <canvas id="wardSmallChart" data-name="Wards" style="display:none;"></canvas>
                     <canvas id="playerKillsSmallChart" data-name="Kills" style="display:none;"></canvas>
                 </div>
-                <div id="open-graphs"><a class='graphs' href="#big-graphs"><i class="fa fa-bar-chart fa-2x"></i></a></div>
+                <div id="open-graphs" class="colour-container"><a class='graphs' href="#big-graphs"><i class="fa fa-bar-chart fa-2x"></i></a></div>
             </div>
             <div class="clear-fix"></div>
 
             <div id="left-column" class="column">
-                <div id="toggle-box" class="side-bar border hug-right">
+                <div id="toggle-box" class="side-bar colour-container drop-shadow hug-right">
                     <!-- First Column -->
                     <div class="column">
                         <div class="deaths">
@@ -106,11 +106,11 @@
                         </div>
                     </div>
                 </div>
-                <div id="map-presence" class="side-bar border hug-right">
-                    <div id="radiant-control" class="radiant team-block border border-white">
+                <div id="map-presence" class="side-bar colour-container drop-shadow hug-right">
+                    <div id="radiant-control" class="radiant team-block colour-container border-white">
                         <h1 id="radiant-presence">0%</h1>
                     </div>
-                    <div id="dire-control" class="dire team-block border border-white">
+                    <div id="dire-control" class="dire team-block colour-container border-white">
                         <h1 id="dire-presence">0%</h1>
                     </div>
                     <div id="toggle-presence-label">
@@ -120,7 +120,7 @@
                         </span>
                     </div>
                 </div>
-                <div id="heatmap-select" class="side-bar border hug-right" style="display:none;">
+                <div id="heatmap-select" class="side-bar colour-container hug-right" style="display:none;">
                     <label for="heatmap-dropdown">Select a heatmap</label>
                     <select name="heatmap-dropdown" id="heatmap-dropdown">
                         <option selected="selected">None</option>
@@ -134,11 +134,11 @@
             </div>
 
             <div id="map-container">
-                <canvas id="dota-map" width="420" height="420"></canvas>
+                <canvas id="dota-map" class="drop-shadow" width="420" height="420"></canvas>
             </div>
 
             <div id="right-column" class="column">
-                <div id="path-toggle" class="side-bar hug-left border">
+                <div id="path-toggle" class="side-bar hug-left drop-shadow colour-container">
                     <h4 class="heading">Toggle Paths</h4>
                     <div class="path-container center-block">
                         <span class="input-wrapper">
@@ -147,9 +147,9 @@
                         </span>
                     </div>
                 </div>
-                <div id="player-info" class="side-bar hug-left border">
+                <div id="player-info" class="side-bar hug-left drop-shadow colour-container">
                     <h1 id="character-name" class="hidden-text">Character Name</h1>
-                    <div id="hero-icon" class="border border-white center-block"></div>
+                    <div id="hero-icon" class="colour-container border-white center-block"></div>
                     <div id="items" class="center-block table">
                         <div class="table-row center-block">
                             <div class="table-cell"></div>
@@ -168,14 +168,14 @@
             </div>
             <div class="clear-fix"></div>
             <div id="team-graphs" class="center-block">
-                <div id="radiant" class="radiant score-box border">
+                <div id="radiant" class="radiant score-box drop-shadow colour-container">
                     <div class="team-stats">
                         <div><img src="/static/img/icons/gold.png"><span class="net-worth"><span class="label">0</span></span></div>
                         <div><img src="/static/img/icons/xp.png"><span class="total-xp"><span class="label">0</span></span></div>
                     </div>
                     <div class="kills">Kills <span class="count">0</span></div>
                 </div>
-                <div id="dire" class="dire score-box border">
+                <div id="dire" class="dire score-box drop-shadow colour-container">
                     <div class="team-stats">
                         <div><span class="net-worth"><span class="label">0</span></span><img src="/static/img/icons/gold.png"></div>
                         <div><span class="total-xp"><span class="label">0</span></span><img src="/static/img/icons/xp.png"></div>

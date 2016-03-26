@@ -31,7 +31,7 @@ header > hr {
     max-width: 1100px;
     margin-left: auto;
     margin-right: auto;
-    background-color: #ffffff;
+    background-color: #bdc3c7;
 }
 
 #content {
@@ -44,7 +44,7 @@ header > hr {
     height: 50px;
     margin-left: auto;
     margin-right: auto;
-    padding-bottom: 5px;
+    padding-bottom: 10px;
 }
 
 #top-events, #bottom-events {
@@ -72,11 +72,11 @@ header > hr {
 }
 
 .event.radiant {
-    background-color: rgba(51, 95, 255, 0.6);
+    background-color: rgba(41, 128, 185, 0.8);
 }
 
 .event.dire {
-    background-color: rgba(255, 7, 18, 0.6);
+    background-color: rgba(231, 76, 60, 0.8);
 }
 
 #time {
@@ -128,9 +128,10 @@ header > hr {
 }
 
 #change-graph-box {
-    font-size: 12px;
+    font-size: 11px;
     float: left;
     width: 5%;
+    height: 100%;
 }
 
 #change-graph-box > .arrow {
@@ -141,11 +142,12 @@ header > hr {
 
 #change-graph-box > #graph-label {
     text-align: center;
+    font-size: 13px;
+    font-weight: bold;
 }
 
 #open-graphs {
     float: left;
-    border: black solid 1px;
     width: 5%;
     height: 40px;
 }
@@ -162,8 +164,7 @@ header > hr {
 
 #graph-bar {
     float: left;
-    border: #000000 solid 1px;
-    width: calc(90% - 6px);
+    width: calc(90% - 2px);
     height: 40px;
     margin-left: 1px;
     margin-right: 1px;
@@ -184,8 +185,12 @@ header > hr {
     min-width: 233px;
 }
 
-.border {
-    border: solid black 1px;
+.colour-container {
+    background-color: #8E9AA2;
+}
+
+.drop-shadow {
+    box-shadow: #2B2B2B 0 0 10px 0;
 }
 
 .center-block {
@@ -395,11 +400,11 @@ header > hr {
 }
 
 .radiant {
-    background-color: rgba(51, 95, 255, 0.75);
+    background-color: #2980b9;
 }
 
 .dire {
-    background-color: rgba(255, 7, 18, 0.75);
+    background-color: #e74c3c;
 }
 
 #team-graphs {
