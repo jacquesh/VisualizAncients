@@ -19,6 +19,7 @@ var endTime = 0;
     showPresence: true,
     radiantLinesHidden: false,
     direLinesHidden: false,
+    selectedHero: '',
 
     getX: function(data_x) {
       return (data_x - 64) * this.scalef;
@@ -34,8 +35,13 @@ var endTime = 0;
         $(selector).html('<img src="' + imgLink + '">');
       };
 
+      if (mapManager.selectedHero) {
+        mapManager.resetPlayerInfoPanel();
+      }
+
       $('#character-name').text(layer.data.heroName).removeClass('hidden-text');
       var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
+
       $('#player-info').addClass(team);
       $('#items').find('.table-cell').each(function(index, elem) {
         if (layer.data.items[index] !== '') {
@@ -57,20 +63,44 @@ var endTime = 0;
     },
 
     handleHoverOff: function(layer) {
-      $('#character-name').addClass('hidden-text');
-      var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
-      $('#player-info').removeClass(team);
-      $('#items').find('.table-cell').html('');
-      $('#hero-icon').html('');
+      if (mapManager.selectedHero !== layer.name) {
+        $('#character-name').addClass('hidden-text');
+        mapManager.resetPlayerInfoPanel();
 
-      if ($('#time-range-slider').is(':visible')) {
-        $map.setLayerGroup('radiant-lines', {strokeStyle: '#097FE6'});
-        $map.setLayerGroup('dire-lines', {strokeStyle: '#E65609'});
-        $map.drawLayers();
+        if ($('#time-range-slider').is(':visible')) {
+          $map.setLayerGroup('radiant-lines', {strokeStyle: '#097FE6'});
+          $map.setLayerGroup('dire-lines', {strokeStyle: '#E65609'});
+          $map.drawLayers();
+        }
+      }
+
+      if (mapManager.selectedHero) {
+        mapManager.updateSelected();
       }
     },
 
+    updateSelected: function () {
+      var heroLayer = $map.getLayer(mapManager.selectedHero);
+      this.handleHoverOn(heroLayer);
+    },
+
+    resetPlayerInfoPanel: function() {
+      $('#character-name').addClass('hidden-text');
+      $('#player-info').removeClass('radiant').removeClass('dire');
+      $('#items').find('.table-cell').html('');
+      $('#hero-icon').html('');
+    },
+
     setupLayers: function(playerHeroes) {
+      $map.click(function () {
+        if (mapManager.selectedHero) {
+          console.log('BALLS');
+          var old = $map.getLayer(mapManager.selectedHero);
+          old.fillStyle = old.data.color;
+          mapManager.selectedHero = '';
+          mapManager.resetPlayerInfoPanel();
+        }
+      });
       for(var i=0; i<10; i++) {
         var layerName = this.layers[i];
         var col = '';
@@ -89,6 +119,17 @@ var endTime = 0;
         $map.setLayer(layerName, {
           mouseover: this.handleHoverOn,
           mouseout: this.handleHoverOff,
+          click: function(layer) {
+            layer.event.stopPropagation();
+
+            if (mapManager.selectedHero) {
+              var old = $map.getLayer(mapManager.selectedHero);
+              old.fillStyle = old.data.color;
+            }
+            mapManager.selectedHero = layer.name;
+            layer.fillStyle = '#FFFF00';
+            mapManager.updateSelected();
+          },
           data: {
             color: col,
             heroName: heroNameMap[playerHeroes[i]],
@@ -212,6 +253,10 @@ var endTime = 0;
         if (this.deathsHidden) {
           $map.setLayer(layerId + '-dead', {visible: false});
         }
+      }
+
+      if (mapManager.selectedHero) {
+        mapManager.updateSelected();
       }
     },
 
