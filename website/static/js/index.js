@@ -333,6 +333,8 @@ var endTime = 0;
 
       if (player) {
         $map.setLayer(name, {cursors: cursorSettings});
+      } else {
+        $map.setLayer(name, {intangible: true});
       }
     },
 
