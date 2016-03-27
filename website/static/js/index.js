@@ -825,6 +825,49 @@ var endTime = 0;
     return outputArr.join("");
   };
 
+  var getTime = function(tick) {
+    var snapshot = replayData.snapshots[tick];
+    var gameTime = snapshot.time - replayData.startTime;
+
+    if(gameTime >= 0) {
+      return ('' + gameTime).toHHMMSS();
+    } else {
+      return '-' + ('' + -gameTime).toHHMMSS();
+    }
+  };
+
+  var sliderHover = {
+    hoverOn: function(event) { // mouse enter
+      if (!$(event.target).hasClass('ui-slider-handle')) {
+        var $hoverLabel = $('#hover-label');
+        var leftOffset = Math.floor($(this).offset().left);
+
+        $hoverLabel.css('left', (((Math.round(event.pageX) - leftOffset) / $(this).width()) * 100) + '%');
+        $hoverLabel.show();
+      }
+    },
+
+    hoverOff: function(event) { // mouse exit
+      $('#hover-label').hide();
+    },
+
+    mouseMove: function () { // while hovering
+      var $hoverLabel = $('#hover-label');
+
+      if (!$(event.target).hasClass('ui-slider-handle')) {
+        var width = $(this).outerWidth();
+        var leftOffset = Math.floor($(this).offset().left);
+        var value = Math.floor(((Math.round(event.pageX) - leftOffset) / width) * (replayData.snapshots.length - 1));
+
+        $hoverLabel.css('left', (((Math.round(event.pageX) - leftOffset) / $(this).width()) * 100)+'%');
+        $hoverLabel.text(getTime(value));
+        $hoverLabel.show();
+      } else {
+        $hoverLabel.hide();
+      }
+    }
+  };
+
   var singleSlide = function(tick) {
     var $timeSlider = $('#time-slider');
     var snapshots = replayData.snapshots;
@@ -854,13 +897,7 @@ var endTime = 0;
 
     mapManager.renderMap(snapshot);
 
-    var gameTime = snapshot.time - replayData.startTime;
-    if(gameTime >= 0) {
-      $timeSlider.find('.label').text(('' + gameTime).toHHMMSS());
-    }
-    else {
-      $timeSlider.find('.label').text('-'+('' + -gameTime).toHHMMSS());
-    }
+    $timeSlider.find('.label').text(getTime(tick));
   };
 
   var rangeSlide = function(event, ui) {
@@ -868,8 +905,8 @@ var endTime = 0;
     var $rangeSlider = $('#time-range-slider');
     var snapshots = replayData.snapshots;
 
-    var time0 = replayData.snapshots[ui.values[0]].time;
-    var time1 = replayData.snapshots[ui.values[1]].time;
+    var tick0 = ui.values[0];
+    var tick1 = ui.values[1];
 
     singleSlide(ui.values[1]);
 
@@ -877,12 +914,12 @@ var endTime = 0;
 
     $map.drawLayers();
 
-    $rangeSlider.find('.label.l0').text(('' + time0).toHHMMSS());
-    $rangeSlider.find('.label.l1').text(('' + time1).toHHMMSS());
+    $rangeSlider.find('.label.l0').text(getTime(tick0));
+    $rangeSlider.find('.label.l1').text(getTime(tick1));
 
     // Update single slider
     $timeSlider.slider("option", "value", ui.values[0]);
-    $timeSlider.find('.label').text(('' + time0).toHHMMSS());
+    $timeSlider.find('.label').text(getTime(tick0));
   };
 
   var setupPlayerData = function (data) {
@@ -936,6 +973,10 @@ var endTime = 0;
       }
     });
 
+    // Time slider hover
+    $timeSlider.hover(sliderHover.hoverOn, sliderHover.hoverOff);
+    $timeSlider.mousemove(sliderHover.mouseMove);
+
     $('#heatmap-dropdown').selectmenu();
     $rangeSlider.slider({
       range: true,
@@ -945,6 +986,10 @@ var endTime = 0;
       step: 1,
       slide: rangeSlide
     });
+
+    // Range slider hover
+    $rangeSlider.hover(sliderHover.hoverOn, sliderHover.hoverOff);
+    $rangeSlider.mousemove(sliderHover.mouseMove);
 
     $('#amount').text($timeSlider.slider('value'));
 
@@ -999,11 +1044,9 @@ var endTime = 0;
 
       if ($(this).next().prop('checked')) {
         $rangeSlider.slider("option", "values", [value, value + 250]);
-        var time0 = replayData.snapshots[value].time;
-        var time1 = replayData.snapshots[value+250].time;
 
-        $rangeSlider.find('.label.l0').text(('' + time0).toHHMMSS());
-        $rangeSlider.find('.label.l1').text(('' + time1).toHHMMSS());
+        $rangeSlider.find('.label.l0').text(getTime(value));
+        $rangeSlider.find('.label.l1').text(getTime(value+250));
 
         $('#map-presence').hide();
         $('#heatmap-select').show();
@@ -1141,6 +1184,8 @@ var endTime = 0;
 
   var setupLabel = function() {
     $('#time-slider').find('.ui-slider-handle').html('<span class="label">00:00</span>');
+    $('#time').append('<span id="hover-label" class="label">00:00</span>');
+    $('#hover-label').hide();
     $('#time-range-slider').find('.ui-slider-handle').each(function(i) {
       $(this).html('<span class="label l' + i +'">00:00</span>');
     });

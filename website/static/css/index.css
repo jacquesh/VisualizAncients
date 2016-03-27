@@ -108,7 +108,7 @@ header > hr {
     vertical-align: middle;
 }
 
-#time > #time-slider .label, #time > #time-range-slider .label {
+.label {
     position: absolute;
     background-color: rgba(233, 233, 233, 0.6);
     top: 100%;
@@ -116,6 +116,13 @@ header > hr {
     font-size: 0.6em;
     font-weight: bold;
     color: #000;
+}
+
+#hover-label {
+    font-size: 0.8em;
+    z-index: 20;
+    top: -100%;
+    margin-left: -2%;
 }
 
 #time > #time-range-slider .label.l1 {
