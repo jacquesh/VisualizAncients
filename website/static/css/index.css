@@ -47,10 +47,10 @@ header > hr {
     padding-bottom: 10px;
 }
 
-#top-events, #bottom-events {
+#top-events, #time, #bottom-events {
     position: relative;
     height: 17px;
-    width: calc(90% - 4px);
+    width: 90%;
 }
 
 #bottom-events {
@@ -80,10 +80,13 @@ header > hr {
 }
 
 #time {
-    width: calc(90% - 4px);
-    margin-left: 2px;
-    margin-right: 2px;
+    min-height: 16px;
     float: left;
+}
+
+#start-time, #end-time {
+    font-size: 0.8em;
+    font-weight: bold;
 }
 
 #time-container > #start-time {
@@ -92,7 +95,7 @@ header > hr {
 }
 
 #time-container > #end-time {
-    width: 5%;
+    width: 4%;
     float: left;
     text-align: right;
 }
