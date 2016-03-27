@@ -6,6 +6,10 @@ var endTime = 0;
 
   //var replayData = undefined;
   var $map = $('#dota-map');
+  var cursorSettings = {
+    mouseover: 'pointer',
+    mouseup: 'pointer'
+  };
 
   var mapManager = {
     width: $map.width(),
@@ -107,7 +111,7 @@ var endTime = 0;
         var team = '';
 
         if (i < 5) {
-          this.drawMapCircle(0, 0, '#097FE6', 'radiant', layerName);
+          this.drawMapCircle(0, 0, '#097FE6', 'radiant', layerName, 8, true);
           col = '#097FE6';
           team = 'radiant';
         } else {
@@ -313,8 +317,7 @@ var endTime = 0;
       }
     },
 
-    drawMapCircle: function(x, y, colour, group, name, radius) {
-      radius = radius === undefined ? 8 : radius;
+    drawMapCircle: function(x, y, colour, group, name, radius, player) {
       group = group === undefined ? 'radiant' : group;
 
       $map.drawArc({
@@ -327,6 +330,10 @@ var endTime = 0;
         x: this.getX(x), y: this.getY(y),
         radius: radius
       });
+
+      if (player) {
+        $map.setLayer(name, {cursors: cursorSettings});
+      }
     },
 
     drawMapPolygon: function(x, y, colour, group, name, radius, sides) {
@@ -357,7 +364,8 @@ var endTime = 0;
         groups: [group],
         fillStyle: colour,
         x: this.getX(x), y: this.getY(y),
-        width: 14, height:14
+        width: 14, height:14,
+        cursors: cursorSettings
       });
     },
 
