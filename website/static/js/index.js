@@ -748,7 +748,7 @@ var endTime = 0;
         var team = event.teamIndex == 0 ? 'radiant' : 'dire';
         var type = event.isBarracks ? 'barracks' : 'tower';
 
-        var eventId = team + '-' + event.towerIndex + type;
+        var eventId = team + '-' + event.towerIndex + '-' + type + '-' + i;
         var eventClass = team + ' ' + type;
 
         addEvent(true, eventId, eventClass, event.time);
