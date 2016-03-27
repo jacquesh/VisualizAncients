@@ -334,12 +334,12 @@ header > hr {
     height: 78%;
 }
 
-#right-column > #player-info > #character-name {
+#right-column > #player-info > #entity-name {
     text-align: center;
     min-height: 24px;
 }
 
-#right-column > #player-info > #hero-icon {
+#right-column > #player-info > #entity-icon {
     height: 100px;
     width: 175px;
     background-image: url('/static/img/heroes/default.jpg');
@@ -347,7 +347,7 @@ header > hr {
     overflow: hidden;
 }
 
-#hero-icon > img {
+#entity-icon > img {
     height: 100%;
 }
 
@@ -514,7 +514,7 @@ footer {
 }
 
 .border-white {
-    border-color: white;
+    border: solid 1px white;
 }
 
 .table {

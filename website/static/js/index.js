@@ -44,7 +44,7 @@ var endTime = 0;
         mapManager.resetPlayerInfoPanel();
       }
 
-      $('#character-name').text(layer.data.heroName).removeClass('hidden-text');
+      $('#entity-name').text(layer.data.entityName).removeClass('hidden-text');
       var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
 
       $('#player-info').addClass(team);
@@ -59,7 +59,7 @@ var endTime = 0;
       else {
         $items.css("visibility", "hidden");
       }
-      assignImage('#hero-icon', 'heroes', layer.data.imgName);
+      assignImage('#entity-icon', 'heroes', layer.data.imgName);
 
       if ($('#time-range-slider').is(':visible')) {
         var lineLayer = layer.name + '-line';
@@ -75,7 +75,7 @@ var endTime = 0;
 
     handleHoverOff: function(layer) {
       if (mapManager.selectedHero !== layer.name) {
-        $('#character-name').addClass('hidden-text');
+        $('#entity-name').addClass('hidden-text');
         mapManager.resetPlayerInfoPanel();
 
         if ($('#time-range-slider').is(':visible')) {
@@ -97,17 +97,16 @@ var endTime = 0;
 
     resetPlayerInfoPanel: function() {
       var $items = $('#items');
-      $('#character-name').addClass('hidden-text');
+      $('#entity-name').addClass('hidden-text');
       $('#player-info').removeClass('radiant').removeClass('dire');
       $items.find('.table-cell').html('');
-      $items.css("visibility", "visible");
-      $('#hero-icon').html('');
+      $items.css('visibility', 'visible');
+      $('#entity-icon').html('');
     },
 
     setupLayers: function(playerHeroes) {
       $map.click(function () {
         if (mapManager.selectedHero) {
-          console.log('BALLS');
           var old = $map.getLayer(mapManager.selectedHero);
           old.fillStyle = old.data.color;
           mapManager.selectedHero = '';
@@ -145,7 +144,7 @@ var endTime = 0;
           },
           data: {
             color: col,
-            heroName: heroNameMap[playerHeroes[i]],
+            entityName: heroNameMap[playerHeroes[i]],
             imgName: playerHeroes[i].replace('npc_dota_hero_', ''),
             items: [],
             alive: false
@@ -160,7 +159,7 @@ var endTime = 0;
           mouseout: this.handleHoverOff,
           visible: false,
           data: {
-            heroName: heroNameMap[playerHeroes[i]],
+            entityName: heroNameMap[playerHeroes[i]],
             imgName: playerHeroes[i].replace('npc_dota_hero_', ''),
             items: [],
             alive: false
@@ -299,14 +298,15 @@ var endTime = 0;
           var group = laneCreepData[i];
           var colour = group.isDire ? '#E65609' : '#097FE6';
           var teamName = group.isDire ? 'dire' : 'radiant';
-          this.drawMapPolygon(group.x, group.y, colour, 'creep', 'creep-' + i, 3 + Math.round(group.creepCount / 2));
-          $map.moveLayer('creep-' + i, 1);
-          $map.setLayer('creep-' + i, {
+          var layerName = teamName + '-creep-' + i;
+          this.drawMapPolygon(group.x, group.y, colour, 'creep', layerName, 3 + Math.round(group.creepCount / 2));
+          $map.moveLayer(layerName, 1);
+          $map.setLayer(layerName, {
             mouseover: mapManager.handleHoverOn,
             mouseout: mapManager.handleHoverOff,
             data: {
               color: colour,
-              heroName: 'Creep Wave',
+              entityName: 'Creep Wave',
               imgName: 'creep_'+teamName,
             }
           });
@@ -562,7 +562,7 @@ var endTime = 0;
           mouseout: mapManager.handleHoverOff,
           data: {
               color: '#FFFFFF',
-              heroName: 'Roshan',
+              entityName: 'Roshan',
               imgName: 'roshan',
           }
       });
@@ -700,7 +700,7 @@ var endTime = 0;
             mouseover: mapManager.handleHoverOn,
             mouseout: mapManager.handleHoverOff,
             data: {
-              heroName: 'Barracks',
+              entityName: 'Barracks',
               imgName: 'tower_'+team,
               deadTime: 10000
             }
@@ -719,7 +719,7 @@ var endTime = 0;
             mouseover: mapManager.handleHoverOn,
             mouseout: mapManager.handleHoverOff,
             data: {
-              heroName: 'Tower',
+              entityName: 'Tower',
               imgName: 'tower_'+team,
               deadTime: 10000
             }
