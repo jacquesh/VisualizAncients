@@ -689,6 +689,22 @@ var endTime = 0;
   var buildingManager = {
     hidden: false,
     setupBuildings: function(towerEvents) {
+      // Make team ancients
+      for (var i=0; i < 2; i++) {
+        var team = (i == 0) ? 'radiant' : 'dire';
+        var pos = ancientPositions[i][0];
+        var layerName = team + '-' + j + '-' + 'ancients';
+        this.addBuilding(pos.x, pos.y, team, true, team + '-buildings', layerName);
+        $map.setLayer(layerName, {
+          mouseover: mapManager.handleHoverOn,
+          mouseout: mapManager.handleHoverOff,
+          data: {
+            entityName: 'Ancient',
+            imgName: 'tower_' + team
+          }
+        });
+      }
+
       // Make barracks for both teams
       for (var i=0; i < 2; i++) {
         var team = (i == 0) ? 'radiant' : 'dire';
