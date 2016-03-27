@@ -5,6 +5,7 @@ var smallGraphs = function ($) {
 
   var $roshanChart = $('#roshanSmallChart');
   var $wardChart = $('#wardSmallChart');
+  var $sentryChart = $('#sentrySmallChart');
   var $playerKillsChart = $('#playerKillsSmallChart');
   var $graphBar = $('#graph-bar');
   var gHeight = $graphBar.height();
@@ -52,6 +53,7 @@ var smallGraphs = function ($) {
 
     drawRoshanChart(aggregateData["roshCounts"]);
     drawWardsChart(aggregateData["wardCounts"]);
+    drawSentryChart(aggregateData["sentryCounts"]);
     drawPlayerKillsChart(aggregateData["deathCounts"]);
 
     bigGraphs($);
@@ -104,6 +106,24 @@ var smallGraphs = function ($) {
     };
     var wardChart = new Chart(ward_ctx).Bar(data, graphSettings);
   };
+  var drawSentryChart = function (sentryCount) {
+    var sentry_ctx = $sentryChart.get(0).getContext("2d");
+    sentry_ctx.canvas.width = gWidth;
+    sentry_ctx.canvas.height = gHeight;
+    var data = {
+      labels: time,
+      datasets: [
+        {
+          label: "Sentries Placed",
+          fillColor: "ForestGreen",
+          strokeColor: "rgba(220,220,220,0.8)",
+          highlightFill: "rgba(220,220,220,0.75)",
+          highlightStroke: "rgba(220,220,220,1)",
+          data: sentryCount
+        }]
+    };
+    var sentryChart = new Chart(sentry_ctx).Bar(data, graphSettings);
+  };
   var drawPlayerKillsChart = function (playerKillCount) {
     var player_kills_ctx = $playerKillsChart.get(0).getContext("2d");
     player_kills_ctx.canvas.width = gWidth;
@@ -145,7 +165,7 @@ var smallGraphs = function ($) {
     var otherGraphCount = $graphBar.find('canvas').get().length;
     var $selected = $graphBar.find('.selected');
     $selected.removeClass('selected').hide();
-    var nextPos = ((+$selected.data('pos') - 1) + 3) % otherGraphCount;
+    var nextPos = ((+$selected.data('pos') - 1) + otherGraphCount) % otherGraphCount;
     setVisibleGraph(nextPos);
   });
 

@@ -16,6 +16,7 @@ var bigGraphs = function ($) {
     gWidth = ($('#big-graph-overlay').width() * 0.8) - 165;
     drawRoshanChart(aggregateData["roshCounts"]);
     drawWardsChart(aggregateData["wardCounts"]);
+    drawSentryChart(aggregateData["sentryCounts"]);
     drawPlayerKillsChart(aggregateData["deathCounts"]);
   };
 
@@ -54,6 +55,24 @@ var bigGraphs = function ($) {
         }]
     };
     var wardChart = new Chart(ward_ctx).Bar(data, graphSettings);
+  };
+  var drawSentryChart = function (sentryCount) {
+    var sentry_ctx = $("#sentryChart").get(0).getContext("2d");
+    sentry_ctx.canvas.width = gWidth;
+    sentry_ctx.canvas.height = 200;
+    var data = {
+      labels: time,
+      datasets: [
+        {
+          label: "Sentries Placed",
+          fillColor: "ForestGreen",
+          strokeColor: "rgba(220,220,220,0.8)",
+          highlightFill: "rgba(220,220,220,0.75)",
+          highlightStroke: "rgba(220,220,220,1)",
+          data: sentryCount
+        }]
+    };
+    var sentryChart = new Chart(sentry_ctx).Bar(data, graphSettings);
   };
   var drawPlayerKillsChart = function (playerKillCount) {
     var player_kills_ctx = $("#player_kills_Chart").get(0).getContext("2d");

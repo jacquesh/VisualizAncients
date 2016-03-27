@@ -34,6 +34,7 @@ var endTime = 0;
     },
 
     handleHoverOn: function(layer) {
+      var $items = $('#items');
       var assignImage = function(selector, prefix, name) {
         var imgLink = '/static/img/' + prefix + '/' + name + '.jpg';
         $(selector).html('<img src="' + imgLink + '">');
@@ -47,11 +48,17 @@ var endTime = 0;
       var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
 
       $('#player-info').addClass(team);
-      $('#items').find('.table-cell').each(function(index, elem) {
-        if (layer.data.items[index] !== '') {
-          assignImage(elem, 'items', layer.data.items[index].replace('item_', ''));
-        }
-      });
+      if(layer.data.hasOwnProperty('items')) {
+        $items.css("visibility", "visible");
+        $items.find('.table-cell').each(function(index, elem) {
+          if (layer.data.items[index] !== '') {
+            assignImage(elem, 'items', layer.data.items[index].replace('item_', ''));
+          }
+        });
+      }
+      else {
+        $items.css("visibility", "hidden");
+      }
       assignImage('#hero-icon', 'heroes', layer.data.imgName);
 
       if ($('#time-range-slider').is(':visible')) {
@@ -89,9 +96,11 @@ var endTime = 0;
     },
 
     resetPlayerInfoPanel: function() {
+      var $items = $('#items');
       $('#character-name').addClass('hidden-text');
       $('#player-info').removeClass('radiant').removeClass('dire');
-      $('#items').find('.table-cell').html('');
+      $items.find('.table-cell').html('');
+      $items.css("visibility", "visible");
       $('#hero-icon').html('');
     },
 
@@ -289,8 +298,18 @@ var endTime = 0;
         for (var i = 0; i < laneCreepData.length; i++) {
           var group = laneCreepData[i];
           var colour = group.isDire ? '#E65609' : '#097FE6';
+          var teamName = group.isDire ? 'dire' : 'radiant';
           this.drawMapPolygon(group.x, group.y, colour, 'creep', 'creep-' + i, 3 + Math.round(group.creepCount / 2));
           $map.moveLayer('creep-' + i, 1);
+          $map.setLayer('creep-' + i, {
+            mouseover: mapManager.handleHoverOn,
+            mouseout: mapManager.handleHoverOff,
+            data: {
+              color: colour,
+              heroName: 'Creep Wave',
+              imgName: 'creep_'+teamName,
+            }
+          });
         }
       }
     },
@@ -302,7 +321,6 @@ var endTime = 0;
       }
     },
 
-    // TODO: Change the time window here so that it shows for longer than 1s of game time (which is a basically just 1 tick
     updateSmokes: function(smokeData, time) {
       $map.removeLayerGroup('smoke');
       if (!this.smokeHidden) {
@@ -310,7 +328,7 @@ var endTime = 0;
         for (var i = 0; i < smokeData.length; i++) {
           var smoke = smokeData[i];
           var timeDiff = time - smoke.time;
-          if ((0 < timeDiff) && (timeDiff < 1)) {
+          if ((0 < timeDiff) && (timeDiff < 5)) {
             this.drawMapCircle(smoke.x, smoke.y, colour, 'smoke', 'smoke-' + i, 15);
           }
         }
@@ -538,7 +556,16 @@ var endTime = 0;
     setupRoshanEvents: function(roshanData) {
       var roshanPath = '/static/img/icons/roshan.png';
       mapManager.drawMapIcon(160, 113, 0.75, roshanPath, 'roshan', 'roshan');
-      $map.setLayer('roshan', {visible: false});
+      $map.setLayer('roshan', {
+          visible: false,
+          mouseover: mapManager.handleHoverOn,
+          mouseout: mapManager.handleHoverOff,
+          data: {
+              color: '#FFFFFF',
+              heroName: 'Roshan',
+              imgName: 'roshan',
+          }
+      });
 
       var eventIndex = 0;
       for (var i=0; i < roshanData.length; i++) {
@@ -649,7 +676,14 @@ var endTime = 0;
       '<div id="' + eventId + '" class="event ' + eventClass + '"></div>'
     );
 
-    $('#' + eventId).css('left', (time / statsManager.barF) + 'px');
+    var startTime = replayData.snapshots[0].time;
+    var endTime = replayData.snapshots[replayData.snapshots.length-1].time;
+    var totalTime = endTime - startTime;
+    var barLength = $('#time').width();
+    var timeFraction =  (time-startTime)/totalTime;
+    var eventTimeLoc = timeFraction * 100;
+
+    $('#' + eventId).css('left', 'calc(' + eventTimeLoc + '% - 7px)');
   };
 
   var buildingManager = {
@@ -663,7 +697,11 @@ var endTime = 0;
           var layerName = team + '-' + j + '-' + 'barracks';
           this.addBuilding(pos.x, pos.y, team, true, team + '-buildings', layerName);
           $map.setLayer(layerName, {
+            mouseover: mapManager.handleHoverOn,
+            mouseout: mapManager.handleHoverOff,
             data: {
+              heroName: 'Barracks',
+              imgName: 'tower_'+team,
               deadTime: 10000
             }
           });
@@ -678,7 +716,11 @@ var endTime = 0;
           var layerName = team + '-' + j + '-' + 'tower';
           this.addBuilding(pos.x, pos.y, team, false, team + '-buildings', layerName);
           $map.setLayer(layerName, {
+            mouseover: mapManager.handleHoverOn,
+            mouseout: mapManager.handleHoverOff,
             data: {
+              heroName: 'Tower',
+              imgName: 'tower_'+team,
               deadTime: 10000
             }
           });
@@ -696,11 +738,7 @@ var endTime = 0;
         addEvent(true, eventId, eventClass, event.time);
 
         var layerName = team + '-' + event.towerIndex + '-' + type;
-        $map.setLayer(layerName, {
-          data: {
-            deadTime: event.time
-          }
-        });
+        $map.getLayer(layerName).data.deadTime = event.time;
       }
     },
 
@@ -740,7 +778,6 @@ var endTime = 0;
   var statsManager = {
     biggestVal: 0,
     runTime: 0,
-    barF: 0,
 
     setMaxStats: function(stats) {
       var maxGold = Math.max(stats[0].netWorth, stats[1].netWorth);
@@ -842,9 +879,8 @@ var endTime = 0;
     // Main setup code
     var snapshots = replayData.snapshots;
 
-    statsManager.runTime = snapshots[snapshots.length - 1].time;
-    statsManager.barF = statsManager.runTime / $('#time-container').width();
-    endTime = Math.ceil(snapshots[snapshots.length - 1].time / 60);
+    statsManager.runTime = snapshots[snapshots.length - 1].time - snapshots[0].time;
+    endTime = Math.ceil(statsManager.runTime / 60);
 
     var $presence = $('#presence');
     var presenceImg = $presence.find('img');
