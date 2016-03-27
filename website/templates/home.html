@@ -38,15 +38,15 @@
 			</p>
 			<p>
 			In a DotA 2 game, two teams of 5 players, the Dire and the Radiant, attempt to destroy the other's Ancient.
-			Ancients are team strongholds located at opposite corners of the game map. When a team destroys its opposing team's
-			Ancient, the game is over and the former is declared the winner. Each player contains a single character on a team.
+			Ancients are team strongholds located at opposite corners of the game map. The game is won by the team that destroys the opposing
+			Ancient first.Each player controls a single character on a team.
 			These characters, or heroes, have different roles and characteristics. Some heroes favour an aggressive
 			playstyle, others aim to heal or aid their teammates. Throughout the course of a game, players earn gold and experience
-			by killing enemy heroes and 'creeps' (computer-controlled enemies not affiliated with either team). An example of a
+			by killing enemy heroes and 'creeps' (computer-controlled enemies that come in both neutral and team associated varieties). An particularly
 			powerful creep is Roshan, who bestows a large bonus on the team who defeats him. With gold, players
 			buy items that improve their hero's performance. Player objectives also include destroying towers (watchtowers that
-			protect a team's base). To hide their location, or reveal the location of enemy heroes, players may deploy Wards
-			or smoke.
+			protect a team's base). To hide their location, or reveal the location of enemy heroes, players may deploy smoke
+			or wards respectively.
 			</p>
 			<div id="sub-sub-header">Why did we choose Dota 2?</div>
 			<p>
@@ -82,7 +82,7 @@
 			</figure>
 			<figure>
 				<img src="/static/img/lol_graphs.jpg" alt="Lol" >
-				<figcaption>The DotA 2 Game Map</figcaption>
+				<figcaption>LoL match breakdown Visualization</figcaption>
 			</figure>
 			<p>
 				While these visualizations are on the whole informative and useful, they are nevertheless homogenous. Moreover, the
@@ -256,10 +256,11 @@
 			<p>
 			
 				The left side of the page featured two boxes: one containing a toggle-able set of dimensions to show on our main
-				information source, the game minimap. These dimensions included e.g. Roshan. Below this box was one showing the two
+				information source, the game minimap. For example, the player could chose whether they wanted to show Roshan's presence on the map using these toggles. Below this box was one showing the two
 				teams' map control in percentage at that instant of the game. At the center of our design was a replica of DotA 2's
 				minimap, which displayed any of the toggled dimensions. The minimap was able to be switched between displaying
-				teams' map control, players' movements/routes on the map and a heatmap. To the right of this minimap was a box
+				teams' map control (a moment in time view), players' movements/routes on the map (a window in time view) and a heatmap. To the top right of this minimap was a "toggle paths"
+				radio button that would allow the player to switch between map control mode or player movement modes. Below it was a box
 				containing the selected player's Hero name and the items that player was using at that instant of a game. If a player
 				was unselected, these fields would revert to an empty default item list and the DotA 2 logo in place of the Hero's 
 				character icon. Finally, at the bottom of the page were two boxes containing each team's number of deaths, total
