@@ -289,6 +289,12 @@ public class Reparser
                 i -= 1;
                 continue;
             }
+            boolean waitingToSpawn = creep.getProperty("m_bIsWaitingToSpawn");
+            if(waitingToSpawn)
+            {
+                continue;
+            }
+
             int cellX = creep.getProperty("CBodyComponent.m_cellX");
             int cellY = creep.getProperty("CBodyComponent.m_cellY");
             float subCellX = creep.getProperty("CBodyComponent.m_vecX");
