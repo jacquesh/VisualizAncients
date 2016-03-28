@@ -123,6 +123,14 @@ var endTime = 0;
         if (mapManager.selectedHero) {
           var old = $map.getLayer(mapManager.selectedHero);
           old.fillStyle = old.data.color;
+
+          var team = old.name[0] === 'r' ? 'radiant' : 'dire';
+          var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
+
+          $map.setLayer(layerName, {
+            source: '/static/img/icons/' + team + '_death.png'
+          });
+
           mapManager.selectedHero = '';
           mapManager.resetPlayerInfoPanel();
         }
@@ -150,8 +158,18 @@ var endTime = 0;
 
             if (mapManager.selectedHero) {
               var old = $map.getLayer(mapManager.selectedHero);
-              old.fillStyle = old.data.color;
+              if (old.data.alive) {
+                old.fillStyle = old.data.color;
+              } else {
+                var team = old.name[0] === 'r' ? 'radiant' : 'dire';
+                var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
+
+                $map.setLayer(layerName, {
+                  source: '/static/img/icons/' + team + '_death.png'
+                });
+              }
             }
+
             mapManager.selectedHero = layer.name;
             layer.fillStyle = '#FFFF00';
             mapManager.updateSelected();
@@ -172,6 +190,32 @@ var endTime = 0;
         $map.setLayer(deathName, {
           mouseover: this.handleHoverOn,
           mouseout: this.handleHoverOff,
+          click: function(layer) {
+            layer.event.stopPropagation();
+
+            if (mapManager.selectedHero) {
+              var old = $map.getLayer(mapManager.selectedHero);
+              if (old.data.alive) {
+                old.fillStyle = old.data.color;
+              } else {
+                var team = old.name[0] === 'r' ? 'radiant' : 'dire';
+                var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
+
+                $map.setLayer(layerName, {
+                  source: '/static/img/icons/' + team + '_death.png'
+                });
+              }
+            }
+
+            var heroName = layer.name.replace('-dead', '');
+            mapManager.selectedHero = heroName;
+
+            $map.setLayer(heroName, {fillStyle: '#FFFF00'});
+            $map.setLayer(layer, {source: '/static/img/icons/selected_death.png'});
+
+            mapManager.updateSelected();
+            $map.drawLayer(layer);
+          },
           visible: false,
           data: {
             entityName: heroNameMap[playerHeroes[i]],
@@ -273,11 +317,18 @@ var endTime = 0;
             data: layer.data
           });
 
-          $map.setLayer(layerId + '-dead', {
+          var selectedDead = '/static/img/icons/selected_death.png';
+          var opts = {
             x: this.getX(hero.x), y: this.getY(hero.y),
             visible: true,
             data: layer.data
-          });
+          };
+
+          if (layer.name === mapManager.selectedHero) {
+            opts.source = selectedDead;
+          }
+
+          $map.setLayer(layerId + '-dead', opts);
         }
         if (this.deathsHidden) {
           $map.setLayer(layerId + '-dead', {visible: false});
@@ -408,15 +459,20 @@ var endTime = 0;
 
     drawMapIcon: function(x, y, scale, path, group, name) {
       group = group === undefined ? 'icons' : group;
-
-      $map.drawImage({
+      var opts = {
         layer: true,
         name: name,
         groups: [group],
         source: path,
         x: this.getX(x), y: this.getY(y),
         scale: scale
-      });
+      };
+
+      if (name.endsWith('-dead')) {
+        opts.cursors = cursorSettings
+      }
+
+      $map.drawImage(opts);
     },
 
     resetMap: function() {
