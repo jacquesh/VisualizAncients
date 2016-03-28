@@ -64,6 +64,7 @@ public class Reparser
     private Entity dataSpectator;
     private Entity[] teamEntities;
     private StringTable entityNames;
+    private Entity[] tier4Towers;
 
     private Rune topRune;
     private Rune botRune;
@@ -97,6 +98,7 @@ public class Reparser
         playerResource = null;
         dataSpectator = null;
         teamEntities = new Entity[2];
+        tier4Towers = new Entity[]{null, null, null, null};
 
         topRune = new Rune();
         topRune.entityHandle = NULL_HANDLE;
@@ -421,6 +423,19 @@ public class Reparser
             else if(teamNumber == 3)
                 teamEntities[1] = ent;
         }
+        else if(className.equals("CDOTA_BaseNPC_Tower"))
+        {
+            int cellX = ent.getProperty("CBodyComponent.m_cellX");
+            int cellY = ent.getProperty("CBodyComponent.m_cellY");
+            if((cellX == 82) && (cellY == 88)) // Radiant Top T4
+                tier4Towers[0] = ent;
+            else if((cellX == 84) && (cellY == 86)) // Radiant Bot T4
+                tier4Towers[1] = ent;
+            else if((cellX == 166) && (cellY == 164)) // Dire Top T4
+                tier4Towers[2] = ent;
+            else if((cellX == 168) && (cellY == 162)) // Dire Bot T4
+                tier4Towers[3] = ent;
+        }
         else if(className.startsWith("CDOTA_Unit_Hero"))
         {
             if(firstHeroSpawnTick == 0)
@@ -597,10 +612,28 @@ public class Reparser
 
                     else if(deadName.equals("tower4"))
                     {
-                        // TODO: HOW DO WE DIFFERENTIATE BETWEEN EACH OF THESE TWO?
-                        // We're gonna have to just store all 4 of these and then each time one dies, check which one is now not alive any more and make it that one
-                        evt.towerIndex = 9;
-                        evt.towerIndex = 10;
+                        evt.towerIndex = -1;
+                        for(int i=0; i<2; i++)
+                        {
+                            int towerIndex = (2*evt.teamIndex) + i;
+                            if(tier4Towers[towerIndex] != null)
+                            {
+                                int lifeState = tier4Towers[towerIndex].getProperty("m_lifeState");
+                                if(lifeState != 0)
+                                {
+                                    // All tower lists are arranged [top,bot], so index 9 is the top t4
+                                    // and because our t4Towers list has the same arrangement we can just
+                                    // use the index into that to get our tower index
+                                    tier4Towers[towerIndex] = null;
+                                    evt.towerIndex = 9+i;
+                                    break;
+                                }
+                            }
+                        }
+                        if(evt.towerIndex == -1)
+                        {
+                            System.out.println("ERROR: Unrecognized Tier 4 tower death");
+                        }
                     }
                 }
                 towerDeaths.add(evt);
