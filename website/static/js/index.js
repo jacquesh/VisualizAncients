@@ -631,9 +631,9 @@ var endTime = 0;
     var totalTime = endTime - startTime;
     var barLength = $('#time').width();
     var timeFraction =  (time-startTime)/totalTime;
-    var eventTimeLoc = timeFraction * barLength;
+    var eventTimeLoc = timeFraction * 100;
 
-    $('#' + eventId).css('left', eventTimeLoc + 'px');
+    $('#' + eventId).css('left', 'calc(' + eventTimeLoc + '% - 7px)');
   };
 
   var buildingManager = {
