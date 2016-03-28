@@ -53,10 +53,10 @@
 			<p>
 			Aside from Alan, our team are regular players of DotA 2. Given the game's massive playerbase and thriving competitive
 			scene, there exists a wealth of data on tournament games as well as casual games. Players are able to download replays
-			of past games, and if able, can analyse and scrutinise their play at every second of a match.The team was keen to use a
+			of past games and, given sufficient experience, can analyse and scrutinise their play at every second of a match. The team was keen to use a
 			visualization to succinctly and effectively glean overall trends in game events through aggregating many games. Though 
 			this data can be extracted without the use of a visualization, it was hoped that a successful visualization could not only
-			give the team insights into their game and DotA 2 games in general, but would allow the team to infer good strategies
+			give the team insights into their game and DotA 2 games in general, but would allow the team to infer effective strategies
 			and ultimately improve their play. 
 			
 			While DotA 2 visualizations exist, the overwhelming majority thereof are combat-focused. However, there are almost no visualizations that
@@ -99,7 +99,7 @@
 			<div id="sub-sub-header">MOBA Location Visualizations</div>
 			<p>
 				Current MOBA location visualizations “provide no meaningful statistics to an individual and show too little
-				information”. While not many exist, most of the MOBA visualizations that focus on locational data use are heatmaps
+				information”. While not many exist, most of the MOBA visualizations that focus on locational data use, are heatmaps
 				superimposed onto the MOBA's game map. Though heatmaps provide useful information, namely popular areas on 
 				the game's map, there is often insufficient chromatic contrast between the map and the heatmap. The colour
 				palette used for the heatmaps is the traditional green-to-red scale, which blends into the largely green background
@@ -135,7 +135,8 @@
 				theme and helps the viewer identify it as basketball-related. The luminance contrast is also very effective. The team 
 				viewed this visualization as an example of a highly effective location visualization, and we emulated aspects of its
 				design, such as luminance contrast.
-				
+				</p>
+			<p>				
 				A visualization of the final plays during the fourth quarter of the 2010 NFL Superbowl was one of the few location-based
 				visualizations that displayed a feature our team wished to display in our visualization: player movements/routes throughout
 				the game. While the Superbowl graphic uses an unsuccessful color scale, intuitively one who is familiar with the game
@@ -176,8 +177,8 @@
 					<li>Uses of smoke</li>
 			</ul>
 			<p>	
-				By viewing the positional and locational data as displayed in our visualization, the team felt this would allow
-				the viewer to learn the common routes of players during a game, common combat zones and popular sites for placement
+				By viewing the positional and locational data as displayed in our visualization, the team felt 
+				the viewer would be able to learn the common routes of players during a game, common combat zones and popular sites for placement
 				of wards and smoke. Players of DotA 2 (such as members of our team) would be able to not only better understand
 				the game, but their individual and team playstyle as well. This would allow them to improve their game and observe
 				the pitfalls and successes of popular strategies.
@@ -212,7 +213,7 @@
 			<ul>
 				<li>Where are all players at any point in the game?</li>
 				<li>Is a player dead or alive?</li>
-				<li>What hero is being played by a specific player?</li>
+				<li>What hero does a specific player icon represent?</li>
 				<li>What items does a specific player own at any point in the game?</li>
 				<li>Where have all players been running in a defined time window?</li>
 				<li>When and what events have happened at certain points in the game?</li>
@@ -250,7 +251,7 @@
 				Our first design was a webpage with two pages. The first and main page consisted of a time slider
 				representing the related DotA 2 game. The slider featured circles representing events at a particular moment of
 				the game, such as a player death. Below the slider we placed a collection of small bar graphs, corresponding to
-				miniature versions of the four graphs on our Graphs page: Roshan Kills, Wards, Player Kills and Teleports. The
+				miniature versions of the four graphs on our graph page: Roshan Kills, Wards, Player Kills and Teleports. The
 				graphs were contained in a thin rectangle, and were displayed one-by-one using a toggle.
 				
 			</p>
@@ -264,7 +265,7 @@
 				radio button that would allow the player to switch between map control mode or player movement modes. Below it was a box
 				containing the selected player's Hero name and the items that player was using at that instant of a game. If a player
 				was unselected, these fields would revert to an empty default item list and the DotA 2 logo in place of the Hero's 
-				character icon. Finally, at the bottom of the page were two boxes containing each team's number of deaths, total
+				character icon. (Players are selected by hovering the mouse over their icon or path on the minimap.) Finally, at the bottom of the page were two boxes containing each team's number of deaths, total
 				experience points and gold earned at that instant of the game.
 				</p>
 			<p>
@@ -305,7 +306,7 @@
 			<p>
 				The second design modification was making the icons more visible, while avoiding losing their meanings
 				 or causing the visualization to become too "busy". Changing the map had already helped us make progress in
-				  this regard, as having a less-busy background meant that the overall "busyness" of our visualization was 
+				  this regard, as having a less-busy background meant that the overall "busy-ness" of our visualization was 
 				  reduced. Moreover, this design modification made the icons in our visualization stand out more. In addition
 				   to this we changed the art assets for some of the icons to more closely resemble how they would be displayed 
 				   in an actual DotA 2 match. We updated the tower icons specifically to utilise depth as well to make them stand
@@ -314,11 +315,11 @@
 				
 			<p>
 				While working on our second version of the design, we also started creating the interactive interface that would
-				 constitute our final design. During this process we made some changes due to design issues that became apparent.
-				  The majority of these were related to the graph page, which was quickly redesigned to be a popup in the main 
-				  window rather than an entirely separate page. We also changed the background colour of the popup so that it 
-				  would be visually distinct from the main page. Other changes included editing what types of aggregate data we
-				   were showing and adding icons to the team gold and XP bars.
+				constitute our final design. During this process we made some changes due to design issues that became apparent
+				in the interactive version.The majority of these were related to the graph page, which was quickly redesigned to
+				be a popup in the main window rather than an entirely separate page. We also changed the background colour of the
+				popup so that it would be visually distinct from the main page. Other changes included editing what types of
+				aggregate data we were showing and adding icons to the team gold and XP bars.
 				We decided to remove the graph of teleports, as the DotA 2-playing members of the team felt this information 
 				was not of sufficient importance to DotA 2 players.
 				</p>
@@ -344,12 +345,14 @@
 				dimensions in a single graphic. This allows for many visual queries to be answered efficiently and quickly. This 
 				is in line with our goal of providing as much data to users of our interface as possible in order to give them 
 				context for possible high-level queries relating to their gameplay. Our design also allows users to view the
-				data at multiple levels including an overview. An example of this is our popup graphs. We are also very pleased with our simplified
-				 game map as well as how clean we managed to keep the visualization overall despite the large amounts of data 
-				 showed. We achieved this by using an effective variety of small icons, as well as giving the user flexibility.
-				  Users are able to filter out any dimensions/data that they feel is not necessary for their current purpose. 
-				  We also use symbols and textures effectively to differentiate between essential visual elements, such as the
-				   player paths. These visual elements are also all divergent on more than one feature channel (e.g. colour and
+				data at multiple levels of detail starting from an overview and then allowing the user to filter information
+				as desired. For example if the player notices certain trends in their own game they can quickly query this
+				against aggregated data accessed via the graphs pop-up. We are also very pleased with our simplified
+				game map as well as how clean we managed to keep the visualization overall despite the large amounts of data 
+				showed. We achieved this by using an effective variety of small icons, as well as giving the user flexibility.
+				Users are able to filter out any dimensions/data that they feel are not necessary for their current purpose. 
+				We also use symbols and textures effectively to differentiate between essential visual elements, such as the
+				player paths. These visual elements are also all divergent on more than one feature channel (e.g. colour and
 				   shape).
 				</p>
 				
@@ -369,7 +372,7 @@
 				 time it takes to load a game for analysis. This loading is a fairly lengthy process as it requires us to decompress
 				 a large amount of data into JSON. Given that we are trying to display large amounts of data for every "tick" of
 				  gameplay this is largely inevitable. However, we have endeavoured to optimise this process as much as possible.
-				   Although the user may need to wait to start using the visualization, she only needs to wait around 30 seconds.
+				   Although the user may need to wait to start using the visualization, they only needs to wait around 30 seconds.
 				</p>
 			<p>
 				Another more visual issue we encountered was the tendency of events displayed in the timeline slider to occlude one
@@ -384,20 +387,20 @@
 			<p>
 				We believe that we have effectively achieved our original goal of creating a way for players to analyse their 
 				positional and other non-combat match data in a easy and meaningful way. While there remains room 
-				for improvement, we are pleased with the product we have produced in spite some difficulties in creating the interactive
+				for improvement, we are pleased with the product we have produced in spite of some difficulties in creating the interactive
 				 interface. Since our original design was well-received and we had mostly positive feedback, we have been
 				  somewhat conservative with our changes as we did not want to lose that initial effectiveness. This success was 
 				  mostly due to our analysis of related works. This analysis allowed us to identify common pitfalls in related
 				  visualizations, as well as effective techniques and design choices. However, 
 				  we have incorporated changes to address the weaknesses of our first design that were highlighted. We believe we
 				  have effectively solved the majority of these issues. Consequently, we have been able to devote most of our attention to building 
-				  the interactive version. This was fortunate, as we faced some unexpected difficulties on that front. perhaps the greatest
+				  the interactive version. This was fortunate, as we faced some unexpected difficulties on that front. Perhaps the greatest
 				  difficulty was obtaining data via the Steam API, which was trickier than we had hoped due to the way in which the API is designed and
 				   the format in which the data was stored. Another issue we faced was the sheer size of the data. This meant 
 				   that we needed to devote more time to optimizing performance than we had bargained for.
 				</p>
 			<p>
-				We are pleased with or final product and feel that it would be useful for a wide scope of people involved with
+				We are pleased with our final product and feel that it would be useful for a wide scope of people involved with
 				DotA 2. From beginners looking to emulate their more experienced peers to professionals looking to take advantage 
 				of current trends or to optimise their personal or team gameplay, our tool is useful for players of all skill levels.
 				Additionally, our tool could potentially be used by match commentators at DotA 2 tournaments as an aid to post-game
