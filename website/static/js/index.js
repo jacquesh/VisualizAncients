@@ -24,6 +24,7 @@ var endTime = 0;
     radiantLinesHidden: false,
     direLinesHidden: false,
     selectedHero: '',
+    hoverHero: '',
 
     getX: function(data_x) {
       return (data_x - 64) * this.scalef;
@@ -69,6 +70,7 @@ var endTime = 0;
         if (!layer.data.alive) {
           $('#entity-dead').css('opacity', 1.0);
         }
+        mapManager.hoverHero = layer.name;
       } else {
         $('#status-bar').css('opacity', 0);
         $items.css("visibility", "hidden");
@@ -88,6 +90,7 @@ var endTime = 0;
     },
 
     handleHoverOff: function(layer) {
+      mapManager.hoverHero = '';
       if (mapManager.selectedHero !== layer.name) {
         $('#entity-name').addClass('hidden-text');
         mapManager.resetPlayerInfoPanel();
@@ -968,6 +971,10 @@ var endTime = 0;
     wardManager.updateWards(snapshot.time);
     buildingManager.updateBuildings(snapshot.time);
     mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
+
+    if ($('#items').find('img').is(':visible')) {
+      mapManager.handleHoverOn($map.getLayer(mapManager.hoverHero));
+    }
 
     statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
     statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
