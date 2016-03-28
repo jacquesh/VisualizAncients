@@ -12,9 +12,10 @@
 <body>
 	<header>
 		<h1>VisualizAncients - a DotA 2 visualization</h1>
-	</header>
+	</header>	
 	<div id="contents-bar">
 		<ul>
+			<li><a href="/" >Our visualization</a></li>
 			<li><a href="#intro" class="active">Introduction</a></li>
 			<li><a href="#other-work" class="active">Related Work</a></li>
 			<li><a href="#concept" class="active">Concept</a></li>
@@ -22,7 +23,7 @@
 			<li><a href="#iterations" class="active">Design Iterations</a></li>
 			<li><a href="#strengths-weaknesses" class="active">Strengths and Weaknesses</a></li>
 			<li><a href="#conclusion" class="active">Conclusion</a></li>
-			<li><a href="#teamwork" class="active">Team Roles</a></li>
+			<li><a href="#teamwork" class="active">The Team</a></li>
 		</ul>
 	</div>
 	<div id="content">
@@ -289,17 +290,37 @@
 			</figure>
 			<div id="sub-sub-header">Feedback and Changes</div>
 			<p>
-				The feedback from our initial design shown above was mostly positive, however two criticisms that came up were that our background image was too detailed and textured resulting in it distracting the user from the data being displayed and that some of our icons were difficult to see due to their size and colour scheme.
+				The feedback from our initial design shown above was mostly positive. However, our background image was too
+				 detailed and textured, which was found to distract the viewer from the data being displayed. Some of our icons
+				  were difficult to see due to their size and colour scheme.
 			</p>
 			<p>
-				Our first change, therefore, was to find a simplified map to use as the background. We had some fairly strict requirements for this as it was necessary to still have all map details relevant to positioning easily visible while having the minimum of texture and colour detail. Luckily we found exactly what we needed, a map with all the pathing details (i.e. walkable and unwalkable areas) that used very little texture and a grayscale colour scheme. This new map is shown in the second version design displayed below.
+				Our first design modification was the identification a more simplified map to use as the background. We had 
+				some fairly strict requirements for this. It was necessary to still have all map details relevant to positioning
+				easily visible. Additionally, the map needed a minimum of texture and colour detail and it was essential that 
+				the map be famailiar to DotA 2 players as a representation od the DotA 2 game map. Fortunately, we found a map
+				 with all the pathing details (i.e. walkable and unwalkable areas) that used very little texture and a grayscale
+				 colour scheme. This new map is shown in the second version design displayed below.
 			</p>
 			<p>
-				The second change we needed to make was to make the icons more visible while avoiding losing their meanings or causing the visualization to become too "busy". Changing the map had already helped us make progress in this direction as having a less busy background meant that the overall "business" of our visualization was reduced as well as making the icons stand out more. In addition to this we changed the art assets for some of the icons to more closely resemble how they would be displayed in an actual Dota 2 match. We updated the tower icons specifically to utilise depth as well to make them stand out more. We also increased the size of the player icons slightly to emphasize their importance.
+				The second design modification was making the icons more visible, while avoiding losing their meanings
+				 or causing the visualization to become too "busy". Changing the map had already helped us make progress in
+				  this regard, as having a less-busy background meant that the overall "busyness" of our visualization was 
+				  reduced. Moreover, this design modification made the icons in our visualization stand out more. In addition
+				   to this we changed the art assets for some of the icons to more closely resemble how they would be displayed 
+				   in an actual DotA 2 match. We updated the tower icons specifically to utilise depth as well to make them stand
+				    out more. We also increased the size of the player icons slightly to emphasize their importance.
 				</p>
 				
 			<p>
-				While we working on our second version of the design we also started creating the interactive interface that would make our final design. During this we made some changes to design issues that became apparent in the process. The majority of these were related to the graph page which was quickly redesigned to be a pop up in the main window rather than an entirely separate page. We also changed the background colour of this page so that it would be visually distinctive from the main visualization. Other changes included editing what types of aggregate data we were showing and adding icons to the team gold and xp bars.
+				While working on our second version of the design, we also started creating the interactive interface that would
+				 constitute our final design. During this process we made some changes due to design issues that became apparent.
+				  The majority of these were related to the graph page, which was quickly redesigned to be a popup in the main 
+				  window rather than an entirely separate page. We also changed the background colour of the popup so that it 
+				  would be visually distinct from the main page. Other changes included editing what types of aggregate data we
+				   were showing and adding icons to the team gold and XP bars.
+				We decided to remove the graph of teleports, as the DotA 2-playing members of the team felt this information 
+				was not of sufficient importance to DotA 2 players.
 				</p>
 			<div id="sub-sub-header">Our second design</div>
 			<figure>
@@ -319,34 +340,124 @@
 			<div id="sub-header">Strengths and Weaknesses</div>
 			<div id="sub-sub-header">Strengths</div>
 			<p>
-				We felt that our final design was strong in number of areas, particularly with the view that we managed to show a very large number of data dimensions in a single graphic allowing for many visual queries to be answered efficiently and quickly. This is in line with our goal of providing as much data to users of our interface as possible in order to give them context for possible high level queries relating to their gameplay. We were also very pleased with our simplified game map as well as how clean we managed to keep the visualization overall despite the large amounts of data we were showing. We managed this by using an effective variety of small icons as well as giving the user a lot of flexibility to filter out any data that they feel is not necessary for the current purpose. We also used symbols and textures effectively to differentiate between essential visual elements, for example: the player's paths.
+				We feel that our final design is strong in number of areas. We manage to show a very large number of data 
+				dimensions in a single graphic. This allows for many visual queries to be answered efficiently and quickly. This 
+				is in line with our goal of providing as much data to users of our interface as possible in order to give them 
+				context for possible high-level queries relating to their gameplay. Our design also allows users to view the
+				data at multiple levels including an overview. An example of this is our popup graphs. We are also very pleased with our simplified
+				 game map as well as how clean we managed to keep the visualization overall despite the large amounts of data 
+				 showed. We achieved this by using an effective variety of small icons, as well as giving the user flexibility.
+				  Users are able to filter out any dimensions/data that they feel is not necessary for their current purpose. 
+				  We also use symbols and textures effectively to differentiate between essential visual elements, such as the
+				   player paths. These visual elements are also all divergent on more than one feature channel (e.g. colour and
+				   shape).
 				</p>
 				
 			<p>
-				We also thought that the ability to integrate the heatmaps indicating general trends from a large number of archived games with the game the player was currently inspecting was a very useful feature. This is particularly useful for players trying to improve their own gameplay by comparing their in-game behaviour to that commonly found in pro matches as well as players trying to come up with specific strategies to take advantage of these trends. We also put a lot of effort into making our visualization interactive and usable, our team members who are regular Dota 2 players in fact intend to use it for their personal benefit in the future so we were invested in creating the most practically useful and complete product we could.
+				We also believe that the ability to integrate the heatmaps indicating general trends from a large number of archived 
+				games with the particular game the viewer is currently inspecting is very useful. This is particularly useful for
+				 players trying to improve their game by comparing their in-game behaviour to that commonly found in professional 
+				 matches. Furthermore, it aids viewers in trying to come up with specific strategies to take advantage of these trends. 
+				 We put a lot of effort into making our visualization interactive and usable, as the team is emotionally invested
+				 in the game. Our team members who are regular DotA 2 players fully intended to use our design for their personal benefit 
+				 in the future. Consequently, the team was invested in creating the not only the best design we could, but the most
+				 practically useful and complete product we could create.
 				</p>
 			<div id="sub-sub-header">Weaknesses</div>
 			<p>
-				Unfortunately no design is perfect and ours is no exception. One of our biggest issues from our interactive version is that the time it takes to load a game to analyse it is quite large as it requires us to decompress a large amount of data into .json format. Given that we are trying to display large amounts of data for every "tick" of gameplay this is, to a large extent, un-avoidable. However, we have, to a practical degree, tried to optimise this process as much as possible so although the user may have to wait a little to start using the visualization it isn't an impractical amount of time (Around 30 seconds).
+				Unfortunately, our design is not perfect. Arguably the biggest issue that arises from our interactive version is the
+				 time it takes to load a game for analysis. This loading is a fairly lengthy process as it requires us to decompress
+				 a large amount of data into JSON. Given that we are trying to display large amounts of data for every "tick" of
+				  gameplay this is largely inevitable. However, we have endeavoured to optimise this process as much as possible.
+				   Although the user may need to wait to start using the visualization, she only needs to wait around 30 seconds.
 				</p>
 			<p>
-				Another, more visual, issue we encountered was the tendency of events displayed in the timeline slider to occlude one another. This is a natural effect of events tending to naturally clump together when one team builds up some short term momentum and accomplishes many objectives in short succession. To combat this issue we decided to use colour coded bars and a key to indicate these events instead of icons as well as alternating event indicators above and below the timeline, unfortunately this is not always sufficient.
+				Another more visual issue we encountered was the tendency of events displayed in the timeline slider to occlude one
+				another. This is a natural effect of events tending to naturally clump together when one team builds up some short-term
+				momentum and accomplishes many objectives in short succession. To combat this issue, we decided to use colour-coded
+				bars and a key to indicate these events, instead of icons as well as alternating event indicators above and below the
+				timeline. The timeline slider event occlusion problem persists, though is significantly reduced.
 				</p>
 		</div>
 		<div class="segment" id="conclusion">
 			<div id="sub-header">Conclusion</div>
 			<p>
-				We believe that we have effectively achieved our original goal of creating a way for players to analyse their positional and other non-combat match data in a easy and meaningful way. While there is obviously still room for improvement we are pleased with product we have produced despite some difficulties in creating the interactive interface. Since our original design was in itself well received and had mostly positive feedback we have been somewhat conservative with our changes as we didn't want to lose that initial effectiveness. This success was mostly due to our analysis of related works where we were fortunate to find many relevant examples. We have, however, incorporated changes to address the weaknesses that were mentioned and believe we have effectively solved the majority of these issues. Due to this we have been able to devote most of our attention to building the interactive version which was fortunate as we faced some unexpected difficulties on that front; particularly getting data via the steam API was trickier than we had hoped due to the way in which that API is designed and the format in which the data was stored. Another issue we faced was the sheer size of the data which meant that we needed to devote more time to optimizing performance than we had bargained for.
+				We believe that we have effectively achieved our original goal of creating a way for players to analyse their 
+				positional and other non-combat match data in a easy and meaningful way. While there remains room 
+				for improvement, we are pleased with the product we have produced in spite some difficulties in creating the interactive
+				 interface. Since our original design was well-received and we had mostly positive feedback, we have been
+				  somewhat conservative with our changes as we did not want to lose that initial effectiveness. This success was 
+				  mostly due to our analysis of related works. This analysis allowed us to identify common pitfalls in related
+				  visualizations, as well as effective techniques and design choices. However, 
+				  we have incorporated changes to address the weaknesses of our first design that were highlighted. We believe we
+				  have effectively solved the majority of these issues. Consequently, we have been able to devote most of our attention to building 
+				  the interactive version. This was fortunate, as we faced some unexpected difficulties on that front. perhaps the greatest
+				  difficulty was obtaining data via the Steam API, which was trickier than we had hoped due to the way in which the API is designed and
+				   the format in which the data was stored. Another issue we faced was the sheer size of the data. This meant 
+				   that we needed to devote more time to optimizing performance than we had bargained for.
 				</p>
 			<p>
-				We are pleased with or final product and feel that it would be useful for a wide scope of people involved with Dota 2. From beginners looking to emulate their more experienced peers to professionals looking to take advantage of current trends or to optimise their personal or team gameplay there is a use for all skill levels of players for our tool. Additionally it could potentially be used by match presenters at Dota 2 tournaments as an aid to post game analysis. This opportunity is particularly interesting as it mirrors the recent trend of sports commentators to use interactive visualization tools in similar scenarios as well as providing an opportunity for including new options to VisualizAncients as the need arises.
+				We are pleased with or final product and feel that it would be useful for a wide scope of people involved with
+				DotA 2. From beginners looking to emulate their more experienced peers to professionals looking to take advantage 
+				of current trends or to optimise their personal or team gameplay, our tool is useful for players of all skill levels.
+				Additionally, our tool could potentially be used by match commentators at DotA 2 tournaments as an aid to post-game
+				analysis. This opportunity is particularly interesting as it mirrors the recent trend of sports commentators to use
+				interactive visualization tools in similar scenarios. This would also provide an opportunity for including new
+				options to VisualizAncients as the need arises.
 				</p>
 			<p>
-				We believe that VisualizAncients could be improved in several ways in the future. The most obvious optimization that will take both time and extensive real world testing is the "map presence" algorithm, currently a relatively simple collection of weighted averages based on team associated objects near any point as this feature is used both it's strengths and weaknesses will become apparent and it can be updated to take advantage of this feedback. Other than this other areas for improvement include additional optimization of how the data is stored and processed to decrease loading times to a minimum, creating a way to keep the games used to provide aggregated data update so that new trends are shown as they become relevant and adding new features that users feel are necessary. However, it would be important to maintain the simplicity of the current visualaization, particularly when adding completely new features, in order to keep the usability and clarity of our current design.
+				We believe that VisualizAncients could be improved in several ways in the future. The most obvious optimization
+				that will take both time and extensive real-world testing is the "map presence" algorithm. This is currently a
+				 relatively simple collection of weighted averages based on team-associated objects near any point. As this
+				  feature is used both its strengths and weaknesses will become apparent, and it can be updated to take
+				   advantage of this feedback. Other areas for improvement include additional data storage and data processing optimization
+				   to decrease loading times to a minimum. This will create a way to keep the games used to provide aggregated data
+				   updated, so that new trends may be shown as they become relevant. However, it would be important to maintain the simplicity
+				    of the current visualization, particularly when adding completely new features, so as to maintain the usability and clarity
+				     of our current design.
 				</p>
 		</div>
 		<div class="segment" id="teamwork">
-		</div>
+			<div id="sub-header">The Team</div>
+			<div id="sub-sub-header">Team Dynamics</div>
+			<p>
+				The team worked well together. Aspects of the design, implementation and presentations were delegated amongst members,
+				allowing for parallelized development of the implemented design. As tasks were compartmentalised and distributed,
+				any roadblocks or problems that faced individual team members did not hinder the team as a whole. Communication amongst
+				members was both free and frequent. An example of such communication was the discussion on the separate graphs page.
+				After a team discussion, the team collectively decided to instead display the graphs as a popup. This improved our
+				design, which was iteratively changed by contributions and feedback from all members of the team. 
+			</p>
+			<div id="sub-sub-header">Team Member Contributions</div>
+			<p>
+				<ul>
+					<li>Jethro Muller:<br>
+						Implementation<br>
+						Design and refinement of the main page (both iterations)</li><br><br>
+					<li>Jacques Heunis:<br>
+						Data extraction, compression and management<br> 
+						Visual query identification<br>
+						Implementation<br>
+						General design</li><br><br>
+					<li>Alan Berman:<br>
+						Background research [related work]<br>
+						General graph implementation<br>
+						Write up
+					</li><br><br>
+					<li>Timothy Gwynn:<br>
+						Visualization mock-up<br>
+						Design<br>
+						Write up</li>
+				</ul>
+			</p>
+		</div>	
 	</div>
+	<!--	<div style="clear:both;"></div>
+	<div id="footer">
+		VisualizAncients - a DotA 2 visualization<br>
+		Alan Berman | Timothy Gwynn | Jacques Heunis | Jethro Muller
+	</div>	-->
 </body>
+
+		
 </html>
