@@ -146,8 +146,8 @@ header > hr {
 
 #change-graph-box > .arrow {
     width: 25%;
-    margin-left:auto;
-    margin-right:auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #change-graph-box > #graph-label {
@@ -210,7 +210,7 @@ header > hr {
 }
 
 .hug-right {
-    margin-left:auto;
+    margin-left: auto;
     margin-right: 2%;
 }
 
@@ -344,14 +344,18 @@ header > hr {
     height: 78%;
 }
 
-#right-column > #player-info > #entity-name {
+#entity-name {
+    padding-top: 5%;
+    padding-bottom: 3%;
     text-align: center;
     min-height: 24px;
+
 }
 
-#right-column > #player-info > #entity-icon {
+#entity-icon {
+    position: relative;
     height: 100px;
-    width: 175px;
+    width: 174px;
     background-image: url('/static/img/heroes/default.jpg');
     background-size: cover;
     overflow: hidden;
@@ -361,30 +365,55 @@ header > hr {
     height: 100%;
 }
 
-#right-column > #player-info > #items {
-    width: 178px;
-    height: calc(95% - 128px - 4px);
+#status-bar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    opacity: 0;
+}
+
+#status-bar > div {
+    float: left;
+    opacity: 0.2;
+    background-color: rgba(233, 233, 233, 0.8);
+}
+
+#status-bar img {
+    width: 25px;
+    height: 25px;
+    margin-top: 10%;
+    padding-left: 10%;
+    padding-right: 20%;
+}
+
+#items {
+    margin-top: 25px;
+    width: 177px;
 }
 
 #items .table-cell {
-    width: calc(50% - 2px);
-    height: 64px;
+    float: left;
+    overflow: hidden;
+    width: calc(33% - 1px);
+    height: 40px;
     max-width: 88px;
     background: #222222 url('/static/img/items/emptyitembg.jpg');
+    border-top: 1px solid white;
     border-right: 1px solid white;
     border-bottom: 1px solid white;
 }
 
-#items .table-cell:nth-child(1) {
+#items .table-cell:nth-of-type(1) {
     border-left: 1px solid white;
+}
+
+#items .table-row:nth-of-type(1) * {
+    border-bottom: none;
 }
 
 #items .table-row {
     max-height: 64px;
-}
-
-#items .table-row:first-of-type .table-cell {
-    border-top: 1px solid white;
 }
 
 #map-container {
@@ -529,18 +558,6 @@ footer {
 
 .table {
     display: table;
-}
-
-.table-row {
-    height: 33%;
-    min-height: 64px;
-}
-
-.table-cell {
-    float: left;
-    height: 100%;
-    width: 50%;
-    overflow: hidden;
 }
 
 .table-cell > img {

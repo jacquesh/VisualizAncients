@@ -37,7 +37,9 @@ var endTime = 0;
       var $items = $('#items');
       var assignImage = function(selector, prefix, name) {
         var imgLink = '/static/img/' + prefix + '/' + name + '.jpg';
-        $(selector).html('<img src="' + imgLink + '">');
+        var $img = $(selector).children('img');
+        $img.prop('src', imgLink);
+        $img.show();
       };
 
       if (mapManager.selectedHero) {
@@ -49,14 +51,22 @@ var endTime = 0;
 
       $('#player-info').addClass(team);
       if(layer.data.hasOwnProperty('items')) {
+        $('#status-bar').css('opacity', 1);
         $items.css("visibility", "visible");
         $items.find('.table-cell').each(function(index, elem) {
           if (layer.data.items[index] !== '') {
             assignImage(elem, 'items', layer.data.items[index].replace('item_', ''));
           }
         });
-      }
-      else {
+
+        if (layer.data.invis) {
+          $('#entity-invis').css('opacity', 1.0);
+        }
+        if (!layer.data.alive) {
+          $('#entity-dead').css('opacity', 1.0);
+        }
+      } else {
+        $('#status-bar').css('opacity', 0);
         $items.css("visibility", "hidden");
       }
       assignImage('#entity-icon', 'heroes', layer.data.imgName);
@@ -99,9 +109,13 @@ var endTime = 0;
       var $items = $('#items');
       $('#entity-name').addClass('hidden-text');
       $('#player-info').removeClass('radiant').removeClass('dire');
-      $items.find('.table-cell').html('');
+      $items.find('.table-cell').children('img').prop('src', '').hide();
       $items.css('visibility', 'visible');
-      $('#entity-icon').html('');
+      $('#entity-icon').children('img').prop('src', '').hide();
+
+      $('#status-bar').css('opacity', 0);
+      $('#entity-dead').css('opacity', 0.2);
+      $('#entity-invis').css('opacity', 0.2);
     },
 
     setupLayers: function(playerHeroes) {
@@ -147,7 +161,8 @@ var endTime = 0;
             entityName: heroNameMap[playerHeroes[i]],
             imgName: playerHeroes[i].replace('npc_dota_hero_', ''),
             items: [],
-            alive: false
+            alive: false,
+            invis: false
           }
         });
 
@@ -162,7 +177,8 @@ var endTime = 0;
             entityName: heroNameMap[playerHeroes[i]],
             imgName: playerHeroes[i].replace('npc_dota_hero_', ''),
             items: [],
-            alive: false
+            alive: false,
+            invis: false
           }
         }).moveLayer(deathName, 1);
       }
@@ -227,6 +243,7 @@ var endTime = 0;
         var hero = heroData[i];
 
         layer.data.items = hero.items;
+        layer.data.invis = hero.invis;
 
         if (hero.alive) {
           $map.setLayer(layerId, {
