@@ -288,12 +288,16 @@ header > hr {
 }
 
 #map-presence > .team-block > h1 {
-    margin-top: 30%;
+    margin-top: 20%;
     font-size: 2em;
     vertical-align: middle;
     text-align: center;
     background: rgba(17, 17, 17, 0.8);
     color: #f5f5f5;
+}
+
+#map-presence > .team-block > h1.bottom {
+    margin-top: 50%;
 }
 
 #toggle-presence-label > label {
