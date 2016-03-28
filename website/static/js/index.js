@@ -1113,6 +1113,10 @@ var endTime = 0;
       var $timeSlider = $('#time-slider');
       var $rangeSlider = $('#time-range-slider');
 
+      if ($('.presence-checkbox').hasClass('checked')) {
+        togglePresence();
+      }
+
       var value = $timeSlider.slider("option", "value");
 
       if ($(this).next().prop('checked')) {
@@ -1144,13 +1148,14 @@ var endTime = 0;
 
     var $presenceBox = $('#toggle-presence');
     $presenceBox.altCheckbox();
-    $presenceBox.parent().find('.alt-checkbox').addClass('checked');
+    $presenceBox.parent().find('.alt-checkbox').addClass('checked presence-checkbox');
 
-    $presenceBox.prev().click(function() {
+    var togglePresence = function() {
       mapManager.togglePresenceOverlay();
       $map.setLayer('presence', {visible: mapManager.showPresence});
       $map.drawLayers();
-    });
+    };
+    $presenceBox.prev().click(togglePresence);
 
     $('#death-box').prev().click(function() {
       var time = +$('#amount').text();
