@@ -55,7 +55,11 @@ var endTime = 0;
         $items.css("visibility", "visible");
         $items.find('.table-cell').each(function(index, elem) {
           if (layer.data.items[index] !== '') {
-            assignImage(elem, 'items', layer.data.items[index].replace('item_', ''));
+            var itemName = layer.data.items[index].replace('item_', '');
+            if (itemName.startsWith('recipe')) {
+              itemName = 'recipe';
+            }
+            assignImage(elem, 'items', itemName);
           }
         });
 
