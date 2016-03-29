@@ -75,14 +75,14 @@ var endTime = 0;
       }
       assignImage('#entity-icon', 'heroes', layer.data.imgName);
 
-      if ($('#time-range-slider').is(':visible')) {
-        var lineLayer = layer.name + '-line';
+      if ($('#time-range-slider').is(':visible') && layer.data.items) {
+        var lineLayer = layer.name.replace('-dead', '') + '-line';
         $map.setLayerGroup('all-lines', {
           strokeStyle: 'rgba(0, 0, 0, 0.8)'
         }).setLayer(lineLayer, {
-          strokeStyle: '#FFF500',
-          index: 21
+          strokeStyle: '#FFF500'
         });
+        $map.moveLayer(lineLayer, 21);
         $map.drawLayers();
       }
     },
@@ -140,6 +140,7 @@ var endTime = 0;
           mapManager.resetPlayerInfoPanel();
         }
       });
+
       for(var i=0; i<10; i++) {
         var layerName = this.layers[i];
         var col = '';
