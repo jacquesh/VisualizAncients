@@ -1154,7 +1154,20 @@ var lerp = function(from, to, t) {
       change: function(event, ui) {
         var selection = event.target.selectedIndex;
         mapManager.heatmapType = selection;
-        $map.drawLayers();
+        if(selection == 0) {
+          $heatmap.setPixels({
+            x:0, y:0,
+            width:420, height:420,
+            fromCenter: false,
+            each: function(px) {
+              px.a = 0;
+            }
+          });
+          $heatmap.find('img').prop('src', $heatmap.getCanvasImage());
+        }
+        var time = +$('#amount').text();
+        var snapshot = replayData.snapshots[time];
+        mapManager.renderMap(snapshot);
       }
     });
     $rangeSlider.slider({
@@ -1233,12 +1246,14 @@ var lerp = function(from, to, t) {
 
         $('#map-presence').hide();
         $('#heatmap-select').show();
+        $map.setLayer('heatmap', {visible: true});
 
         $timeSlider.hide();
         $rangeSlider.show();
 
         mapManager.drawHeroPaths(value, value + 250, replayData.snapshots);
       } else {
+        $map.setLayer('heatmap', {visible: false});
         $('#heatmap-select').hide();
         $('#map-presence').show();
 
