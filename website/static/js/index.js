@@ -1,6 +1,10 @@
 var replayData = undefined;
 var endTime = 0;
 
+var lerp = function(from, to, t) {
+  return from*(1-t) + to*t;
+};
+
 (function ($) {
   'use strict';
 
@@ -21,6 +25,7 @@ var endTime = 0;
     creepHidden: false,
     smokeHidden: false,
     showPresence: true,
+    heatmapType: 0,
     radiantLinesHidden: false,
     direLinesHidden: false,
     selectedHero: '',
@@ -520,6 +525,77 @@ var endTime = 0;
         });
 
         $presence.find('img').prop('src', $presence.getCanvasImage());
+      }
+
+      if(this.heatmapType > 0) {
+        var dataIndex = Math.round(snapshot.time - replayData.startTime) + 75;
+        var $heatmap = $('#heatmap');
+        var pxX = 0;
+        var pxY = 0;
+        var heatmapAlpha = 255;
+        var dataSource = {};
+        if(this.heatmapType == 1) {
+          dataSource = aggregateData.positionData;
+        } else if(this.heatmapType == 2) {
+          dataSource = aggregateData.deathData;
+        } else if(this.heatmapType == 3) {
+          dataSource = aggregateData.wardData;
+        } else if(this.heatmapType == 4) {
+          dataSource = aggregateData.sentryData;
+        } else if(this.heatmapType == 5) {
+          dataSource = aggregateData.smokeData;
+        }
+        $heatmap.setPixels({
+          x:0, y:0,
+          width:420, height:420,
+          fromCenter: false,
+          each: function(px) {
+            var cellX = Math.floor((pxX/420)*64);
+            var cellY = 63 - Math.floor((pxY/420)*64);
+            var cellIndex = cellY*64 + cellX;
+            var heatmapVal = dataSource[dataIndex][cellIndex];
+
+            px.b = 0;
+            var baseVal = 0;
+            var midpoint = lerp(baseVal, 100, 0.3);
+            var maxPoint = lerp(baseVal, 100, 0.8);
+            if(heatmapVal > baseVal) {
+              px.a = heatmapAlpha;
+              if(heatmapVal > midpoint) {
+                // R=255, G=255->0 as heatmapVal=midpoint->100
+                var t = (heatmapVal - midpoint)/(maxPoint - midpoint);
+                if(t > 1.0) {
+                  t = 1.0;
+                }
+                px.r = 255;
+                px.g = lerp(255, 0, t);
+              }
+              else {
+                // R=255->0, G=255 as heatmapVal=baseVal->midpoint
+                var t = (heatmapVal - baseVal)/(midpoint - baseVal);
+                px.r = lerp(0,255, t);
+                px.g = 255;
+
+                var aScale = lerp(0, 2, 3*t);
+                if(aScale > 1.0) {
+                  aScale = 1.0
+                }
+                px.a = heatmapAlpha*aScale;
+              }
+            }
+            else {
+              px.a = 0;
+            }
+
+            pxX++;
+            if(pxX >= 420) {
+              pxX = 0;
+              pxY++;
+            }
+          }
+        });
+
+        $heatmap.find('img').prop('src', $heatmap.getCanvasImage());
       }
 
       $('#radiant-presence').text(snapshot.presenceData.percentages[0]+"%");
@@ -1032,6 +1108,19 @@ var endTime = 0;
       fromCenter: false
     });
 
+    var $heatmap = $('#heatmap');
+    var heatmapImg = $heatmap.find('img');
+    heatmapImg.prop('src', $presence.getCanvasImage());
+    $map.drawImage({
+      layer: true,
+      name: 'heatmap',
+      groups: ['heatmap'],
+      source: heatmapImg[0],
+      x:0, y:0,
+      scale: 1,
+      fromCenter: false
+    });
+
     buildingManager.setupBuildings(replayData.towerDeaths);
     mapManager.setupLayers(replayData.playerHeroes);
     roshanManager.setupRoshanEvents(replayData.roshEvents);
@@ -1061,7 +1150,13 @@ var endTime = 0;
     $timeSlider.hover(sliderHover.hoverOn, sliderHover.hoverOff);
     $timeSlider.mousemove(sliderHover.mouseMove);
 
-    $('#heatmap-dropdown').selectmenu();
+    $('#heatmap-dropdown').selectmenu({
+      change: function(event, ui) {
+        var selection = event.target.selectedIndex;
+        mapManager.heatmapType = selection;
+        $map.drawLayers();
+      }
+    });
     $rangeSlider.slider({
       range: true,
       values: [0, 250],
