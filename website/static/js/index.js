@@ -24,6 +24,7 @@ var endTime = 0;
     radiantLinesHidden: false,
     direLinesHidden: false,
     selectedHero: '',
+    hoverHero: '',
 
     getX: function(data_x) {
       return (data_x - 64) * this.scalef;
@@ -37,7 +38,9 @@ var endTime = 0;
       var $items = $('#items');
       var assignImage = function(selector, prefix, name) {
         var imgLink = '/static/img/' + prefix + '/' + name + '.jpg';
-        $(selector).html('<img src="' + imgLink + '">');
+        var $img = $(selector).children('img');
+        $img.prop('src', imgLink);
+        $img.show();
       };
 
       if (mapManager.selectedHero) {
@@ -49,14 +52,27 @@ var endTime = 0;
 
       $('#player-info').addClass(team);
       if(layer.data.hasOwnProperty('items')) {
+        $('#status-bar').css('opacity', 1);
         $items.css("visibility", "visible");
         $items.find('.table-cell').each(function(index, elem) {
           if (layer.data.items[index] !== '') {
-            assignImage(elem, 'items', layer.data.items[index].replace('item_', ''));
+            var itemName = layer.data.items[index].replace('item_', '');
+            if (itemName.startsWith('recipe')) {
+              itemName = 'recipe';
+            }
+            assignImage(elem, 'items', itemName);
           }
         });
-      }
-      else {
+
+        if (layer.data.invis) {
+          $('#entity-invis').css('opacity', 1.0);
+        }
+        if (!layer.data.alive) {
+          $('#entity-dead').css('opacity', 1.0);
+        }
+        mapManager.hoverHero = layer.name;
+      } else {
+        $('#status-bar').css('opacity', 0);
         $items.css("visibility", "hidden");
       }
       assignImage('#entity-icon', 'heroes', layer.data.imgName);
@@ -74,6 +90,7 @@ var endTime = 0;
     },
 
     handleHoverOff: function(layer) {
+      mapManager.hoverHero = '';
       if (mapManager.selectedHero !== layer.name) {
         $('#entity-name').addClass('hidden-text');
         mapManager.resetPlayerInfoPanel();
@@ -99,9 +116,13 @@ var endTime = 0;
       var $items = $('#items');
       $('#entity-name').addClass('hidden-text');
       $('#player-info').removeClass('radiant').removeClass('dire');
-      $items.find('.table-cell').html('');
+      $items.find('.table-cell').children('img').prop('src', '').hide();
       $items.css('visibility', 'visible');
-      $('#entity-icon').html('');
+      $('#entity-icon').children('img').prop('src', '').hide();
+
+      $('#status-bar').css('opacity', 0);
+      $('#entity-dead').css('opacity', 0.2);
+      $('#entity-invis').css('opacity', 0.2);
     },
 
     setupLayers: function(playerHeroes) {
@@ -109,6 +130,14 @@ var endTime = 0;
         if (mapManager.selectedHero) {
           var old = $map.getLayer(mapManager.selectedHero);
           old.fillStyle = old.data.color;
+
+          var team = old.name[0] === 'r' ? 'radiant' : 'dire';
+          var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
+
+          $map.setLayer(layerName, {
+            source: '/static/img/icons/' + team + '_death.png'
+          });
+
           mapManager.selectedHero = '';
           mapManager.resetPlayerInfoPanel();
         }
@@ -136,8 +165,18 @@ var endTime = 0;
 
             if (mapManager.selectedHero) {
               var old = $map.getLayer(mapManager.selectedHero);
-              old.fillStyle = old.data.color;
+              if (old.data.alive) {
+                old.fillStyle = old.data.color;
+              } else {
+                var team = old.name[0] === 'r' ? 'radiant' : 'dire';
+                var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
+
+                $map.setLayer(layerName, {
+                  source: '/static/img/icons/' + team + '_death.png'
+                });
+              }
             }
+
             mapManager.selectedHero = layer.name;
             layer.fillStyle = '#FFFF00';
             mapManager.updateSelected();
@@ -147,7 +186,8 @@ var endTime = 0;
             entityName: heroNameMap[playerHeroes[i]],
             imgName: playerHeroes[i].replace('npc_dota_hero_', ''),
             items: [],
-            alive: false
+            alive: false,
+            invis: false
           }
         });
 
@@ -157,12 +197,39 @@ var endTime = 0;
         $map.setLayer(deathName, {
           mouseover: this.handleHoverOn,
           mouseout: this.handleHoverOff,
+          click: function(layer) {
+            layer.event.stopPropagation();
+
+            if (mapManager.selectedHero) {
+              var old = $map.getLayer(mapManager.selectedHero);
+              if (old.data.alive) {
+                old.fillStyle = old.data.color;
+              } else {
+                var team = old.name[0] === 'r' ? 'radiant' : 'dire';
+                var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
+
+                $map.setLayer(layerName, {
+                  source: '/static/img/icons/' + team + '_death.png'
+                });
+              }
+            }
+
+            var heroName = layer.name.replace('-dead', '');
+            mapManager.selectedHero = heroName;
+
+            $map.setLayer(heroName, {fillStyle: '#FFFF00'});
+            $map.setLayer(layer, {source: '/static/img/icons/selected_death.png'});
+
+            mapManager.updateSelected();
+            $map.drawLayer(layer);
+          },
           visible: false,
           data: {
             entityName: heroNameMap[playerHeroes[i]],
             imgName: playerHeroes[i].replace('npc_dota_hero_', ''),
             items: [],
-            alive: false
+            alive: false,
+            invis: false
           }
         }).moveLayer(deathName, 1);
       }
@@ -227,6 +294,7 @@ var endTime = 0;
         var hero = heroData[i];
 
         layer.data.items = hero.items;
+        layer.data.invis = hero.invis;
 
         if (hero.alive) {
           $map.setLayer(layerId, {
@@ -256,11 +324,18 @@ var endTime = 0;
             data: layer.data
           });
 
-          $map.setLayer(layerId + '-dead', {
+          var selectedDead = '/static/img/icons/selected_death.png';
+          var opts = {
             x: this.getX(hero.x), y: this.getY(hero.y),
             visible: true,
             data: layer.data
-          });
+          };
+
+          if (layer.name === mapManager.selectedHero) {
+            opts.source = selectedDead;
+          }
+
+          $map.setLayer(layerId + '-dead', opts);
         }
         if (this.deathsHidden) {
           $map.setLayer(layerId + '-dead', {visible: false});
@@ -391,15 +466,20 @@ var endTime = 0;
 
     drawMapIcon: function(x, y, scale, path, group, name) {
       group = group === undefined ? 'icons' : group;
-
-      $map.drawImage({
+      var opts = {
         layer: true,
         name: name,
         groups: [group],
         source: path,
         x: this.getX(x), y: this.getY(y),
         scale: scale
-      });
+      };
+
+      if (name.endsWith('-dead')) {
+        opts.cursors = cursorSettings
+      }
+
+      $map.drawImage(opts);
     },
 
     resetMap: function() {
@@ -892,6 +972,10 @@ var endTime = 0;
     buildingManager.updateBuildings(snapshot.time);
     mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
 
+    if ($('#items').find('img').is(':visible')) {
+      mapManager.handleHoverOn($map.getLayer(mapManager.hoverHero));
+    }
+
     statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
     statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
 
@@ -1040,6 +1124,10 @@ var endTime = 0;
       var $timeSlider = $('#time-slider');
       var $rangeSlider = $('#time-range-slider');
 
+      if ($('.presence-checkbox').hasClass('checked')) {
+        togglePresence();
+      }
+
       var value = $timeSlider.slider("option", "value");
 
       if ($(this).next().prop('checked')) {
@@ -1071,13 +1159,14 @@ var endTime = 0;
 
     var $presenceBox = $('#toggle-presence');
     $presenceBox.altCheckbox();
-    $presenceBox.parent().find('.alt-checkbox').addClass('checked');
+    $presenceBox.parent().find('.alt-checkbox').addClass('checked presence-checkbox');
 
-    $presenceBox.prev().click(function() {
+    var togglePresence = function() {
       mapManager.togglePresenceOverlay();
       $map.setLayer('presence', {visible: mapManager.showPresence});
       $map.drawLayers();
-    });
+    };
+    $presenceBox.prev().click(togglePresence);
 
     $('#death-box').prev().click(function() {
       var time = +$('#amount').text();
