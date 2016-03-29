@@ -43,10 +43,6 @@ var endTime = 0;
         $img.show();
       };
 
-      if (mapManager.selectedHero) {
-        mapManager.resetPlayerInfoPanel();
-      }
-
       $('#entity-name').text(layer.data.entityName).removeClass('hidden-text');
       var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
 
@@ -61,6 +57,8 @@ var endTime = 0;
               itemName = 'recipe';
             }
             assignImage(elem, 'items', itemName);
+          } else {
+            $(elem).children('img').hide();
           }
         });
 
@@ -116,9 +114,9 @@ var endTime = 0;
       var $items = $('#items');
       $('#entity-name').addClass('hidden-text');
       $('#player-info').removeClass('radiant').removeClass('dire');
-      $items.find('.table-cell').children('img').prop('src', '').hide();
+      $items.find('.table-cell').children('img').hide();
       $items.css('visibility', 'visible');
-      $('#entity-icon').children('img').prop('src', '').hide();
+      $('#entity-icon').children('img').hide();
 
       $('#status-bar').css('opacity', 0);
       $('#entity-dead').css('opacity', 0.2);
@@ -972,7 +970,7 @@ var endTime = 0;
     buildingManager.updateBuildings(snapshot.time);
     mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
 
-    if ($('#items').find('img').is(':visible')) {
+    if (mapManager.hoverHero) {
       mapManager.handleHoverOn($map.getLayer(mapManager.hoverHero));
     }
 
