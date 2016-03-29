@@ -14,14 +14,14 @@ public class Main
         parser.load(fileName);
         parser.parse();
         endTime = System.currentTimeMillis();
-        System.out.printf("Processing took %fs\n", (endTime-startTime)/1000.0f);
+        System.out.printf("Processing took %.2fs\n", (endTime-startTime)/1000.0f);
 
         startTime = System.currentTimeMillis();
         int fileNameExtensionIndex = fileName.lastIndexOf('.');
         String outFileName = fileName.substring(0, fileNameExtensionIndex) + ".zjson";
         parser.write(outFileName);
         endTime = System.currentTimeMillis();
-        System.out.printf("Writing took %fs\n", (endTime-startTime)/1000.0f);
+        System.out.printf("Writing took %.2fs\n", (endTime-startTime)/1000.0f);
     }
 
     public static void main(String[] args) throws IOException
