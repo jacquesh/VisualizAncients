@@ -167,15 +167,24 @@ public class Snapshot
             if(val == 0)
                 continue; // No borders for neutral regions
 
+            // We need to bound the x-offset here so that we don't check across horizontal
+            // map edges (IE wrap from the end of one row to the start of the next)
+            int xOffMin = -1;
+            int xOffMax = 1;
+            if(i%64 == 0)
+                xOffMin = 0;
+            else if(i%64 == 63)
+                xOffMax = 0;
+
             for(int yOff=-1; yOff<=1; ++yOff)
             {
-                for(int xOff=-1; xOff<=1; ++xOff)
+                for(int xOff=xOffMin; xOff<=xOffMax; ++xOff)
                 {
                     if((xOff == 0) && (yOff == 0))
-                        continue;
+                        continue; // Don't compare to yourself
                     int tempIndex = i + (64*yOff + xOff);
                     if((tempIndex < 0) || (tempIndex >= 4096))
-                        continue;
+                        continue; // Don't run off the map
                     int tempVal = presence[tempIndex];
                     if((tempVal & val) == 0)
                     {
