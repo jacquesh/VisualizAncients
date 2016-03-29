@@ -1012,6 +1012,9 @@ var endTime = 0;
     var dataStr = charArr2Str(dataCharArr);
     replayData = JSON.parse(dataStr);
 
+    // LOADING UPDATE
+    $('#match-data').removeClass('fa-cog fa-spin').addClass('fa-check');
+
     // Main setup code
     var snapshots = replayData.snapshots;
 
@@ -1081,6 +1084,8 @@ var endTime = 0;
     var lastTime = replayData.snapshots[replayData.snapshots.length - 1].time - replayData.startTime;
     $('#end-time').text((''+lastTime).toHHMMSS());
 
+    // LOADING UPDATE
+    $('#generate-map').removeClass('fa-cog fa-spin').addClass('fa-check');
     smallGraphs($);
   };
 

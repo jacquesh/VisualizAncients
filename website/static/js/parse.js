@@ -18,6 +18,11 @@ var bigGraphs = function ($) {
     drawWardsChart(aggregateData["wardCounts"]);
     drawSentryChart(aggregateData["sentryCounts"]);
     drawPlayerKillsChart(aggregateData["deathCounts"]);
+
+    // LOADING UPDATE
+    $('#generate-graphs').removeClass('fa-cog fa-spin').addClass('fa-check');
+    $('#loading-screen').delay(1000).fadeOut(200);
+    $('#content-container').css('visibility', 'visible');
   };
 
   var drawRoshanChart = function (roshanDeaths) {

@@ -39,6 +39,9 @@ var smallGraphs = function ($) {
     var dataStr = charArr2Str(dataCharArr);
     aggregateData = JSON.parse(dataStr);
 
+    // LOADING UPDATE
+    $('#aggregate-data').removeClass('fa-cog fa-spin').addClass('fa-check');
+
     time = (function () {
       var temp = [];
       for (var k = 0; k < endTime; k++) {

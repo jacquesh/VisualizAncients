@@ -12,7 +12,22 @@
     <link rel="stylesheet" href="/static/css/index.css">
 </head>
 <body>
-    <main id="content-container">
+    <section id="loading-screen">
+        <div class="title">
+            <h1><img src="/static/img/logo.png"> VisualizAncients</h1>
+        </div>
+        <div class="loading center-block">
+            <h1>Loading your match...</h1>
+            <ul class="fa-ul">
+                <li><i id="match-data" class="fa-li fa fa-cog fa-spin"></i>Loading match data</li>
+                <li><i id="generate-map" class="fa-li fa fa-cog fa-spin"></i>Generating map</li>
+                <li><i id="aggregate-data" class="fa-li fa fa-cog fa-spin"></i>Loading aggregate data</li>
+                <li><i id="generate-graphs" class="fa-li fa fa-cog fa-spin"></i>Generating graphs</li>
+            </ul>
+            <p class="disclaimer">(Disclaimer: This process will consume > 1GB of RAM and may take some time.)</p>
+        </div>
+    </section>
+    <main id="content-container" style="visibility: hidden">
         <header>
             <h1>VisualizAncients</h1>
             <hr>
@@ -241,9 +256,9 @@
 <script rel="script" type="text/javascript" src="/static/vendor/pako.min.js"></script>
 <script rel="script" type="text/javascript" src="/static/vendor/Chart.min.js"></script>
 <script rel="script" type="text/javascript" src="/static/js/dataMaps.js"></script>
-<script rel="script" type="text/javascript" src="/static/js/index.js"></script>
 <script rel="script" type="text/javascript" src="/static/js/smallGraphDrawer.js"></script>
 <script rel="script" type="text/javascript" src="/static/js/parse.js"></script>
+<script rel="script" type="text/javascript" src="/static/js/index.js"></script>
 
 <script>
     $(document).ready(function() {
