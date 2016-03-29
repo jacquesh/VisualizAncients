@@ -1001,7 +1001,7 @@ var endTime = 0;
     $rangeSlider.find('.label.l1').text(getTime(tick1));
 
     // Update single slider
-    $timeSlider.slider("option", "value", ui.values[0]);
+    $timeSlider.slider("option", "value", ui.values[1]);
     $timeSlider.find('.label').text(getTime(tick0));
   };
 
@@ -1130,10 +1130,11 @@ var endTime = 0;
       var value = $timeSlider.slider("option", "value");
 
       if ($(this).next().prop('checked')) {
-        $rangeSlider.slider("option", "values", [value, value + 250]);
+        var startVal = Math.max(value - 250, 0);
+        $rangeSlider.slider("option", "values", [startVal, value]);
 
-        $rangeSlider.find('.label.l0').text(getTime(value));
-        $rangeSlider.find('.label.l1').text(getTime(value+250));
+        $rangeSlider.find('.label.l0').text(getTime(startVal));
+        $rangeSlider.find('.label.l1').text(getTime(value));
 
         $('#map-presence').hide();
         $('#heatmap-select').show();
@@ -1141,7 +1142,7 @@ var endTime = 0;
         $timeSlider.hide();
         $rangeSlider.show();
 
-        mapManager.drawHeroPaths(value, value + 250, replayData.snapshots);
+        mapManager.drawHeroPaths(startVal, value, replayData.snapshots);
       } else {
         $('#heatmap-select').hide();
         $('#map-presence').show();
