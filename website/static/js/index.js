@@ -951,27 +951,57 @@ var lerp = function(from, to, t) {
   };
 
   var statsManager = {
-    biggestVal: 0,
     runTime: 0,
 
-    setMaxStats: function(stats) {
-      var maxGold = Math.max(stats[0].netWorth, stats[1].netWorth);
-      var maxXP = Math.max(stats[0].totalXp, stats[1].totalXp);
-      this.biggestVal = Math.max(maxGold, maxXP);
+    setupStatManager: function() {
+      this.$radiant = $('#radiant');
+      this.$dire = $('#dire');
+
+      this.$radiantKills = this.$radiant.find('.kills').find('.count');
+      this.$direKills = this.$dire.find('.kills').find('.count');
+
+      this.$radiantWorthBar = this.$radiant.find('.net-worth');
+      this.$radiantWorthLabel = this.$radiant.find('.gold');
+      this.$direWorthBar = this.$dire.find('.net-worth');
+      this.$direWorthLabel = this.$dire.find('.gold');
+
+      this.$radiantXpBar = this.$radiant.find('.total-xp');
+      this.$radiantXpLabel = this.$radiant.find('.xp');
+      this.$direXpBar = this.$dire.find('.total-xp');
+      this.$direXpLabel = this.$dire.find('.xp');
     },
 
-    updateTeamScores: function(team, stats) {
-      var $team = $(team);
-      $team.find('.kills').find('.count').text(stats.score);
-      var $teamStats = $team.find('.team-stats');
-      var $netWorth = $teamStats.find('.net-worth');
-      var $totalXp = $teamStats.find('.total-xp');
+    updateTeamScores: function(teamStats) {
+     this.$radiantKills.text(teamStats[0].score);
+      this.$direKills.text(teamStats[1].score);
 
-      $netWorth.find('span').text(stats.netWorth);
-      $netWorth.width('calc('+ (stats.netWorth/this.biggestVal) * 100 +'% - 9%)');
+      var diffG = Math.abs(teamStats[0].netWorth - teamStats[1].netWorth);
+      var diffXp = Math.abs(teamStats[0].totalXp - teamStats[1].totalXp);
+      var biggestVal = Math.max(diffG, diffXp);
 
-      $totalXp.find('span').text(stats.totalXp);
-      $totalXp.width('calc('+ (stats.totalXp/this.biggestVal) * 100 +'% - 9%)');
+      if (teamStats[0].netWorth > teamStats[1].netWorth) {
+        this.$radiantWorthLabel.text('+' + diffG.toLocaleString() + ' Gold');
+        this.$radiantWorthBar.width('calc('+ (diffG/biggestVal) * 100 +'% - 45%)');
+        this.$direWorthLabel.text('');
+        this.$direWorthBar.width('0');
+      } else {
+        this.$radiantWorthLabel.text('');
+        this.$radiantWorthBar.width('0');
+        this.$direWorthLabel.text('+' + diffG.toLocaleString() + ' Gold');
+        this.$direWorthBar.width('calc('+ (diffG/biggestVal) * 100 +'% - 45%)');
+      }
+
+      if (teamStats[0].totalXp > teamStats[1].totalXp) {
+        this.$radiantXpLabel.text('+' + diffXp.toLocaleString() + ' XP');
+        this.$radiantXpBar.width('calc('+ (diffXp/biggestVal) * 100 +'% - 45%)');
+        this.$direXpLabel.text('');
+        this.$direXpBar.width('0');
+      } else {
+        this.$radiantXpLabel.text('');
+        this.$radiantXpBar.width('0');
+        this.$direXpLabel.text('+' + diffXp.toLocaleString() + ' XP');
+        this.$direXpBar.width('calc('+ (diffXp/biggestVal) * 100 +'% - 45%)');
+      }
     }
   };
 
@@ -1061,8 +1091,8 @@ var lerp = function(from, to, t) {
       mapManager.handleHoverOn($map.getLayer(mapManager.hoverHero));
     }
 
-    statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
-    statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
+
+    statsManager.updateTeamScores(snapshot.teamStats);
     $('#radiant-presence').text(snapshot.presenceData.percentages[0]+"%");
     $('#dire-presence').text(snapshot.presenceData.percentages[1]+"%");
 
@@ -1158,7 +1188,7 @@ var lerp = function(from, to, t) {
     mapManager.setupLayers(replayData.playerHeroes);
     $map.drawLayers();
 
-    statsManager.setMaxStats(snapshots[snapshots.length-1].teamStats);
+    statsManager.setupStatManager();
 
     var $timeSlider = $('#time-slider');
     var $rangeSlider = $('#time-range-slider');

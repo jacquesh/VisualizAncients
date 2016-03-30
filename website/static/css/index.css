@@ -441,13 +441,13 @@ header > hr {
 }
 
 #team-graphs {
-    width: 85%;
+    width: 60%;
     height: 55px;
     margin-top: 10px;
 }
 
 #team-graphs > .score-box {
-    width: 40%;
+    width: calc(50% - 1px);
     height: 100%;
 }
 
@@ -466,45 +466,63 @@ header > hr {
 }
 
 .team-stats > div {
+    position: relative;
     height: 23px;
 }
 
 .total-xp, .net-worth {
-    width: 91%;
-    height: 70%;
+    width: 55%;
+    height: 80%;
     display: inline-block;
     vertical-align: middle;
 }
 
+#radiant {
+    border-right: black 1px solid;
+}
+
+#dire {
+    border-left: black 1px solid;
+}
+
+#radiant .label, #dire .label {
+    background-color: rgba(233, 233, 233, 0.6);
+    font-weight: bold;
+}
+
 #radiant .label {
-    position: absolute;
-    left: 11%;
+    margin-right: 0.6em;
 }
 
 #dire .label {
-    position: absolute;
-    right: 11%;
+    margin-left: 0.6em;
 }
 
 .total-xp {
-    background: #59CBD8;
+    background: #71C2CC;
 }
 
 .net-worth {
-    background: #ffff00;
+    background: #DADA6F;
 }
 
 #team-graphs > #radiant > .team-stats img {
-    padding-right: 1%;
+    position: absolute;
+    right: -13px;
+    z-index: 10;
 }
 
-#team-graphs > #dire > .team-stats img {
-    padding-left: 1%;
+#radiant > .team-stats > div > span {
+    float: right;
+}
+
+#dire > .team-stats > div > span {
+    float: left;
 }
 
 .kills {
     font-size: 1.2em;
-    padding-top: 1%;
+    padding-top: 2%;
     width: 11%;
     text-align: center;
 }
@@ -514,13 +532,12 @@ header > hr {
 }
 
 #team-graphs > #radiant > .kills {
-    float: right;
-    padding-right: 2%;
+    float: left;
+    padding-left: 2%;
 }
 
 #team-graphs > #radiant > .team-stats {
-    float: left;
-    padding-left: 1%;
+    float: right;
 }
 
 #team-graphs > #dire {
@@ -528,13 +545,12 @@ header > hr {
 }
 
 #team-graphs > #dire > .kills {
-    padding-left: 2%;
+    float: right;
+    padding-right: 2%;
 }
 
 #team-graphs > #dire > .team-stats {
-    float: right;
-    text-align: right;
-    padding-right: 1%;
+    float: left;
 }
 
 footer {
