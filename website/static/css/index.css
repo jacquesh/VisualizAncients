@@ -31,7 +31,7 @@ header > hr {
     max-width: 1100px;
     margin-left: auto;
     margin-right: auto;
-    background-color: #ffffff;
+    background-color: #bdc3c7;
 }
 
 #content {
@@ -44,19 +44,49 @@ header > hr {
     height: 50px;
     margin-left: auto;
     margin-right: auto;
-    padding-bottom: 5px;
+    padding-bottom: 10px;
 }
 
-#top-events, #bottom-events {
-    height: 15px;
-    width: calc(90% - 4px);
+#top-events, #time, #bottom-events {
+    position: relative;
+    height: 17px;
+    width: 90%;
+}
+
+#bottom-events {
+    margin-top: -2px;
+}
+
+.event {
+    position: absolute;
+    height: 100%;
+    width: 8px;
+}
+
+.event.smoke {
+    background-color: rgba(97, 29, 216, 0.6);
+}
+
+.event.roshan {
+    background-color: rgba(178, 34, 34, 0.8);
+}
+
+.event.radiant {
+    background-color: rgba(41, 128, 185, 0.8);
+}
+
+.event.dire {
+    background-color: rgba(231, 76, 60, 0.8);
 }
 
 #time {
-    width: calc(90% - 4px);
-    margin-left: 2px;
-    margin-right: 2px;
+    min-height: 16px;
     float: left;
+}
+
+#start-time, #end-time {
+    font-size: 0.8em;
+    font-weight: bold;
 }
 
 #time-container > #start-time {
@@ -65,7 +95,7 @@ header > hr {
 }
 
 #time-container > #end-time {
-    width: 5%;
+    width: 4%;
     float: left;
     text-align: right;
 }
@@ -74,16 +104,29 @@ header > hr {
     display: none;
 }
 
-#time > #time-slider {
+#time > #time-slider, #time > #time-range-slider {
     vertical-align: middle;
 }
 
-#time > #time-slider .label {
+#time .label {
     position: absolute;
+    background-color: rgba(233, 233, 233, 0.6);
     top: 100%;
     left: -100%;
-    font-size: 0.7em;
+    font-size: 0.6em;
+    font-weight: bold;
     color: #000;
+}
+
+#time > #hover-label {
+    font-size: 0.8em;
+    z-index: 20;
+    top: -100%;
+    margin-left: -2%;
+}
+
+#time > #time-range-slider .label.l1 {
+    top: -50%;
 }
 
 #graph-bar-container {
@@ -95,24 +138,26 @@ header > hr {
 }
 
 #change-graph-box {
-    font-size: 12px;
+    font-size: 11px;
     float: left;
     width: 5%;
+    height: 100%;
 }
 
 #change-graph-box > .arrow {
     width: 25%;
-    margin-left:auto;
-    margin-right:auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #change-graph-box > #graph-label {
     text-align: center;
+    font-size: 13px;
+    font-weight: bold;
 }
 
 #open-graphs {
     float: left;
-    border: black solid 1px;
     width: 5%;
     height: 40px;
 }
@@ -129,8 +174,7 @@ header > hr {
 
 #graph-bar {
     float: left;
-    border: #000000 solid 1px;
-    width: calc(90% - 6px);
+    width: calc(90% - 2px);
     height: 40px;
     margin-left: 1px;
     margin-right: 1px;
@@ -151,8 +195,12 @@ header > hr {
     min-width: 233px;
 }
 
-.border {
-    border: solid black 1px;
+.colour-container {
+    background-color: #8E9AA2;
+}
+
+.drop-shadow {
+    box-shadow: #2B2B2B 0 0 10px 0;
 }
 
 .center-block {
@@ -162,7 +210,7 @@ header > hr {
 }
 
 .hug-right {
-    margin-left:auto;
+    margin-left: auto;
     margin-right: 2%;
 }
 
@@ -179,7 +227,11 @@ header > hr {
 #toggle-box > div.column {
     float: left;
     height: 100%;
-    width: 50%;
+    width: 40%;
+}
+
+#toggle-box > div.column:nth-of-type(1) {
+    margin-right: 10%;
 }
 
 #toggle-box > div.column > div {
@@ -193,16 +245,35 @@ header > hr {
 }
 
 #toggle-box > div.column label {
+    position: relative;
     display: inline-block;
-    width: 32px;
-    height: 32px;
+    width: calc(100% - 1.6em - 5%);
+    height: 100%;
+}
+
+#toggle-box > div.column label span {
+    background-color: rgba(233, 233, 233, 0.8);
+    text-align: center;
+    display: inline-block;
+    visibility: hidden;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    font-size: 0.7em;
+    font-weight: bold;
+}
+
+#toggle-box > div.column label:hover span {
+    visibility: visible;
+}
+
+#toggle-box > div.column label img {
     margin-top: 5%;
     margin-left: 5%;
 }
 
 #toggle-box > div.column img {
-    width: 32px;
-    height: 32px;
+    height: 80%;
     vertical-align: middle;
 }
 
@@ -210,87 +281,124 @@ header > hr {
     height: 43%;
 }
 
-#left-column > #map-presence > .team-block{
-    height: 50%;
+#left-column > #map-presence > .team-block {
+    margin-top: 12.5%;
+    height: 65%;
+    float: left;
+    width: calc(50% - 2px);
 }
 
-#map-presence > .team-block > img {
-    margin-top: 2%;
-    margin-left: 2%;
-    height: 90%;
-}
-
-#map-presence > .team-block > .presence {
-    margin-top: 1.5%;
-    margin-right: 2%;
-    float: right;
-    width: 50%;
-    height: 90%;
-    border-radius: 10px;
-}
-
-#map-presence > .team-block > .presence > h1 {
+#map-presence > .team-block > h1 {
     margin-top: 20%;
     font-size: 2em;
     vertical-align: middle;
     text-align: center;
+    background: rgba(17, 17, 17, 0.8);
+    color: #f5f5f5;
 }
 
-#right-column > #path-toggle {
-    height: 20%;
-    margin-bottom: calc(2% - 2px);
+#map-presence > .team-block > h1.bottom {
+    margin-top: 50%;
 }
 
-#right-column > #path-toggle > .heading {
+#right-column > #overlay-select {
+    height: 19%;
+    margin-bottom: 2%;
+}
+
+#right-column > #overlay-select > .heading {
+    display: block;
+    padding-top: 5px;
+    font-size: 1.2em;
+    font-weight: bold;
     text-align: center;
     padding-bottom: 5px;
+}
+
+.input-wrapper {
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+}
+
+.input-wrapper img, .input-wrapper a {
+    vertical-align: middle;
 }
 
 #right-column > #player-info {
     height: 78%;
 }
 
-#right-column > #player-info > #character-name {
+#entity-name {
+    padding-top: 5%;
+    padding-bottom: 3%;
     text-align: center;
     min-height: 24px;
+
 }
 
-#right-column > #player-info > #hero-icon {
+#entity-icon {
+    position: relative;
     height: 100px;
-    width: 175px;
+    width: 174px;
     background-image: url('/static/img/heroes/default.jpg');
     background-size: cover;
     overflow: hidden;
 }
 
-#hero-icon > img {
+#entity-icon > img {
     height: 100%;
 }
 
-#right-column > #player-info > #items {
-    width: 178px;
-    height: calc(95% - 128px - 4px);
+#status-bar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    opacity: 0;
+}
+
+#status-bar > div {
+    float: left;
+    opacity: 0.2;
+    background-color: rgba(233, 233, 233, 0.8);
+}
+
+#status-bar img {
+    width: 25px;
+    height: 25px;
+    margin-top: 10%;
+    padding-left: 10%;
+    padding-right: 20%;
+}
+
+#items {
+    margin-top: 25px;
+    width: 177px;
 }
 
 #items .table-cell {
-    width: calc(50% - 2px);
-    height: 64px;
+    float: left;
+    overflow: hidden;
+    width: calc(33% - 1px);
+    height: 40px;
     max-width: 88px;
     background: #222222 url('/static/img/items/emptyitembg.jpg');
+    border-top: 1px solid white;
     border-right: 1px solid white;
     border-bottom: 1px solid white;
 }
 
-#items .table-cell:nth-child(1) {
+#items .table-cell:nth-of-type(1) {
     border-left: 1px solid white;
+}
+
+#items .table-row:nth-of-type(1) * {
+    border-bottom: none;
 }
 
 #items .table-row {
     max-height: 64px;
-}
-
-#items .table-row:first-of-type .table-cell {
-    border-top: 1px solid white;
 }
 
 #map-container {
@@ -302,12 +410,25 @@ header > hr {
     background-image: url("/static/img/dota2-map.jpg");
 }
 
+.radiant.team-block {
+    background-image: url("/static/img/icons/radiant.png");
+}
+
+.dire.team-block {
+    background-image: url("/static/img/icons/dire.png");
+}
+
+.team-block {
+    background-position: 50%;
+    background-size: cover;
+}
+
 .radiant {
-    background-color: rgba(51, 95, 255, 0.75);
+    background-color: #2980b9;
 }
 
 .dire {
-    background-color: rgba(255, 7, 18, 0.75);
+    background-color: #e74c3c;
 }
 
 #team-graphs {
@@ -417,23 +538,11 @@ footer {
 }
 
 .border-white {
-    border-color: white;
+    border: solid 1px white;
 }
 
 .table {
     display: table;
-}
-
-.table-row {
-    height: 33%;
-    min-height: 64px;
-}
-
-.table-cell {
-    float: left;
-    height: 100%;
-    width: 50%;
-    overflow: hidden;
 }
 
 .table-cell > img {
@@ -452,10 +561,122 @@ footer {
     color: #000;
 }
 
+.ui-widget-header {
+    background: #96ceff;
+}
+
 #uparrow {
     cursor: pointer;
 }
 
 #downarrow {
     cursor: pointer;
+}
+
+#big-graph-overlay {
+    z-index: 99;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+#big-graph-container {
+    margin-top: 0.5%;
+    z-index: 100;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    height: 98%;
+}
+
+#big-graphs {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.close-button {
+    display: inline-block;
+    border-radius: 4px;
+    background-color: #4169E1;
+    border: none;
+    color: #FFFFFF;
+    text-align: center;
+    font-size: 16px;
+    padding: 5px;
+    width: 100px;
+    transition: all 0.5s;
+    vertical-align: middle;
+    cursor: pointer;
+    overflow: hidden;
+    position: absolute;
+    z-index: 101;
+}
+
+.close-button span {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.5s;
+}
+
+.close-button span:after {
+    content: '«';
+    position: absolute;
+    visibility: hidden;
+    top: 0;
+    left: -50px;
+    transition: 0.5s;
+}
+
+.close-button:hover span {
+    padding-left: 25px;
+}
+
+.close-button:hover span:after {
+    visibility: visible;
+    right: 0;
+}
+
+#loading-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    color: #d3e2eb;
+    width: 100%;
+    height: 100%;
+    background-color: #2B2B2B;
+}
+
+#loading-screen .title {
+    padding-top: 10%;
+    font-size: 3em;
+    text-align: center;
+}
+
+#loading-screen .title * {
+    vertical-align: middle;
+}
+
+#loading-screen .title img {
+    height: 100px;
+}
+
+#loading-screen .loading {
+    width: 20%;
+    padding-top: 5%;
+    font-size: 1.5em;
+}
+
+#loading-screen .loading .disclaimer {
+    position: absolute;
+    bottom: 10px;
+    font-size: 0.5em;
+}
+
+.fa-check {
+    color: #2ecc71;
 }

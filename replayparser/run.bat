@@ -1,2 +1,2 @@
 @echo off
-java -Dlogback.statusListenerClass=ch.qos.logback.core.status.NopStatusListener -cp .\classfiles;.\deps\* Main %1
+java -Dlogback.statusListenerClass=ch.qos.logback.core.status.NopStatusListener -Xms256M -Xmx1024M -cp .\classfiles;.\deps\* Main %1

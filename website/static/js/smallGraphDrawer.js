@@ -1,7 +1,16 @@
 var aggregateData = undefined;
 
-(function ($) {
+var smallGraphs = function ($) {
   'use strict';
+
+  var $roshanChart = $('#roshanSmallChart');
+  var $wardChart = $('#wardSmallChart');
+  var $sentryChart = $('#sentrySmallChart');
+  var $playerKillsChart = $('#playerKillsSmallChart');
+  var $graphBar = $('#graph-bar');
+  var gHeight = $graphBar.height();
+  var gWidth = $graphBar.width();
+  var time = [];
 
   var graphSettings = {
     barValueSpacing: 0,
@@ -13,14 +22,6 @@ var aggregateData = undefined;
     scaleShowHorizontalLines: false,
     showTooltips: false
   };
-
-  var time = (function () {
-    var temp = [];
-    for (var k = 0; k < 61; k++) {
-      temp.push("");
-    }
-    return temp;
-  })();
 
   var charArr2Str = function (charArr) {
     var chunkSize = 0x8000;
@@ -38,9 +39,27 @@ var aggregateData = undefined;
     var dataStr = charArr2Str(dataCharArr);
     aggregateData = JSON.parse(dataStr);
 
+    // LOADING UPDATE
+    $('#aggregate-data').removeClass('fa-cog fa-spin').addClass('fa-check');
+
+    time = (function () {
+      var temp = [];
+      for (var k = 0; k < endTime; k++) {
+        temp.push("");
+      }
+      return temp;
+    })();
+
+    $graphBar.find('canvas').each(function(index) {
+      $(this).data('pos', index);
+    });
+
     drawRoshanChart(aggregateData["roshCounts"]);
     drawWardsChart(aggregateData["wardCounts"]);
+    drawSentryChart(aggregateData["sentryCounts"]);
     drawPlayerKillsChart(aggregateData["deathCounts"]);
+
+    bigGraphs($);
   };
 
   var loadPlayerData = function () {
@@ -55,9 +74,9 @@ var aggregateData = undefined;
   };
 
   var drawRoshanChart = function (roshanDeaths) {
-    var roshan_ctx = document.getElementById("roshanSmallChart").getContext("2d");
-    roshan_ctx.canvas.width = 600;
-    roshan_ctx.canvas.height = 40;
+    var roshan_ctx = $roshanChart.get(0).getContext("2d");
+    roshan_ctx.canvas.width = gWidth;
+    roshan_ctx.canvas.height = gHeight;
     var data = {
       labels: time,
       datasets: [
@@ -73,9 +92,9 @@ var aggregateData = undefined;
     var roshanChart = new Chart(roshan_ctx).Bar(data, graphSettings);
   };
   var drawWardsChart = function (wardCount) {
-    var ward_ctx = document.getElementById("wardSmallChart").getContext("2d");
-    ward_ctx.canvas.width = 800;
-    ward_ctx.canvas.height = 40;
+    var ward_ctx = $wardChart.get(0).getContext("2d");
+    ward_ctx.canvas.width = gWidth;
+    ward_ctx.canvas.height = gHeight;
     var data = {
       labels: time,
       datasets: [
@@ -90,11 +109,29 @@ var aggregateData = undefined;
     };
     var wardChart = new Chart(ward_ctx).Bar(data, graphSettings);
   };
+  var drawSentryChart = function (sentryCount) {
+    var sentry_ctx = $sentryChart.get(0).getContext("2d");
+    sentry_ctx.canvas.width = gWidth;
+    sentry_ctx.canvas.height = gHeight;
+    var data = {
+      labels: time,
+      datasets: [
+        {
+          label: "Sentries Placed",
+          fillColor: "ForestGreen",
+          strokeColor: "rgba(220,220,220,0.8)",
+          highlightFill: "rgba(220,220,220,0.75)",
+          highlightStroke: "rgba(220,220,220,1)",
+          data: sentryCount
+        }]
+    };
+    var sentryChart = new Chart(sentry_ctx).Bar(data, graphSettings);
+  };
   var drawPlayerKillsChart = function (playerKillCount) {
-    var player_kills_ctx = document.getElementById("playerKillsSmallChart").getContext("2d");
+    var player_kills_ctx = $playerKillsChart.get(0).getContext("2d");
+    player_kills_ctx.canvas.width = gWidth;
+    player_kills_ctx.canvas.height = gHeight;
 
-    player_kills_ctx.canvas.width = 800;
-    player_kills_ctx.canvas.height = 40;
     var data = {
       labels: time,
       datasets: [
@@ -110,57 +147,30 @@ var aggregateData = undefined;
     var player_kills_Chart = new Chart(player_kills_ctx).Bar(data, graphSettings);
   };
 
-  var upcount = 0;
-  var downcount = 0;
-  $('#uparrow').on("click", function () {
-    upcount++;
-    var roshan = document.getElementById("roshanSmallChart");
-    var ward = document.getElementById("wardSmallChart");
-    var player_kills_Chart = document.getElementById("playerKillsSmallChart");
-    if ((upcount % 3) == 1) {
-      $("#roshanSmallChart").hide();
-      $("#playerKillsSmallChart").hide();
-      ward.style.display = "block";
-      $("#graph-label").text("Wards");
-    }
-    else if ((upcount % 3) == 2) {
-      $("#wardSmallChart").hide();
-      $("#roshanKillsSmallChart").hide();
-      player_kills_Chart.style.display = "block";
-      $("#graph-label").text("Kills");
-    }
-    else {
-      $("#wardSmallChart").hide();
-      $("#playerKillsSmallChart").hide();
-      roshan.style.display = "block";
-      $("#graph-label").text("Roshan");
-    }
+  var setVisibleGraph = function(pos) {
+    $graphBar.find('canvas').each(function(index) {
+      if (index === pos) {
+        $(this).addClass('selected').show();
+        $('#graph-label').text($(this).data('name'));
+      }
+    });
+  };
+
+  $('#uparrow').click(function () {
+    var otherGraphCount = $graphBar.find('canvas').get().length;
+    var $selected = $graphBar.find('.selected');
+    $selected.removeClass('selected').hide();
+    var nextPos = (+$selected.data('pos') + 1) % otherGraphCount;
+    setVisibleGraph(nextPos);
   });
 
-  $('#downarrow').on("click", function () {
-    upcount++;
-    var roshan = document.getElementById("roshanSmallChart");
-    var ward = document.getElementById("wardSmallChart");
-    var player_kills_Chart = document.getElementById("playerKillsSmallChart");
-    if ((upcount % 3) == 1) {
-      $("#roshanSmallChart").hide();
-      $("#wardSmallChart").hide();
-      player_kills_Chart.style.display = "block";
-      $("#graph-label").text("Kills");
-    }
-    else if ((upcount % 3) == 2) {
-      $("#playerKillsSmallChart").hide();
-      $("#roshanKillsSmallChart").hide();
-      ward.style.display = "block";
-      $("#graph-label").text("Wards");
-    }
-    else {
-      $("#wardSmallChart").hide();
-      $("#playerKillsSmallChart").hide();
-      roshan.style.display = "block";
-      $("#graph-label").text("Roshan");
-    }
+  $('#downarrow').click(function () {
+    var otherGraphCount = $graphBar.find('canvas').get().length;
+    var $selected = $graphBar.find('.selected');
+    $selected.removeClass('selected').hide();
+    var nextPos = ((+$selected.data('pos') - 1) + otherGraphCount) % otherGraphCount;
+    setVisibleGraph(nextPos);
   });
 
   $(document).ready(loadPlayerData);
-})(jQuery);
+};

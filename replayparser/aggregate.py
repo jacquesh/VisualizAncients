@@ -81,6 +81,13 @@ def parseMatchData(aggregate, matchFileName):
         locIndex = yIndex*64 + xIndex
         aggregate["smokeData"][timeIndex][locIndex] += 1
 
+def normalizeTimeBuckets(timeBucketList):
+    for timeBucket in timeBucketList:
+        maxVal = max(timeBucket)
+        if maxVal == 0:
+            continue
+        for i in range(len(timeBucket)):
+            timeBucket[i] = int(100*timeBucket[i]/maxVal)
 
 def run(dirName):
     aggregate = {}
@@ -104,6 +111,13 @@ def run(dirName):
         if (fileName != "aggregate.zjson") and fileName.endswith(".zjson"):
             filePath = os.path.join(dirName, fileName)
             parseMatchData(aggregate, filePath)
+
+    # NOTE: Now that we've got all the data, we need to normalize it so that we always have a percentage value that lies in the range [0,100]
+    normalizeTimeBuckets(aggregate["positionData"])
+    normalizeTimeBuckets(aggregate["deathData"])
+    normalizeTimeBuckets(aggregate["wardData"])
+    normalizeTimeBuckets(aggregate["sentryData"])
+    normalizeTimeBuckets(aggregate["smokeData"])
 
     outputString = json.dumps(aggregate).encode("ascii")
     outputBytes = zlib.compress(outputString)

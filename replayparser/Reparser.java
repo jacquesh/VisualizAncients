@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.zip.DeflaterOutputStream;
 
@@ -50,16 +51,6 @@ public class Reparser
 {
     private final int NULL_HANDLE = 16777215;
 
-    private final float[][][] towerPositions = {
-        {{97.749268f,80.249512f},{92.004395f,96.000000f},{76.250244f,101.999268f},{123.639893f,80.366699f},{166.492432f,80.482178f},{100.566895f,106.304688f},{80.000244f,121.491455f},{80.375244f,142.366455f},{83.629395f,89.875000f},{85.879395f,87.625000f},{115.348145f,116.250000f}},
-        {{166.765625f,165.374756f},{128.000000f,174.999756f},{91.000000f,174.999756f},{147.500000f,144.499756f},{135.999756f,130.499756f},{176.500000f,114.999756f},{177.000000f,130.999756f},{177.031250f,151.312256f},{155.375000f,173.124756f},{161.000000f,156.991943f},{169.250000f,162.624756f}}
-    };
-
-    private final float[][][] barracksPositions = {
-        {{91.375000f, 92.632568f},{88.593750f, 95.390381f},{94.937500f, 78.281006f},{94.945068f, 82.241943f},{78.250000f, 99.015625f},{74.281250f, 99.007568f}},
-        {{179.062256f, 154.125000f},{174.937500f, 153.999756f},{161.499756f, 160.304443f},{164.359375f, 157.500000f},{158.078125f, 171.062256f},{158.046875f, 175.195068f}}
-    };
-
     // String.format is slow, but StringBuilder is fast and javac optimizes String+ to StringBuilder code, so we precompute these and just use +
     private final String[] int4Str = {"0000", "0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009"};
 
@@ -73,6 +64,7 @@ public class Reparser
     private Entity dataSpectator;
     private Entity[] teamEntities;
     private StringTable entityNames;
+    private Entity[] tier4Towers;
 
     private Rune topRune;
     private Rune botRune;
@@ -81,6 +73,7 @@ public class Reparser
     private ArrayList<Entity> courierList;
     private ArrayList<Entity> laneCreepList;
 
+    private HashSet<Integer> seenWards;
     private ArrayList<WardEvent> wardEvents;
     private ArrayList<RoshanEvent> roshEvents;
     private ArrayList<TowerEvent> towerDeaths;
@@ -88,12 +81,15 @@ public class Reparser
 
     private int heroCount;
     private float startTime;
-    private float endTime;
+    private int firstHeroSpawnTick;
+    private int ancientDeathTick;
 
     public Reparser()
     {
         heroCount = 0;
         startTime = 0.0f;
+        firstHeroSpawnTick = 0;
+        ancientDeathTick = 0;
 
         snapshotList = new ArrayList<Snapshot>(1024);
         currentSnapshot = new Snapshot(0);
@@ -102,6 +98,7 @@ public class Reparser
         playerResource = null;
         dataSpectator = null;
         teamEntities = new Entity[2];
+        tier4Towers = new Entity[]{null, null, null, null};
 
         topRune = new Rune();
         topRune.entityHandle = NULL_HANDLE;
@@ -114,6 +111,7 @@ public class Reparser
         courierList = new ArrayList<Entity>(2);
         laneCreepList = new ArrayList<Entity>(64);
 
+        seenWards = new HashSet<Integer>();
         wardEvents = new ArrayList<WardEvent>();
         roshEvents = new ArrayList<RoshanEvent>();
         towerDeaths = new ArrayList<TowerEvent>();
@@ -161,6 +159,11 @@ public class Reparser
     public void onTickStart(Context ctx, boolean synthetic)
     {
         Snapshot newSnapshot = new Snapshot(courierList.size());
+        for(int i=0; i<10; ++i)
+        {
+            newSnapshot.heroes[i].smoked = currentSnapshot.heroes[i].smoked;
+        }
+
         currentSnapshot = newSnapshot;
 
         if((playerResource == null) || (gameRules == null) || (dataSpectator == null)
@@ -189,7 +192,6 @@ public class Reparser
             if(i == 5)
                 teamIndex += 1;
 
-            // TODO: This net worth is VERY wrong
             String playerKillsName = "m_vecPlayerTeamData." + int4Str[i] + ".m_iKills";
             String netWorthName = "m_iNetWorth." + int4Str[i];
             int playerKills = playerResource.getProperty(playerKillsName);
@@ -232,8 +234,6 @@ public class Reparser
                 float subCellX = hero.getProperty("CBodyComponent.m_vecX");
                 float subCellY = hero.getProperty("CBodyComponent.m_vecY");
 
-                // TODO: Check that this is correct from:
-                //       https://github.com/skadistats/skadi/wiki/DT_DOTA_BaseNPC
                 long unitState = hero.getProperty("m_nUnitState64");
                 boolean isInvis = ((unitState & (1 << 8)) != 0);
 
@@ -284,6 +284,19 @@ public class Reparser
         for(int i=0; i<laneCreepList.size(); ++i)
         {
             Entity creep = laneCreepList.get(i);
+            int lifeState = creep.getProperty("m_lifeState");
+            if(lifeState != 0)
+            {
+                laneCreepList.remove(i);
+                i -= 1;
+                continue;
+            }
+            boolean waitingToSpawn = creep.getProperty("m_bIsWaitingToSpawn");
+            if(waitingToSpawn)
+            {
+                continue;
+            }
+
             int cellX = creep.getProperty("CBodyComponent.m_cellX");
             int cellY = creep.getProperty("CBodyComponent.m_cellY");
             float subCellX = creep.getProperty("CBodyComponent.m_vecX");
@@ -418,26 +431,64 @@ public class Reparser
             else if(teamNumber == 3)
                 teamEntities[1] = ent;
         }
+        else if(className.equals("CDOTA_BaseNPC_Tower"))
+        {
+            int cellX = ent.getProperty("CBodyComponent.m_cellX");
+            int cellY = ent.getProperty("CBodyComponent.m_cellY");
+            if((cellX == 82) && (cellY == 88)) // Radiant Top T4
+                tier4Towers[0] = ent;
+            else if((cellX == 84) && (cellY == 86)) // Radiant Bot T4
+                tier4Towers[1] = ent;
+            else if((cellX == 166) && (cellY == 164)) // Dire Top T4
+                tier4Towers[2] = ent;
+            else if((cellX == 168) && (cellY == 162)) // Dire Bot T4
+                tier4Towers[3] = ent;
+        }
+        else if(className.startsWith("CDOTA_Unit_Hero"))
+        {
+            if(firstHeroSpawnTick == 0)
+            {
+                firstHeroSpawnTick = snapshotList.size();
+            }
+        }
+    }
+
+    @OnEntityUpdated
+    public void onEntityUpdated(Context ctx, Entity ent, FieldPath[] fields, int num)
+    {
+        String className = ent.getDtClass().getDtName();
+        boolean isWard = className.equals("CDOTA_NPC_Observer_Ward");
+        boolean isSentry = className.equals("CDOTA_NPC_Observer_Ward_TrueSight");
+        if(isWard || isSentry)
+        {
+            int handle = ent.getHandle();
+            int lifeState = ent.getProperty("m_lifeState");
+            if(lifeState != 0)
+            {
+                if(!seenWards.contains(handle))
+                {
+                    seenWards.add(handle);
+
+                    boolean isDire = (ent.getProperty("m_iTeamNum") == 3);
+                    WardEvent evt = new WardEvent();
+                    evt.time = currentSnapshot.time;
+                    evt.x = 0.0f;
+                    evt.y = 0.0f;
+                    evt.entityHandle = handle;
+                    evt.isDire = isDire;
+                    evt.isSentry = isSentry;
+                    evt.died = true;
+                    wardEvents.add(evt);
+                }
+            }
+        }
     }
 
     @OnEntityDeleted
     public void onEntityDeleted(Context ctx, Entity ent)
     {
         String className = ent.getDtClass().getDtName();
-        if(className.equals("CDOTA_BaseNPC_Creep_Lane")
-                || className.equals("CDOTA_BaseNPC_Creep_Siege"))
-        {
-            int entityHandle = ent.getHandle();
-            for(int i=0; i<laneCreepList.size(); ++i)
-            {
-                if(laneCreepList.get(i).getHandle() == entityHandle)
-                {
-                    laneCreepList.remove(i);
-                    break;
-                }
-            }
-        }
-        else if(className.equals("CDOTA_Item_Rune"))
+        if(className.equals("CDOTA_Item_Rune"))
         {
             int cellX = ent.getProperty("CBodyComponent.m_cellX");
             int cellY = ent.getProperty("CBodyComponent.m_cellY");
@@ -463,72 +514,6 @@ public class Reparser
             }
             else
                 System.out.printf("ERROR: Unrecognised rune spawn location: (%d,%d)\n", cellX, cellY);
-        }
-        if(className.equals("CDOTA_Unit_Roshan"))
-        {
-            RoshanEvent evt = new RoshanEvent();
-            evt.time = currentSnapshot.time;
-            evt.died = true;
-            roshEvents.add(evt);
-        }
-        else if(className.equals("CDOTA_NPC_Observer_Ward")
-                || className.equals("CDOTA_NPC_Observer_Ward_TrueSight"))
-        {
-            boolean isSentry = className.endsWith("TrueSight");
-            boolean isDire = (ent.getProperty("m_iTeamNum") == 3);
-
-            WardEvent evt = new WardEvent();
-            evt.time = currentSnapshot.time;
-            evt.x = 0.0f;
-            evt.y = 0.0f;
-            evt.entityHandle = ent.getHandle();
-            evt.isDire = isDire;
-            evt.isSentry = isSentry;
-            evt.died = true;
-            wardEvents.add(evt);
-        }
-        else if(className.equals("CDOTA_BaseNPC_Tower")
-                || className.equals("CDOTA_BaseNPC_Barracks"))
-        {
-            int cellX = ent.getProperty("CBodyComponent.m_cellX");
-            int cellY = ent.getProperty("CBodyComponent.m_cellY");
-            float subCellX = ent.getProperty("CBodyComponent.m_vecX");
-            float subCellY = ent.getProperty("CBodyComponent.m_vecY");
-            float x = (float)cellX + (subCellX/128.0f);
-            float y = (float)cellY + (subCellY/128.0f);
-            boolean isRax = className.equals("CDOTA_BaseNPC_Barracks");
-            float[][][] buildings = towerPositions;
-            if(isRax)
-                buildings = barracksPositions;
-
-            int teamNumber = ent.getProperty("m_iTeamNum");
-            int teamIndex = teamNumber - 2;
-            int towerIndex = -1;
-            for(int i=0; i<buildings[teamIndex].length; ++i)
-            {
-                float dx = buildings[teamIndex][i][0] - x;
-                float dy = buildings[teamIndex][i][1] - y;
-                if(dx*dx + dy*dy < 0.1f)
-                {
-                    towerIndex = i;
-                    break;
-                }
-            }
-            if(towerIndex == -1)
-            {
-                System.out.printf("ERROR: Unknown tower at (%f,%f)\n", x,y);
-            }
-
-            TowerEvent evt = new TowerEvent();
-            evt.time = currentSnapshot.time;
-            evt.teamIndex = teamIndex;
-            evt.towerIndex = towerIndex;
-            evt.isBarracks = isRax;
-            towerDeaths.add(evt);
-        }
-        else if(className.equals("CDOTA_BaseNPC_Fort"))
-        {
-            endTime = currentSnapshot.time;
         }
     }
 
@@ -572,6 +557,145 @@ public class Reparser
                 evt.x = currentSnapshot.heroes[playerIndex].x;
                 evt.y = currentSnapshot.heroes[playerIndex].y;
                 smokeUses.add(evt);
+            }
+        }
+        else if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_MODIFIER_ADD)
+        {
+            String inflictorName = entry.getInflictorName();
+            if(inflictorName.equals("modifier_smoke_of_deceit"))
+            {
+                String targetName = entry.getTargetName();
+                for(int i=0; i<10; ++i)
+                {
+                    if(heroes[i].heroName.equals(targetName))
+                    {
+                        currentSnapshot.heroes[i].smoked = true;
+                        break;
+                    }
+                }
+            }
+        }
+        else if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_MODIFIER_REMOVE)
+        {
+            String inflictorName = entry.getInflictorName();
+            if(inflictorName.equals("modifier_smoke_of_deceit"))
+            {
+                String targetName = entry.getTargetName();
+                for(int i=0; i<10; ++i)
+                {
+                    if(heroes[i].heroName.equals(targetName))
+                    {
+                        currentSnapshot.heroes[i].smoked = false;
+                        break;
+                    }
+                }
+            }
+        }
+        else if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_TEAM_BUILDING_KILL)
+        {
+            String deadName = entry.getTargetName();
+            boolean isTower = deadName.contains("_tower");
+            boolean isRax = deadName.contains("_rax");
+            boolean isAncient = deadName.endsWith("_fort");
+            if(isTower || isRax)
+            {
+                TowerEvent evt = new TowerEvent();
+                evt.time = currentSnapshot.time;
+                evt.isBarracks = isRax;
+                if(deadName.startsWith("npc_dota_goodguys_"))
+                {
+                    evt.teamIndex = 0;
+                    deadName = deadName.substring(18);
+                }
+                else if(deadName.startsWith("npc_dota_badguys_"))
+                {
+                    evt.teamIndex = 1;
+                    deadName = deadName.substring(17);
+                }
+                if(isRax)
+                {
+                    if(deadName.equals("melee_rax_bot"))
+                        evt.towerIndex = 0;
+                    else if(deadName.equals("range_rax_bot"))
+                        evt.towerIndex = 1;
+                    else if(deadName.equals("melee_rax_mid"))
+                        evt.towerIndex = 2;
+                    else if(deadName.equals("range_rax_mid"))
+                        evt.towerIndex = 3;
+                    else if(deadName.equals("melee_rax_top"))
+                        evt.towerIndex = 4;
+                    else if(deadName.equals("range_rax_top"))
+                        evt.towerIndex = 5;
+                }
+                else
+                {
+                    if(deadName.equals("tower1_top"))
+                        evt.towerIndex = 0;
+                    else if(deadName.equals("tower2_top"))
+                        evt.towerIndex = 1;
+                    else if(deadName.equals("tower3_top"))
+                        evt.towerIndex = 2;
+
+                    else if(deadName.equals("tower1_mid"))
+                        evt.towerIndex = 3;
+                    else if(deadName.equals("tower2_mid"))
+                        evt.towerIndex = 4;
+                    else if(deadName.equals("tower3_mid"))
+                        evt.towerIndex = 5;
+
+                    else if(deadName.equals("tower1_bot"))
+                        evt.towerIndex = 6;
+                    else if(deadName.equals("tower2_bot"))
+                        evt.towerIndex = 7;
+                    else if(deadName.equals("tower3_bot"))
+                        evt.towerIndex = 8;
+
+                    else if(deadName.equals("tower4"))
+                    {
+                        evt.towerIndex = -1;
+                        for(int i=0; i<2; i++)
+                        {
+                            int towerIndex = (2*evt.teamIndex) + i;
+                            if(tier4Towers[towerIndex] != null)
+                            {
+                                int lifeState = tier4Towers[towerIndex].getProperty("m_lifeState");
+                                if(lifeState != 0)
+                                {
+                                    // All tower lists are arranged [top,bot], so index 9 is the top t4
+                                    // and because our t4Towers list has the same arrangement we can just
+                                    // use the index into that to get our tower index
+                                    tier4Towers[towerIndex] = null;
+                                    evt.towerIndex = 9+i;
+                                    break;
+                                }
+                            }
+                        }
+                        if(evt.towerIndex == -1)
+                        {
+                            System.out.println("ERROR: Unrecognized Tier 4 tower death");
+                        }
+                    }
+                }
+                towerDeaths.add(evt);
+            }
+            else if(isAncient)
+            {
+                if(ancientDeathTick == 0)
+                {
+                    ancientDeathTick = snapshotList.size();
+                }
+            }
+        }
+        else if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_DEATH)
+        {
+            String deadName = entry.getTargetName();
+            boolean isRosh = deadName.equals("npc_dota_roshan");
+            if(isRosh)
+            {
+                RoshanEvent evt = new RoshanEvent();
+                evt.time = currentSnapshot.time;
+                evt.died = true;
+                roshEvents.add(evt);
             }
         }
     }
@@ -632,24 +756,101 @@ public class Reparser
         }
         out.write("],\n");
 
-        out.write("\"snapshots\":[");
-        for(int i=0; i<snapshotList.size(); i+=snapshotInterval)
+        ArrayList<WardEvent> activeWards = new ArrayList<WardEvent>();
+        int nextWardEventIndex = 0;
+        WardEvent nextWardEvent = wardEvents.get(0);
+        ArrayList<TowerEvent> activeTowers = new ArrayList<TowerEvent>();
+        int nextTowerEventIndex = 0;
+        TowerEvent nextTowerEvent = towerDeaths.get(0);
+        for(int i=0; i<11; ++i)
         {
-            if(i > 0)
+            for(int team=0; team<2; ++team)
+            {
+                TowerEvent towerEvt = new TowerEvent();
+                towerEvt.teamIndex = team;
+                towerEvt.towerIndex = i;
+                towerEvt.isBarracks = false;
+                activeTowers.add(towerEvt);
+            }
+            if(i < 6)
+            {
+                for(int team=0; team<2; ++team)
+                {
+                    TowerEvent towerEvt = new TowerEvent();
+                    towerEvt.teamIndex = team;
+                    towerEvt.towerIndex = i;
+                    towerEvt.isBarracks = true;
+                    activeTowers.add(towerEvt);
+                }
+            }
+        }
+        out.write("\"snapshots\":[\n");
+        int firstTick = firstHeroSpawnTick - 1;
+        int lastTick = ancientDeathTick + snapshotInterval;
+        for(int i=firstTick; i<lastTick; i+=snapshotInterval)
+        {
+            if(i > firstTick)
             {
                 out.write(",");
             }
-            out.write("\n");
-            Snapshot ss = snapshotList.get(i);
-            ss.write(out);
-            if(ss.time >= endTime)
-            {
-                break;
-            }
-        }
-        out.write("\n]\n");
 
-        out.write("}");
+            Snapshot ss = snapshotList.get(i);
+            while(nextWardEvent.time < ss.time)
+            {
+                if(nextWardEvent.died)
+                {
+                    for(int j=0; j<activeWards.size(); ++j)
+                    {
+                        if(nextWardEvent.entityHandle == activeWards.get(j).entityHandle)
+                        {
+                            activeWards.remove(j);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    activeWards.add(nextWardEvent);
+                }
+                nextWardEventIndex++;
+                if(nextWardEventIndex < wardEvents.size())
+                {
+                    nextWardEvent = wardEvents.get(nextWardEventIndex);
+                }
+                else
+                {
+                    nextWardEvent.time = snapshotList.get(snapshotList.size()-1).time + 1;
+                }
+            }
+
+            while(nextTowerEvent.time < ss.time)
+            {
+                for(int j=0; j<activeTowers.size(); ++j)
+                {
+                    TowerEvent evt = activeTowers.get(j);
+                    if((nextTowerEvent.teamIndex == evt.teamIndex) &&
+                            (nextTowerEvent.towerIndex == evt.towerIndex) &&
+                            (nextTowerEvent.isBarracks == evt.isBarracks))
+                    {
+                        activeTowers.remove(j);
+                        break;
+                    }
+                }
+                nextTowerEventIndex++;
+                if(nextTowerEventIndex < towerDeaths.size())
+                {
+                    nextTowerEvent = towerDeaths.get(nextTowerEventIndex);
+                }
+                else
+                {
+                    nextTowerEvent.time = snapshotList.get(snapshotList.size()-1).time + 1;
+                }
+            }
+
+            ss.write(out, activeWards, activeTowers);
+            out.write("\n");
+        }
+        out.write("]\n}");
 
         out.close();
         zipOutStream.finish();

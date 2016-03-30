@@ -1,50 +1,34 @@
-(function ($) {
+var bigGraphs = function ($) {
   'use strict';
 
-  var replayData = undefined;
+  var gWidth = 0;
+
   var graphSettings = {barValueSpacing: 0};
   var time = (function () {
     var temp = [];
-    for (var k = 0; k < 61; k++) {
+    for (var k = 0; k < endTime; k++) {
       temp.push(k);
     }
     return temp;
   })();
 
-  var charArr2Str = function (charArr) {
-    var chunkSize = 0x8000;
-    var outputArr = [];
-    for (var i = 0; i < charArr.length; i += chunkSize) {
-      outputArr.push(String.fromCharCode.apply(null, charArr.subarray(i, i + chunkSize)));
-    }
-    return outputArr.join('');
-  };
+  var setupGraphs = function () {
+    gWidth = ($('#big-graph-overlay').width() * 0.8) - 165;
+    drawRoshanChart(aggregateData["roshCounts"]);
+    drawWardsChart(aggregateData["wardCounts"]);
+    drawSentryChart(aggregateData["sentryCounts"]);
+    drawPlayerKillsChart(aggregateData["deathCounts"]);
 
-  var setupPlayerData = function (data) {
-    var inflater = new pako.Inflate();
-    inflater.push(data, true);
-    var dataCharArr = inflater.result;
-    var dataStr = charArr2Str(dataCharArr);
-    replayData = JSON.parse(dataStr);
-
-    drawRoshanChart(replayData["roshCounts"]);
-    drawWardsChart(replayData["wardCounts"]);
-    drawPlayerKillsChart(replayData["deathCounts"]);
-  };
-
-  var loadPlayerData = function () {
-    var req = new XMLHttpRequest();
-    req.open("GET", "/static/aggregate.zjson", true);
-    req.responseType = "arraybuffer";
-    req.onload = function (event) {
-      var bytes = new Uint8Array(req.response);
-      return setupPlayerData(bytes);
-    };
-    req.send();
+    // LOADING UPDATE
+    $('#generate-graphs').removeClass('fa-cog fa-spin').addClass('fa-check');
+    $('#loading-screen').delay(1000).fadeOut(200);
+    $('#content-container').css('visibility', 'visible');
   };
 
   var drawRoshanChart = function (roshanDeaths) {
-    var roshan_ctx = document.getElementById("roshanChart").getContext("2d");
+    var roshan_ctx = $("#roshanChart").get(0).getContext("2d");
+    roshan_ctx.canvas.width = gWidth;
+    roshan_ctx.canvas.height = 200;
     var data = {
       labels: time,
       datasets: [
@@ -60,7 +44,9 @@
     var roshanChart = new Chart(roshan_ctx).Bar(data, graphSettings);
   };
   var drawWardsChart = function (wardCount) {
-    var ward_ctx = document.getElementById("wardChart").getContext("2d");
+    var ward_ctx = $("#wardChart").get(0).getContext("2d");
+    ward_ctx.canvas.width = gWidth;
+    ward_ctx.canvas.height = 200;
     var data = {
       labels: time,
       datasets: [
@@ -75,8 +61,28 @@
     };
     var wardChart = new Chart(ward_ctx).Bar(data, graphSettings);
   };
+  var drawSentryChart = function (sentryCount) {
+    var sentry_ctx = $("#sentryChart").get(0).getContext("2d");
+    sentry_ctx.canvas.width = gWidth;
+    sentry_ctx.canvas.height = 200;
+    var data = {
+      labels: time,
+      datasets: [
+        {
+          label: "Sentries Placed",
+          fillColor: "ForestGreen",
+          strokeColor: "rgba(220,220,220,0.8)",
+          highlightFill: "rgba(220,220,220,0.75)",
+          highlightStroke: "rgba(220,220,220,1)",
+          data: sentryCount
+        }]
+    };
+    var sentryChart = new Chart(sentry_ctx).Bar(data, graphSettings);
+  };
   var drawPlayerKillsChart = function (playerKillCount) {
-    var player_kills_ctx = document.getElementById("player_kills_Chart").getContext("2d");
+    var player_kills_ctx = $("#player_kills_Chart").get(0).getContext("2d");
+    player_kills_ctx.canvas.width = gWidth;
+    player_kills_ctx.canvas.height = 200;
     var data = {
       labels: time,
       datasets: [
@@ -92,5 +98,5 @@
     var player_kills_Chart = new Chart(player_kills_ctx).Bar(data, graphSettings);
   };
 
-  $(document).ready(loadPlayerData);
-})(jQuery);
+  $(document).ready(setupGraphs);
+};
