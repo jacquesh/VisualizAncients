@@ -985,6 +985,9 @@ var lerp = function(from, to, t) {
   };
 
   var getTime = function(tick) {
+    if ((tick < 0) || (tick > replayData.snapshots.length)) {
+      tick = Math.max(Math.min(tick, replayData.snapshots.length - 1), 0);
+    }
     var snapshot = replayData.snapshots[tick];
     var gameTime = snapshot.time - replayData.startTime;
 
