@@ -100,6 +100,8 @@ public class Snapshot
             if(heroIndex == 5)
                 teamMultiplier = -1;
 
+            if(!heroes[heroIndex].alive)
+                continue;
             int heroX = (int)Math.round((heroes[heroIndex].x - 64.0f)/2.0f);
             int heroY = (int)Math.round((heroes[heroIndex].y - 64.0f)/2.0f);
             applyPresence(presenceVals, heroX, heroY,
