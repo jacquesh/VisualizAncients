@@ -311,14 +311,11 @@ var lerp = function(from, to, t) {
 
     drawHeatmap: function(tick, snapshots) {
       if (this.showHeatmap) {
-        var rangeEndSnapshot = snapshots[tick];
-        var dataEndIndex = Math.round(rangeEndSnapshot.time - replayData.startTime) + 75;
-
         var $heatmap = $('#heatmap');
         var pxX = 0;
         var pxY = 0;
-        var heatmapAlpha = 255;
-        var dataSource = aggregateData.positionData;
+        var heatmapAlpha = 200;
+        var dataIndex = Math.round(snapshots[tick].time - replayData.startTime) + 75;
 
         $heatmap.setPixels({
           x:0, y:0,
@@ -328,7 +325,7 @@ var lerp = function(from, to, t) {
             var cellX = Math.floor((pxX/420)*64);
             var cellY = 63 - Math.floor((pxY/420)*64);
             var cellIndex = cellY*64 + cellX;
-            var heatmapVal = dataSource[dataEndIndex][cellIndex];
+            var heatmapVal = aggregateData.positionData[dataIndex][cellIndex];
 
             px.b = 0;
             var baseVal = 0;
