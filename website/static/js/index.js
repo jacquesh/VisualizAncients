@@ -829,7 +829,11 @@ var lerp = function(from, to, t) {
       '<div id="' + eventId + '" class="event ' + eventClass + '"></div>'
     );
 
-    html5tooltips({contentText: tooltip, targetSelector: '#' + eventId});
+    html5tooltips({
+      contentText: tooltip,
+      targetSelector: '#' + eventId,
+      stickTo: (top ? 'top' : 'bottom')
+    });
 
     var startTime = replayData.snapshots[0].time;
     var endTime = replayData.snapshots[replayData.snapshots.length-1].time;
