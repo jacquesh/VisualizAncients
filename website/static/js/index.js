@@ -1049,6 +1049,7 @@ var lerp = function(from, to, t) {
 
     mapManager.drawPresenceMap(snapshot);
 
+    $map.moveLayer('presence', 0);
     $map.moveLayer('heatmap', 0);
     $map.drawLayers();
 
