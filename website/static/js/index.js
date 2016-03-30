@@ -269,6 +269,121 @@ var lerp = function(from, to, t) {
       }
     },
 
+    drawPresenceMap: function(snapshot) {
+      var $presence = $('#presence');
+      if (this.showPresence) {
+        var pxX = 0;
+        var pxY = 0;
+        var colours = [{r:255, g:255, b:255, a:128},
+                       {},
+                       {r:9, g:127, b:230, a:128},
+                       {r:7, g:101, b:178, a:255},
+                       {r:230, g:86, b:9, a:128},
+                       {r:178, g:64, b:7, a:255}];
+        $presence.setPixels({
+          x:0, y:0,
+          width:420, height:420,
+          fromCenter: false,
+          each: function(px) {
+            var cellX = Math.floor((pxX/420)*64);
+            var cellY = 63 - Math.floor((pxY/420)*64);
+            var cellIndex = cellY*64 + cellX;
+            var presenceVal = snapshot.presenceData.map[cellIndex];
+            px.r = colours[presenceVal].r;
+            px.g = colours[presenceVal].g;
+            px.b = colours[presenceVal].b;
+            px.a = colours[presenceVal].a;
+
+            pxX++;
+            if(pxX >= 420) {
+              pxX = 0;
+              pxY++;
+            }
+          }
+        });
+
+        $presence.find('img').prop('src', $presence.getCanvasImage());
+      }
+    },
+
+    drawHeatmap: function(t0, t1, snapshots) {
+      if(this.heatmapType > 0) {
+        var rangeStartSnapshot = replayData.snapshots[t0];
+        var rangeEndSnapshot = replayData.snapshots[t1];
+        var dataStartIndex = Math.round(rangeStartSnapshot.time - replayData.startTime) + 75;
+        var dataEndIndex = Math.round(rangeEndSnapshot.time - replayData.startTime) + 75;
+        var dataIndexRange = dataEndIndex - dataStartIndex;
+
+        var $heatmap = $('#heatmap');
+        var pxX = 0;
+        var pxY = 0;
+        var heatmapAlpha = 255;
+        var dataSource = {};
+        if(this.heatmapType == 1) {
+          dataSource = aggregateData.positionData;
+        } else if(this.heatmapType == 2) {
+          dataSource = aggregateData.deathData;
+        } else if(this.heatmapType == 3) {
+          dataSource = aggregateData.wardData;
+        } else if(this.heatmapType == 4) {
+          dataSource = aggregateData.sentryData;
+        } else if(this.heatmapType == 5) {
+          dataSource = aggregateData.smokeData;
+        }
+        $heatmap.setPixels({
+          x:0, y:0,
+          width:420, height:420,
+          fromCenter: false,
+          each: function(px) {
+            var cellX = Math.floor((pxX/420)*64);
+            var cellY = 63 - Math.floor((pxY/420)*64);
+            var cellIndex = cellY*64 + cellX;
+            var heatmapVal = (dataSource[dataEndIndex][cellIndex] - dataSource[dataStartIndex][cellIndex])/1;
+
+            px.b = 0;
+            var baseVal = 0;
+            var midpoint = lerp(baseVal, 100, 0.3);
+            var maxPoint = lerp(baseVal, 100, 0.8);
+            if(heatmapVal > baseVal) {
+              px.a = heatmapAlpha;
+              if(heatmapVal > midpoint) {
+                // R=255, G=255->0 as heatmapVal=midpoint->100
+                var t = (heatmapVal - midpoint)/(maxPoint - midpoint);
+                if(t > 1.0) {
+                  t = 1.0;
+                }
+                px.r = 255;
+                px.g = lerp(255, 0, t);
+              }
+              else {
+                // R=255->0, G=255 as heatmapVal=baseVal->midpoint
+                var t = (heatmapVal - baseVal)/(midpoint - baseVal);
+                px.r = lerp(0,255, t);
+                px.g = 255;
+
+                var aScale = lerp(0, 2, 3*t);
+                if(aScale > 1.0) {
+                  aScale = 1.0
+                }
+                px.a = heatmapAlpha*aScale;
+              }
+            }
+            else {
+              px.a = 0;
+            }
+
+            pxX++;
+            if(pxX >= 420) {
+              pxX = 0;
+              pxY++;
+            }
+          }
+        });
+
+        $heatmap.find('img').prop('src', $heatmap.getCanvasImage());
+      }
+    },
+
     drawMapLine: function(points, colour, dashed, group, name) {
       var lineSettings = {
         name: name,
@@ -489,119 +604,6 @@ var lerp = function(from, to, t) {
 
     resetMap: function() {
       $map.clearCanvas();
-    },
-
-    renderMap: function(snapshot) {
-      var $presence = $('#presence');
-      if (this.showPresence) {
-        var pxX = 0;
-        var pxY = 0;
-        var colours = [{r:255, g:255, b:255, a:128},
-                       {},
-                       {r:9, g:127, b:230, a:128},
-                       {r:7, g:101, b:178, a:255},
-                       {r:230, g:86, b:9, a:128},
-                       {r:178, g:64, b:7, a:255}];
-        $presence.setPixels({
-          x:0, y:0,
-          width:420, height:420,
-          fromCenter: false,
-          each: function(px) {
-            var cellX = Math.floor((pxX/420)*64);
-            var cellY = 63 - Math.floor((pxY/420)*64);
-            var cellIndex = cellY*64 + cellX;
-            var presenceVal = snapshot.presenceData.map[cellIndex];
-            px.r = colours[presenceVal].r;
-            px.g = colours[presenceVal].g;
-            px.b = colours[presenceVal].b;
-            px.a = colours[presenceVal].a;
-
-            pxX++;
-            if(pxX >= 420) {
-              pxX = 0;
-              pxY++;
-            }
-          }
-        });
-
-        $presence.find('img').prop('src', $presence.getCanvasImage());
-      }
-
-      if(this.heatmapType > 0) {
-        var dataIndex = Math.round(snapshot.time - replayData.startTime) + 75;
-        var $heatmap = $('#heatmap');
-        var pxX = 0;
-        var pxY = 0;
-        var heatmapAlpha = 255;
-        var dataSource = {};
-        if(this.heatmapType == 1) {
-          dataSource = aggregateData.positionData;
-        } else if(this.heatmapType == 2) {
-          dataSource = aggregateData.deathData;
-        } else if(this.heatmapType == 3) {
-          dataSource = aggregateData.wardData;
-        } else if(this.heatmapType == 4) {
-          dataSource = aggregateData.sentryData;
-        } else if(this.heatmapType == 5) {
-          dataSource = aggregateData.smokeData;
-        }
-        $heatmap.setPixels({
-          x:0, y:0,
-          width:420, height:420,
-          fromCenter: false,
-          each: function(px) {
-            var cellX = Math.floor((pxX/420)*64);
-            var cellY = 63 - Math.floor((pxY/420)*64);
-            var cellIndex = cellY*64 + cellX;
-            var heatmapVal = dataSource[dataIndex][cellIndex];
-
-            px.b = 0;
-            var baseVal = 0;
-            var midpoint = lerp(baseVal, 100, 0.3);
-            var maxPoint = lerp(baseVal, 100, 0.8);
-            if(heatmapVal > baseVal) {
-              px.a = heatmapAlpha;
-              if(heatmapVal > midpoint) {
-                // R=255, G=255->0 as heatmapVal=midpoint->100
-                var t = (heatmapVal - midpoint)/(maxPoint - midpoint);
-                if(t > 1.0) {
-                  t = 1.0;
-                }
-                px.r = 255;
-                px.g = lerp(255, 0, t);
-              }
-              else {
-                // R=255->0, G=255 as heatmapVal=baseVal->midpoint
-                var t = (heatmapVal - baseVal)/(midpoint - baseVal);
-                px.r = lerp(0,255, t);
-                px.g = 255;
-
-                var aScale = lerp(0, 2, 3*t);
-                if(aScale > 1.0) {
-                  aScale = 1.0
-                }
-                px.a = heatmapAlpha*aScale;
-              }
-            }
-            else {
-              px.a = 0;
-            }
-
-            pxX++;
-            if(pxX >= 420) {
-              pxX = 0;
-              pxY++;
-            }
-          }
-        });
-
-        $heatmap.find('img').prop('src', $heatmap.getCanvasImage());
-      }
-
-      $('#radiant-presence').text(snapshot.presenceData.percentages[0]+"%");
-      $('#dire-presence').text(snapshot.presenceData.percentages[1]+"%");
-
-      $map.drawLayers();
     },
 
     toggleCouriers: function() {
@@ -1054,8 +1056,11 @@ var lerp = function(from, to, t) {
 
     statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
     statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
+    $('#radiant-presence').text(snapshot.presenceData.percentages[0]+"%");
+    $('#dire-presence').text(snapshot.presenceData.percentages[1]+"%");
 
-    mapManager.renderMap(snapshot);
+    mapManager.drawPresenceMap(snapshot);
+    $map.drawLayers();
 
     $timeSlider.find('.label').text(getTime(tick));
   };
@@ -1068,9 +1073,9 @@ var lerp = function(from, to, t) {
     var tick0 = ui.values[0];
     var tick1 = ui.values[1];
 
-    singleSlide(ui.values[1]);
-
-    mapManager.drawHeroPaths(ui.values[0], ui.values[1], snapshots);
+    singleSlide(tick1);
+    mapManager.drawHeroPaths(tick0, tick1, snapshots);
+    mapManager.drawHeatmap(tick0, tick1, snapshots);
 
     $map.drawLayers();
 
@@ -1125,11 +1130,8 @@ var lerp = function(from, to, t) {
     mapManager.setupLayers(replayData.playerHeroes);
     roshanManager.setupRoshanEvents(replayData.roshEvents);
     wardManager.setupWards(replayData.wardEvents);
-    runeManager.setupRunes();
-
-    mapManager.renderMap(snapshots[0]);
     mapManager.setupSmokeEvents(replayData.smokeUses);
-
+    runeManager.setupRunes();
     $map.drawLayers();
 
     statsManager.setMaxStats(snapshots[snapshots.length-1].teamStats);
@@ -1165,9 +1167,7 @@ var lerp = function(from, to, t) {
           });
           $heatmap.find('img').prop('src', $heatmap.getCanvasImage());
         }
-        var time = +$('#amount').text();
-        var snapshot = replayData.snapshots[time];
-        mapManager.renderMap(snapshot);
+        $map.drawLayers();
       }
     });
     $rangeSlider.slider({
@@ -1287,7 +1287,7 @@ var lerp = function(from, to, t) {
       }
       var snapshot = replayData.snapshots[time];
       mapManager.updateHeroLayers(snapshot.heroData);
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
 
     $('#wards-box').prev().click(function () {
@@ -1299,7 +1299,7 @@ var lerp = function(from, to, t) {
       }
       var snapshot = replayData.snapshots[time];
       wardManager.updateWards(snapshot.time);
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
 
     $('#creep-box').prev().click(function() {
@@ -1311,7 +1311,7 @@ var lerp = function(from, to, t) {
       }
       var snapshot = replayData.snapshots[time];
       mapManager.updateCreep(snapshot.laneCreepData);
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
 
     $('#roshan-box').prev().click(function() {
@@ -1323,7 +1323,7 @@ var lerp = function(from, to, t) {
       }
       var snapshot = replayData.snapshots[time];
       roshanManager.updateRoshan(snapshot.time);
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
 
     $('#courier-box').prev().click(function() {
@@ -1333,8 +1333,7 @@ var lerp = function(from, to, t) {
       if (courierData.length) {
         mapManager.updateCouriers(courierData);
       }
-      var snapshot = replayData.snapshots[time];
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
 
     $('#dire-path-box').prev().click(function() {
@@ -1356,7 +1355,7 @@ var lerp = function(from, to, t) {
       }
       var snapshot = replayData.snapshots[time];
       buildingManager.updateBuildings(snapshot.time);
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
 
     $('#smokes-box').prev().click(function() {
@@ -1365,7 +1364,7 @@ var lerp = function(from, to, t) {
 
       var snapshot = replayData.snapshots[time];
       mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
 
     $('#runes-box').prev().click(function() {
@@ -1377,7 +1376,7 @@ var lerp = function(from, to, t) {
       }
       var snapshot = replayData.snapshots[time];
       runeManager.updateRunes(snapshot.runeData);
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
   };
 
