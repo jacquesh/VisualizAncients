@@ -4,6 +4,10 @@ import java.io.IOException;
 
 public class Snapshot
 {
+    private final float[][] FOUNTAIN_POSITIONS = {
+        {69.750000f, 73.796875f},
+        {186.375000f, 182.000000f}
+    };
     private final float[][][] BARRACKS_POSITIONS = {
         {{94.937500f, 78.281006f},{94.945068f, 82.241943f},{91.375000f, 92.632568f},{88.593750f, 95.390381f},{78.250000f, 99.015625f},{74.281250f, 99.007568f}},
         {{179.062256f, 154.125000f},{174.937500f, 153.999756f},{161.499756f, 160.304443f},{164.359375f, 157.500000f},{158.078125f, 171.062256f},{158.046875f, 175.195068f}}
@@ -76,6 +80,17 @@ public class Snapshot
     {
         float[] presenceVals = new float[64*64];
         int teamMultiplier;
+
+        float fountainPresence = 20.0f;
+        int fountainPresenceRadius = 6;
+        for(int i=0; i<2; ++i)
+        {
+            teamMultiplier = (-2*i) + 1;
+            int fountainX = (int)Math.round((FOUNTAIN_POSITIONS[i][0] - 64.0f)/2.0f);
+            int fountainY = (int)Math.round((FOUNTAIN_POSITIONS[i][1] - 64.0f)/2.0f);
+            applyPresence(presenceVals, fountainX, fountainY,
+                    fountainPresence, fountainPresenceRadius, teamMultiplier);
+        }
 
         float heroPresence = 10.0f;
         int heroPresenceRadius = 12;
