@@ -414,7 +414,7 @@ var lerp = function(from, to, t) {
         var hero = heroData[i];
 
         layer.data.items = hero.items;
-        layer.data.invis = hero.invis;
+        layer.data.invis = hero.invis || hero.smoked;
 
         if (hero.alive) {
           $map.setLayer(layerId, {
