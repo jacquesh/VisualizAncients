@@ -69,9 +69,13 @@ var lerp = function(from, to, t) {
 
         if (layer.data.invis) {
           $('#entity-invis').css('opacity', 1.0);
+        } else {
+          $('#entity-invis').css('opacity', 0.2);
         }
         if (!layer.data.alive) {
           $('#entity-dead').css('opacity', 1.0);
+        } else {
+          $('#entity-dead').css('opacity', 0.2);
         }
         mapManager.hoverHero = layer.name;
       } else {
