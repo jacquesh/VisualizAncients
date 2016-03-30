@@ -277,11 +277,11 @@ var lerp = function(from, to, t) {
       if (this.showPresence) {
         var pxX = 0;
         var pxY = 0;
-        var colours = [{r:255, g:255, b:255, a:128},
+        var colours = [{r:255, g:255, b:255, a:100},
                        {},
-                       {r:9, g:127, b:230, a:128},
+                       {r:9, g:127, b:230, a:100},
                        {r:7, g:101, b:178, a:255},
-                       {r:230, g:86, b:9, a:128},
+                       {r:230, g:86, b:9, a:100},
                        {r:178, g:64, b:7, a:255}];
         $presence.setPixels({
           x:0, y:0,
@@ -314,7 +314,7 @@ var lerp = function(from, to, t) {
         var $heatmap = $('#heatmap');
         var pxX = 0;
         var pxY = 0;
-        var heatmapAlpha = 200;
+        var heatmapAlpha = 168;
         var dataIndex = Math.round(snapshots[tick].time - replayData.startTime) + 75;
 
         $heatmap.setPixels({
