@@ -14,6 +14,16 @@ header {
     padding-top: 10px;
 }
 
+header h1 {
+    display: inline;
+    vertical-align: middle;
+}
+
+header .logo {
+    height: 50px;
+    vertical-align: middle;
+}
+
 header > hr {
     background-color: #666666;
     margin-top: 10px;
