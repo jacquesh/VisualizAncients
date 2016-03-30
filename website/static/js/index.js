@@ -93,7 +93,7 @@ var lerp = function(from, to, t) {
         }).setLayer(lineLayer, {
           strokeStyle: '#FFF500'
         });
-        $map.moveLayer(lineLayer, lineLayerNo);
+        $map.moveLayer(lineLayer, lineLayerNo + 10);
         $map.drawLayers();
       }
     },
@@ -105,8 +105,7 @@ var lerp = function(from, to, t) {
         mapManager.resetPlayerInfoPanel();
 
         if ($('#time-range-slider').is(':visible')) {
-          $map.setLayerGroup('radiant-lines', {strokeStyle: '#097FE6'});
-          $map.setLayerGroup('dire-lines', {strokeStyle: '#E65609'});
+          mapManager.resetHeroPaths();
           $map.drawLayers();
         }
       }
@@ -156,28 +155,15 @@ var lerp = function(from, to, t) {
           mouseover: this.handleHoverOn,
           mouseout: this.handleHoverOff,
           click: function(layer) {
-            layer.event.stopPropagation();
-
-            if (mapManager.selectedHero) {
-              var old = $map.getLayer(mapManager.selectedHero);
-              if (old.data.alive) {
-                old.fillStyle = old.data.color;
-              } else {
-                var team = old.name[0] === 'r' ? 'radiant' : 'dire';
-                var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
-
-                $map.setLayer(layerName, {
-                  source: '/static/img/icons/' + team + '_death.png'
-                });
-              }
-            }
-
             if (mapManager.selectedHero !== layer.name) {
+              if (mapManager.selectedHero) {
+                mapManager.deselectHero();
+              }
               mapManager.selectedHero = layer.name;
               layer.fillStyle = '#FFFF00';
               mapManager.updateSelected();
-            } else {
-              mapManager.selectedHero = '';
+            } else if (mapManager.selectedHero) {
+              mapManager.deselectHero();
             }
           },
           data: {
@@ -200,17 +186,7 @@ var lerp = function(from, to, t) {
             layer.event.stopPropagation();
 
             if (mapManager.selectedHero) {
-              var old = $map.getLayer(mapManager.selectedHero);
-              if (old.data.alive) {
-                old.fillStyle = old.data.color;
-              } else {
-                var team = old.name[0] === 'r' ? 'radiant' : 'dire';
-                var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
-
-                $map.setLayer(layerName, {
-                  source: '/static/img/icons/' + team + '_death.png'
-                });
-              }
+              mapManager.deselectHero();
             }
 
             var heroName = layer.name.replace('-dead', '');
@@ -236,6 +212,30 @@ var lerp = function(from, to, t) {
       var courierPath = '/static/img/courier.png';
       this.drawMapIcon(0, 0, 0.6, courierPath, 'courier', 'rad-courier');
       this.drawMapIcon(0, 0, 0.6, courierPath, 'courier', 'dir-courier');
+    },
+
+    deselectHero: function() {
+      var old = $map.getLayer(mapManager.selectedHero);
+      old.fillStyle = old.data.color;
+
+      var team = old.name[0] === 'r' ? 'radiant' : 'dire';
+      var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
+      $map.setLayer(layerName, {
+        source: '/static/img/icons/' + team + '_death.png'
+      });
+
+      mapManager.selectedHero = '';
+      mapManager.resetPlayerInfoPanel();
+
+      if ($('#time-range-slider').is(':visible')) {
+        mapManager.resetHeroPaths();
+        $map.drawLayers();
+      }
+    },
+
+    resetHeroPaths: function() {
+      $map.setLayerGroup('radiant-lines', {strokeStyle: '#097FE6'});
+      $map.setLayerGroup('dire-lines', {strokeStyle: '#E65609'});
     },
 
     drawHeroPaths: function(t0, t1, snapshots) {
@@ -269,7 +269,7 @@ var lerp = function(from, to, t) {
 
         if (mapManager.selectedHero === this.layers[i]) {
           colour = '#FFFF00';
-          layer = 21;
+          layer = lineLayerNo + 10;
         } else if (mapManager.selectedHero) {
           colour = 'rgba(0, 0, 0, 0.8)'
         }
@@ -1142,19 +1142,7 @@ var lerp = function(from, to, t) {
       fromCenter: false,
       click: function() {
         if (mapManager.selectedHero) {
-          var old = $map.getLayer(mapManager.selectedHero);
-          if (old.data.alive) {
-            old.fillStyle = old.data.color;
-          } else {
-            var team = old.name[0] === 'r' ? 'radiant' : 'dire';
-            var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
-
-            $map.setLayer(layerName, {
-              source: '/static/img/icons/' + team + '_death.png'
-            });
-          }
-          mapManager.selectedHero = '';
-          mapManager.resetPlayerInfoPanel();
+          mapManager.deselectHero();
         }
       }
     });
