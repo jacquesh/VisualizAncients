@@ -1193,6 +1193,8 @@ var lerp = function(from, to, t) {
     // LOADING UPDATE
     $('#generate-map').removeClass('fa-cog fa-spin').addClass('fa-check');
     smallGraphs($);
+
+    singleSlide(0);
   };
 
   String.prototype.toHHMMSS = function () {
