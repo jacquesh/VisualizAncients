@@ -1,0 +1,678 @@
+* {
+    padding: 0;
+    margin: 0;
+    font-family: "Arial", sans-serif;
+}
+
+html, body {
+    height: 100%;
+    background-color: #2b2b2b;
+}
+
+header {
+    text-align: center;
+    padding-top: 10px;
+}
+
+header > hr {
+    background-color: #666666;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.clear-fix {
+    clear: both;
+}
+
+#content-container {
+    min-height: 100%;
+    position: relative;
+    width: 80%;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #bdc3c7;
+}
+
+#content {
+    min-height: 100%;
+    padding: 0 10px 60px;
+}
+
+#time-container {
+    width: 95%;
+    height: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 10px;
+}
+
+#top-events, #time, #bottom-events {
+    position: relative;
+    height: 17px;
+    width: 90%;
+}
+
+#bottom-events {
+    margin-top: -2px;
+}
+
+.event {
+    position: absolute;
+    height: 100%;
+    width: 8px;
+}
+
+.event.smoke {
+    background-color: rgba(97, 29, 216, 0.6);
+}
+
+.event.roshan {
+    background-color: rgba(178, 34, 34, 0.8);
+}
+
+.event.radiant {
+    background-color: rgba(41, 128, 185, 0.8);
+}
+
+.event.dire {
+    background-color: rgba(231, 76, 60, 0.8);
+}
+
+#time {
+    min-height: 16px;
+    float: left;
+}
+
+#start-time, #end-time {
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+#time-container > #start-time {
+    width: 5%;
+    float: left;
+}
+
+#time-container > #end-time {
+    width: 4%;
+    float: left;
+    text-align: right;
+}
+
+#time > #amount {
+    display: none;
+}
+
+#time > #time-slider, #time > #time-range-slider {
+    vertical-align: middle;
+}
+
+#time .label {
+    position: absolute;
+    background-color: rgba(233, 233, 233, 0.6);
+    top: 100%;
+    left: -100%;
+    font-size: 0.6em;
+    font-weight: bold;
+    color: #000;
+}
+
+#time > #hover-label {
+    font-size: 0.8em;
+    z-index: 20;
+    top: -100%;
+    margin-left: -2%;
+}
+
+#time > #time-range-slider .label.l1 {
+    top: -50%;
+}
+
+#graph-bar-container {
+    width: 95%;
+    margin-bottom: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 40px;
+}
+
+#change-graph-box {
+    font-size: 11px;
+    float: left;
+    width: 5%;
+    height: 100%;
+}
+
+#change-graph-box > .arrow {
+    width: 25%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#change-graph-box > #graph-label {
+    text-align: center;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+#open-graphs {
+    float: left;
+    width: 5%;
+    height: 40px;
+}
+
+#open-graphs > a {
+    text-decoration: none;
+    color: black;
+}
+
+#open-graphs .fa-bar-chart {
+    font-size: 2.4em;
+    margin-left: 8%;
+}
+
+#graph-bar {
+    float: left;
+    width: calc(90% - 2px);
+    height: 40px;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+.ui-slider > .ui-slider-handle {
+    width: 10px;
+}
+
+.column {
+    float: left;
+    min-width: calc((100% - 420px) / 2);
+    height: 420px;
+}
+
+.side-bar {
+    width: 70%;
+    min-width: 233px;
+}
+
+.colour-container {
+    background-color: #8E9AA2;
+}
+
+.drop-shadow {
+    box-shadow: #2B2B2B 0 0 10px 0;
+}
+
+.center-block {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hug-right {
+    margin-left: auto;
+    margin-right: 2%;
+}
+
+.hug-left {
+    margin-left: 2%;
+    margin-right: auto;
+}
+
+#left-column > #toggle-box {
+    height: 55%;
+    margin-bottom: calc(2% - 2px);
+}
+
+#toggle-box > div.column {
+    float: left;
+    height: 100%;
+    width: 40%;
+}
+
+#toggle-box > div.column:nth-of-type(1) {
+    margin-right: 10%;
+}
+
+#toggle-box > div.column > div {
+    width: 100%;
+    height: 20%;
+}
+
+#toggle-box > div.column > div > span {
+    margin-left: 10%;
+    font-size: 0.8em;
+}
+
+#toggle-box > div.column label {
+    position: relative;
+    display: inline-block;
+    width: calc(100% - 1.6em - 5%);
+    height: 100%;
+}
+
+#toggle-box > div.column label span {
+    background-color: rgba(233, 233, 233, 0.8);
+    text-align: center;
+    display: inline-block;
+    visibility: hidden;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    font-size: 0.7em;
+    font-weight: bold;
+}
+
+#toggle-box > div.column label:hover span {
+    visibility: visible;
+}
+
+#toggle-box > div.column label img {
+    margin-top: 5%;
+    margin-left: 5%;
+}
+
+#toggle-box > div.column img {
+    height: 80%;
+    vertical-align: middle;
+}
+
+#left-column > #map-presence {
+    height: 43%;
+}
+
+#left-column > #map-presence > .team-block {
+    margin-top: 12.5%;
+    height: 65%;
+    float: left;
+    width: calc(50% - 2px);
+}
+
+#map-presence > .team-block > h1 {
+    margin-top: 30%;
+    font-size: 2em;
+    vertical-align: middle;
+    text-align: center;
+    background: rgba(17, 17, 17, 0.8);
+    color: #f5f5f5;
+}
+
+#right-column > #overlay-select {
+    height: 19%;
+    margin-bottom: 2%;
+}
+
+#right-column > #overlay-select > .heading {
+    display: block;
+    padding-top: 5px;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: center;
+    padding-bottom: 5px;
+}
+
+.input-wrapper {
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+}
+
+.input-wrapper img, .input-wrapper a {
+    vertical-align: middle;
+}
+
+#right-column > #player-info {
+    height: 78%;
+}
+
+#entity-name {
+    padding-top: 5%;
+    padding-bottom: 3%;
+    text-align: center;
+    min-height: 24px;
+
+}
+
+#entity-icon {
+    position: relative;
+    height: 100px;
+    width: 174px;
+    background-image: url('../img/heroes/default.jpg');
+    background-size: cover;
+    overflow: hidden;
+}
+
+#entity-icon > img {
+    height: 100%;
+}
+
+#status-bar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    opacity: 0;
+}
+
+#status-bar > div {
+    float: left;
+    opacity: 0.2;
+    background-color: rgba(233, 233, 233, 0.8);
+}
+
+#status-bar img {
+    width: 25px;
+    height: 25px;
+    margin-top: 10%;
+    padding-left: 10%;
+    padding-right: 20%;
+}
+
+#items {
+    margin-top: 25px;
+    width: 177px;
+}
+
+#items .table-cell {
+    float: left;
+    overflow: hidden;
+    width: calc(33% - 1px);
+    height: 40px;
+    max-width: 88px;
+    background: #222222 url('../img/items/emptyitembg.jpg');
+    border-top: 1px solid white;
+    border-right: 1px solid white;
+    border-bottom: 1px solid white;
+}
+
+#items .table-cell:nth-of-type(1) {
+    border-left: 1px solid white;
+}
+
+#items .table-row:nth-of-type(1) * {
+    border-bottom: none;
+}
+
+#items .table-row {
+    max-height: 64px;
+}
+
+#map-container {
+    float: left;
+}
+
+#map-container > canvas#dota-map {
+    background-size: cover;
+    background-image: url("../img/dota2-map.jpg");
+}
+
+.radiant.team-block {
+    background-image: url("../img/icons/radiant.png");
+}
+
+.dire.team-block {
+    background-image: url("../img/icons/dire.png");
+}
+
+.team-block {
+    background-position: 50%;
+    background-size: cover;
+}
+
+.radiant {
+    background-color: #2980b9;
+}
+
+.dire {
+    background-color: #e74c3c;
+}
+
+#team-graphs {
+    width: 85%;
+    height: 55px;
+    margin-top: 10px;
+}
+
+#team-graphs > .score-box {
+    width: 40%;
+    height: 100%;
+}
+
+#team-graphs > #radiant {
+    float: left;
+}
+
+.team-stats {
+    padding-top: 1%;
+    width: 76%;
+}
+
+.team-stats img {
+    width: 8%;
+    vertical-align: middle;
+}
+
+.team-stats > div {
+    height: 23px;
+}
+
+.total-xp, .net-worth {
+    width: 91%;
+    height: 70%;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#radiant .label {
+    position: absolute;
+    left: 11%;
+}
+
+#dire .label {
+    position: absolute;
+    right: 11%;
+}
+
+.total-xp {
+    background: #59CBD8;
+}
+
+.net-worth {
+    background: #ffff00;
+}
+
+#team-graphs > #radiant > .team-stats img {
+    padding-right: 1%;
+}
+
+#team-graphs > #dire > .team-stats img {
+    padding-left: 1%;
+}
+
+.kills {
+    font-size: 1.2em;
+    padding-top: 1%;
+    width: 11%;
+    text-align: center;
+}
+
+.kills > .count {
+    font-weight: bold;
+}
+
+#team-graphs > #radiant > .kills {
+    float: right;
+    padding-right: 2%;
+}
+
+#team-graphs > #radiant > .team-stats {
+    float: left;
+    padding-left: 1%;
+}
+
+#team-graphs > #dire {
+    float: right;
+}
+
+#team-graphs > #dire > .kills {
+    padding-left: 2%;
+}
+
+#team-graphs > #dire > .team-stats {
+    float: right;
+    text-align: right;
+    padding-right: 1%;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 20px;
+    text-align: center;
+    font-size: 10px;
+}
+
+.border-white {
+    border: solid 1px white;
+}
+
+.table {
+    display: table;
+}
+
+.table-cell > img {
+    height: 100%;
+}
+
+.hidden-text {
+    color: transparent;
+}
+
+.alt-checkbox {
+    box-shadow: 0 0 0 1px #9F9F9F;
+}
+
+.alt-checkbox.checked::before {
+    color: #000;
+}
+
+.ui-widget-header {
+    background: #96ceff;
+}
+
+#uparrow {
+    cursor: pointer;
+}
+
+#downarrow {
+    cursor: pointer;
+}
+
+#big-graph-overlay {
+    z-index: 99;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+#big-graph-container {
+    margin-top: 0.5%;
+    z-index: 100;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    height: 98%;
+}
+
+#big-graphs {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.close-button {
+    display: inline-block;
+    border-radius: 4px;
+    background-color: #4169E1;
+    border: none;
+    color: #FFFFFF;
+    text-align: center;
+    font-size: 16px;
+    padding: 5px;
+    width: 100px;
+    transition: all 0.5s;
+    vertical-align: middle;
+    cursor: pointer;
+    overflow: hidden;
+    position: absolute;
+    z-index: 101;
+}
+
+.close-button span {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.5s;
+}
+
+.close-button span:after {
+    content: '«';
+    position: absolute;
+    visibility: hidden;
+    top: 0;
+    left: -50px;
+    transition: 0.5s;
+}
+
+.close-button:hover span {
+    padding-left: 25px;
+}
+
+.close-button:hover span:after {
+    visibility: visible;
+    right: 0;
+}
+
+#loading-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    color: #d3e2eb;
+    width: 100%;
+    height: 100%;
+    background-color: #2B2B2B;
+}
+
+#loading-screen .title {
+    padding-top: 10%;
+    font-size: 3em;
+    text-align: center;
+}
+
+#loading-screen .title * {
+    vertical-align: middle;
+}
+
+#loading-screen .title img {
+    height: 100px;
+}
+
+#loading-screen .loading {
+    width: 20%;
+    padding-top: 5%;
+    font-size: 1.5em;
+}
+
+#loading-screen .loading .disclaimer {
+    position: absolute;
+    bottom: 10px;
+    font-size: 0.5em;
+}
+
+.fa-check {
+    color: #2ecc71;
+}
