@@ -78,12 +78,13 @@ public class Snapshot
         int teamMultiplier;
 
         float heroPresence = 10.0f;
-        int heroPresenceRadius = 16;
+        int heroPresenceRadius = 12;
         teamMultiplier = 1;
         for(int heroIndex=0; heroIndex<10; ++heroIndex)
         {
             if(heroIndex == 5)
                 teamMultiplier = -1;
+
             int heroX = (int)Math.round((heroes[heroIndex].x - 64.0f)/2.0f);
             int heroY = (int)Math.round((heroes[heroIndex].y - 64.0f)/2.0f);
             applyPresence(presenceVals, heroX, heroY,
@@ -91,7 +92,7 @@ public class Snapshot
         }
 
         float creepPresence = 5.0f;
-        int creepPresenceRadius = 8;
+        int creepPresenceRadius = 6;
         for(int creepIndex=0; creepIndex<laneCreeps.size(); ++creepIndex)
         {
             LaneCreepData creep = laneCreeps.get(creepIndex);
@@ -116,20 +117,32 @@ public class Snapshot
         }
 
         float towerPresence = 15.0f;
-        int towerPresenceRadius = 16;
+        int towerPresenceRadius = 12;
+        float barracksPresence = 7.0f;
+        int barracksPresenceRadius = 6;
+        float buildingPresence = 0.0f;
+        int buildingPresenceRadius = 0;
         int teamIndex = 0;
         for(TowerEvent tower : activeTowers)
         {
             float[][][] positions;
             if(tower.isBarracks)
+            {
                 positions = BARRACKS_POSITIONS;
+                buildingPresence = barracksPresence;
+                buildingPresenceRadius = barracksPresenceRadius;
+            }
             else
+            {
                 positions = TOWER_POSITIONS;
+                buildingPresence = towerPresence;
+                buildingPresenceRadius = towerPresenceRadius;
+            }
             teamMultiplier = 1 - (tower.teamIndex*2);
             int towerX = (int)Math.round((positions[tower.teamIndex][tower.towerIndex][0] - 64.0f)/2);
             int towerY = (int)Math.round((positions[tower.teamIndex][tower.towerIndex][1] - 64.0f)/2);
             applyPresence(presenceVals, towerX, towerY,
-                    towerPresence, towerPresenceRadius, teamMultiplier);
+                    buildingPresence, buildingPresenceRadius, teamMultiplier);
         }
 
         /*
