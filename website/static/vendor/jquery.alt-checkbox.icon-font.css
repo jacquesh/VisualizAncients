@@ -9,7 +9,7 @@
  * Licensed under the MIT and GPL licenses.
  */
 
-@import url(/static/vendor/font-awesome.min.css);
+@import url(font-awesome.min.css);
 
 /* fontawesome */
 [class*="fa-"]:before {

@@ -42,7 +42,7 @@ var lerp = function(from, to, t) {
     handleHoverOn: function(layer) {
       var $items = $('#items');
       var assignImage = function(selector, prefix, name) {
-        var imgLink = '/static/img/' + prefix + '/' + name + '.jpg';
+        var imgLink = 'static/img/' + prefix + '/' + name + '.jpg';
         var $img = $(selector).children('img');
         $img.prop('src', imgLink);
         $img.show();
@@ -142,7 +142,7 @@ var lerp = function(from, to, t) {
           var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
 
           $map.setLayer(layerName, {
-            source: '/static/img/icons/' + team + '_death.png'
+            source: 'static/img/icons/' + team + '_death.png'
           });
 
           mapManager.selectedHero = '';
@@ -180,7 +180,7 @@ var lerp = function(from, to, t) {
                 var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
 
                 $map.setLayer(layerName, {
-                  source: '/static/img/icons/' + team + '_death.png'
+                  source: 'static/img/icons/' + team + '_death.png'
                 });
               }
             }
@@ -199,7 +199,7 @@ var lerp = function(from, to, t) {
           }
         });
 
-        var path = '/static/img/icons/' + team + '_death.png';
+        var path = 'static/img/icons/' + team + '_death.png';
         var deathName = layerName + '-dead';
         this.drawMapIcon(0, 0, 0.7, path, team, deathName);
         $map.setLayer(deathName, {
@@ -217,7 +217,7 @@ var lerp = function(from, to, t) {
                 var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
 
                 $map.setLayer(layerName, {
-                  source: '/static/img/icons/' + team + '_death.png'
+                  source: 'static/img/icons/' + team + '_death.png'
                 });
               }
             }
@@ -226,7 +226,7 @@ var lerp = function(from, to, t) {
             mapManager.selectedHero = heroName;
 
             $map.setLayer(heroName, {fillStyle: '#FFFF00'});
-            $map.setLayer(layer, {source: '/static/img/icons/selected_death.png'});
+            $map.setLayer(layer, {source: 'static/img/icons/selected_death.png'});
 
             mapManager.updateSelected();
             $map.drawLayer(layer);
@@ -242,7 +242,7 @@ var lerp = function(from, to, t) {
         }).moveLayer(deathName, 1);
       }
 
-      var courierPath = '/static/img/courier.png';
+      var courierPath = 'static/img/courier.png';
       this.drawMapIcon(0, 0, 0.6, courierPath, 'courier', 'rad-courier');
       this.drawMapIcon(0, 0, 0.6, courierPath, 'courier', 'dir-courier');
     },
@@ -431,7 +431,7 @@ var lerp = function(from, to, t) {
             data: layer.data
           });
 
-          var selectedDead = '/static/img/icons/selected_death.png';
+          var selectedDead = 'static/img/icons/selected_death.png';
           var opts = {
             x: this.getX(hero.x), y: this.getY(hero.y),
             visible: true,
@@ -671,7 +671,7 @@ var lerp = function(from, to, t) {
 
     addWard: function(x, y, team, handle) {
       var wardType = this.wards[handle].sentry ? 'sentry' : 'ward';
-      var iconPath = '/static/img/icons/' + team + '_' + wardType + '.png';
+      var iconPath = 'static/img/icons/' + team + '_' + wardType + '.png';
       mapManager.drawMapIcon(x, y, 0.5, iconPath, team + '-wards', handle);
     },
 
@@ -695,7 +695,7 @@ var lerp = function(from, to, t) {
     hidden: false,
 
     setupRoshanEvents: function(roshanData) {
-      var roshanPath = '/static/img/icons/roshan.png';
+      var roshanPath = 'static/img/icons/roshan.png';
       mapManager.drawMapIcon(160, 113, 0.75, roshanPath, 'roshan', 'roshan');
       $map.setLayer('roshan', {
           visible: false,
@@ -762,7 +762,7 @@ var lerp = function(from, to, t) {
     },
 
     addRuneSpot: function(x, y, scale, name) {
-      var runeBasePath = '/static/img/icons/runes/';
+      var runeBasePath = 'static/img/icons/runes/';
 
       mapManager.drawMapIcon(x, y, scale, '', 'runes', name);
       $map.setLayer(name, {
@@ -919,7 +919,7 @@ var lerp = function(from, to, t) {
 
     addBuilding: function(x, y, team, barracks, group, name) {
       var type = barracks ? 'barracks.png' : 'tower.png';
-      var path = '/static/img/icons/' + type;
+      var path = 'static/img/icons/' + type;
       mapManager.drawMapIcon(x, y, 0.25, path, group, name);
     },
 
@@ -1210,7 +1210,7 @@ var lerp = function(from, to, t) {
 
   var loadPlayerData = function() {
     var req = new XMLHttpRequest();
-    req.open("GET", "/static/data.zjson", true);
+    req.open("GET", "static/data.zjson", true);
     req.responseType = "arraybuffer";
     req.onload = function(event) {
       var bytes = new Uint8Array(req.response);
