@@ -286,7 +286,6 @@ public class Snapshot
         }
         out.write("]}");
 
-
         out.write("}");
     }
 }

@@ -159,6 +159,11 @@ public class Reparser
     public void onTickStart(Context ctx, boolean synthetic)
     {
         Snapshot newSnapshot = new Snapshot(courierList.size());
+        for(int i=0; i<10; ++i)
+        {
+            newSnapshot.heroes[i].smoked = currentSnapshot.heroes[i].smoked;
+        }
+
         currentSnapshot = newSnapshot;
 
         if((playerResource == null) || (gameRules == null) || (dataSpectator == null)
@@ -552,6 +557,38 @@ public class Reparser
                 evt.x = currentSnapshot.heroes[playerIndex].x;
                 evt.y = currentSnapshot.heroes[playerIndex].y;
                 smokeUses.add(evt);
+            }
+        }
+        else if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_MODIFIER_ADD)
+        {
+            String inflictorName = entry.getInflictorName();
+            if(inflictorName.equals("modifier_smoke_of_deceit"))
+            {
+                String targetName = entry.getTargetName();
+                for(int i=0; i<10; ++i)
+                {
+                    if(heroes[i].heroName.equals(targetName))
+                    {
+                        currentSnapshot.heroes[i].smoked = true;
+                        break;
+                    }
+                }
+            }
+        }
+        else if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_MODIFIER_REMOVE)
+        {
+            String inflictorName = entry.getInflictorName();
+            if(inflictorName.equals("modifier_smoke_of_deceit"))
+            {
+                String targetName = entry.getTargetName();
+                for(int i=0; i<10; ++i)
+                {
+                    if(heroes[i].heroName.equals(targetName))
+                    {
+                        currentSnapshot.heroes[i].smoked = false;
+                        break;
+                    }
+                }
             }
         }
         else if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_TEAM_BUILDING_KILL)
