@@ -1049,6 +1049,8 @@ var lerp = function(from, to, t) {
     $('#dire-presence').text(snapshot.presenceData.percentages[1]+"%");
 
     mapManager.drawPresenceMap(snapshot);
+
+    $map.moveLayer('heatmap', 0);
     $map.drawLayers();
 
     $timeSlider.find('.label').text(getTime(tick));
