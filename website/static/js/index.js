@@ -9,6 +9,10 @@
     scalef: $map.width() / 127,
     layers: ['rad-1', 'rad-2', 'rad-3', 'rad-4', 'rad-5',
              'dir-1', 'dir-2', 'dir-3', 'dir-4', 'dir-5'],
+    couriersHidden: false,
+    deathsHidden: false,
+    creepHidden: false,
+    smokeHidden: false,
 
     getX: function(data_x) {
       return (data_x - 64) * this.scalef;
@@ -121,7 +125,7 @@
             data: layer.data
           });
           $map.setLayer(layerId + '-dead', {visible: false});
-        } else if (!hero.alive && layer.data.alive) {
+        } else if (!hero.alive) {
           layer.data.alive = false;
           $map.setLayer(layerId, {
             visible: false,
@@ -133,6 +137,9 @@
             visible: true,
             data: layer.data
           });
+        }
+        if (this.deathsHidden) {
+          $map.setLayer(layerId + '-dead', {visible: false});
         }
       }
     },
@@ -156,7 +163,34 @@
       }
     },
 
-    drawMapCircle: function(x, y, colour, group, name) {
+    updateCreep: function(laneCreepData) {
+      $map.removeLayerGroup('creep');
+      if (!this.creepHidden) {
+        for (var i = 0; i < laneCreepData.length; i++) {
+          var group = laneCreepData[i];
+          var colour = group.isDire ? '#E65609' : '#097FE6';
+          this.drawMapPolygon(group.x, group.y, colour, 'creep', 'creep-' + i, 3 + Math.round(group.creepCount / 2));
+          $map.moveLayer('creep-' + i, 0);
+        }
+      }
+    },
+
+    updateSmokes: function(smokeData, time) {
+      $map.removeLayerGroup('smoke');
+      if (!this.smokeHidden) {
+        var colour = 'rgba(97, 29, 216, 0.51)';
+        for (var i = 0; i < smokeData.length; i++) {
+          var smoke = smokeData[i];
+          var timeDiff = time - smoke.time;
+          if ((0 < timeDiff) && (timeDiff < 1)) {
+            this.drawMapCircle(smoke.x, smoke.y, colour, 'smoke', 'smoke-' + i, 15);
+          }
+        }
+      }
+    },
+
+    drawMapCircle: function(x, y, colour, group, name, radius) {
+      radius = radius === undefined ? 8 : radius;
       group = group === undefined ? 'radiant' : group;
 
       $map.drawArc({
@@ -167,7 +201,24 @@
         groups: [group],
         fillStyle: colour,
         x: this.getX(x), y: this.getY(y),
-        radius: 8
+        radius: radius
+      });
+    },
+
+    drawMapPolygon: function(x, y, colour, group, name, radius, sides) {
+      radius = radius === undefined ? 8 : radius;
+      sides = sides === undefined ? 6 : sides;
+
+      $map.drawPolygon({
+        name: name,
+        strokeStyle: '#000',
+        strokeWidth: 2,
+        layer: true,
+        groups: [group],
+        fillStyle: colour,
+        x: this.getX(x), y: this.getY(y),
+        radius: radius,
+        sides: sides
       });
     },
 
@@ -201,11 +252,38 @@
 
     resetMap: function() {
       $map.clearCanvas();
+    },
+
+    toggleCouriers: function() {
+      this.couriersHidden = !this.couriersHidden;
+      $map.setLayerGroup('courier', {visible: !this.couriersHidden});
+    },
+
+    toggleSmokes: function() {
+      this.smokeHidden = !this.smokeHidden;
+    },
+
+    showDeaths: function() {
+      this.deathsHidden = false;
+    },
+
+    hideDeaths: function() {
+      this.deathsHidden = true;
+    },
+
+    showCreep: function() {
+      this.creepHidden = false;
+    },
+
+    hideCreep: function() {
+      this.creepHidden = true;
     }
   };
 
   var wardManager = {
     wards: {},
+    hidden: false,
+
     setupWards: function(wardEvents, firstTickTime) {
       for (var i=0; i<wardEvents.length; i++) {
         var event = wardEvents[i];
@@ -227,6 +305,10 @@
     },
 
     updateWards: function(time) {
+      if (this.hidden) {
+        return;
+      }
+
       var map = $map;
       $.each(this.wards, function(handle, ward) {
         if ((ward.start < time) && (time < ward.end)) {
@@ -241,11 +323,26 @@
       var wardType = this.wards[handle].sentry ? 'sentry' : 'ward';
       var iconPath = '/static/img/icons/' + team + '_' + wardType + '.png';
       mapManager.drawMapIcon(x, y, 0.5, iconPath, team + '-wards', handle);
+    },
+
+    hideWards: function() {
+      this.hidden = true;
+      $map.setLayerGroup('radiant-wards', {
+        visible: false
+      });
+      $map.setLayerGroup('dire-wards', {
+        visible: false
+      });
+    },
+
+    showWards: function() {
+      this.hidden = false;
     }
   };
 
   var roshanManager = {
     roshanEvents: [],
+    hidden: false,
 
     setupRoshanEvents: function(roshanData, firstTickTime) {
       var roshanPath = '/static/img/icons/roshan.png';
@@ -269,26 +366,38 @@
     },
 
     updateRoshan: function(time) {
+      if (this.hidden) {
+        return;
+      }
+
+      var showRosh = false;
       for (var i=0; i < this.roshanEvents.length; i++) {
-        var event = this.roshanEvents[i];
+        if (!showRosh) {
+          var event = this.roshanEvents[i];
 
-        if (time < event.start) {
-          return;
-        }
-
-        if ((event.end === -1) && (event.start < time)) {
-          $map.setLayer('roshan', {visible: true});
-        } else if ((event.start < time) && (time < event.end)) {
-          $map.setLayer('roshan', {visible: true});
+          var neverKilled = ((event.end === -1) && (event.start < time));
+          var aliveTime = ((event.start < time) && (time < event.end));
+          showRosh = neverKilled || aliveTime;
         } else {
-          $map.setLayer('roshan', {visible: false});
+          break;
         }
       }
+      $map.setLayer('roshan', {visible: showRosh});
+    },
+
+    hideRoshan: function() {
+      this.hidden = true;
+      $map.setLayer('roshan', {visible: false});
+    },
+
+    showRoshan: function() {
+      this.hidden = false;
     }
   };
 
   var runeManager = {
     runeMap: ['dd', 'haste', 'illusion', 'invis', 'regen', 'bounty', 'arcane'],
+    hidden: false,
 
     setupRunes: function() {
       this.addRuneSpot(110, 140, 0.7, 'rune-top');
@@ -308,6 +417,10 @@
     },
 
     updateRunes: function(runesState) {
+      if (this.hidden) {
+        return;
+      }
+
       var names = ['rune-top', 'rune-bot'];
 
       for (var i=0; i < runesState.length; i++) {
@@ -329,6 +442,95 @@
           $map.setLayer(names[i], {visible: false});
         }
       }
+    },
+
+    hideRunes: function() {
+      this.hidden = true;
+      $map.setLayerGroup('runes', {visible: false});
+    },
+
+    showRunes: function() {
+      this.hidden = false;
+    }
+  };
+
+  var buildingManager = {
+    hidden: false,
+    setupBuildings: function(towerEvents, firstTickTime) {
+      // Make barracks for both teams
+      for (var i=0; i < 2; i++) {
+        var team = (i == 0) ? 'radiant' : 'dire';
+        for (var j=0; j < 6; j++) {
+          var pos = barracksPositions[i][j];
+          var layerName = team + '-' + j + '-' + 'barracks';
+          this.addBuilding(pos.x, pos.y, team, true, team + '-buildings', layerName);
+          $map.setLayer(layerName, {
+            data: {
+              deadTime: -1
+            }
+          });
+        }
+      }
+
+      // Make towers for both teams
+      for (var i=0; i < 2; i++) {
+        var team = (i == 0) ? 'radiant' : 'dire';
+        for (var j=0; j < 11; j++) {
+          var pos = towerPositions[i][j];
+          var layerName = team + '-' + j + '-' + 'tower';
+          this.addBuilding(pos.x, pos.y, team, false, team + '-buildings', layerName);
+          $map.setLayer(layerName, {
+            data: {
+              deadTime: -1
+            }
+          });
+        }
+      }
+
+      for (var i=0; i < towerEvents.length; i++) {
+        var event = towerEvents[i];
+        var team = event.teamIndex == 0 ? 'radiant' : 'dire';
+        var type = event.isBarracks ? 'barracks' : 'tower';
+
+        var layerName = team + '-' + event.towerIndex + '-' + type;
+        $map.setLayer(layerName, {
+          data: {
+            deadTime: Math.round((event.time - firstTickTime) * 2) + 1
+          }
+        });
+      }
+    },
+
+    updateBuildings: function(tick) {
+      var setDead = function(index, layer) {
+        var deadTime = layer.data.deadTime;
+        var dead = (deadTime <= tick) && (deadTime !== -1);
+
+        $map.setLayer(layer.name, {
+          visible: !dead
+        });
+      };
+
+      if (!this.hidden) {
+        $.each($map.getLayerGroup('radiant-buildings'), setDead);
+        $.each($map.getLayerGroup('dire-buildings'), setDead);
+      }
+    },
+
+    addBuilding: function(x, y, team, barracks, group, name) {
+      var type = barracks ? 'barracks.png' : 'tower.png';
+      var path = '/static/img/icons/' + type;
+      mapManager.drawMapIcon(x, y, 0.25, path, group, name);
+    },
+
+    hideBuildings: function() {
+      this.hidden = true;
+      $map.setLayerGroup('radiant-buildings', {visible: false});
+      $map.setLayerGroup('dire-buildings', {visible: false});
+    },
+
+    showBuildings: function() {
+      this.hidden = false;
     }
   };
 
@@ -348,11 +550,11 @@
       var $netWorth = $teamStats.find('.net-worth');
       var $totalXp = $teamStats.find('.total-xp');
 
-      $netWorth.text(stats.netWorth);
-      //$netWorth.width('calc('+ (stats.netWorth/this.biggestVal) * 100 +'% - 9%)');
+      $netWorth.find('span').text(stats.netWorth);
+      $netWorth.width('calc('+ (stats.netWorth/this.biggestVal) * 100 +'% - 9%)');
 
-      $totalXp.text(stats.totalXp);
-      //$totalXp.width('calc('+ (stats.totalXp/this.big) * 100 +'% - 9%)');
+      $totalXp.find('span').text(stats.totalXp);
+      $totalXp.width('calc('+ (stats.totalXp/this.biggestVal) * 100 +'% - 9%)');
     }
   };
 
@@ -375,10 +577,13 @@
     var snapshots = replayData.snapshots;
     var firstTickTime = snapshots[1].time;
 
+    buildingManager.setupBuildings(replayData.towerDeaths, firstTickTime);
     mapManager.setupLayers(replayData.playerHeroes);
     roshanManager.setupRoshanEvents(replayData.roshEvents, firstTickTime);
     wardManager.setupWards(replayData.wardEvents, firstTickTime);
     runeManager.setupRunes();
+
+    console.log(replayData);
 
     $map.drawLayers();
 
@@ -404,21 +609,42 @@
           mapManager.updateCouriers(courierData);
         }
 
+        mapManager.updateCreep(snapshot.laneCreepData);
         runeManager.updateRunes(snapshot.runeData);
         roshanManager.updateRoshan(ui.value);
         wardManager.updateWards(ui.value);
+        buildingManager.updateBuildings(ui.value);
+        mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
 
         statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
         statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
 
         $map.drawLayers();
+
+        $('.ui-slider-handle').find('.label').text(('' + snapshot.time).toHHMMSS());
       }
     });
     //$timeSlider.slider('option', 'slide').call($timeSlider);
     $('#amount').text($timeSlider.slider('value'));
 
-    var time = replayData.snapshots[replayData.snapshots.length - 1].time;
-    $('#end-time').text(Math.round(time / 60) + ':' + Math.round(time % 60));
+    var time = '' + replayData.snapshots[replayData.snapshots.length - 1].time;
+    $('#end-time').text(time.toHHMMSS());
+  };
+
+  String.prototype.toHHMMSS = function () {
+    var sec_num = parseInt(this, 10); // don't forget the second param
+    var hours = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    hours = (hours < 10) ? "0" + hours : hours;
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+    if (hours == "00") {
+      return minutes + ':' + seconds;
+    }
+    return hours + ':' + minutes + ':' + seconds;
   };
 
   var loadPlayerData = function() {
@@ -426,12 +652,112 @@
     req.open("GET", "/static/data.zjson", true);
     req.responseType = "arraybuffer";
     req.onload = function(event) {
-        var bytes = new Uint8Array(req.response);
-        setupPlayerData(bytes);
+      var bytes = new Uint8Array(req.response);
+      setupPlayerData(bytes);
+      setupLabel();
     };
     req.send();
   };
 
-  $(document).ready(loadPlayerData);
+  var setupCheckboxes = function () {
+    var $toggleBox = $('#toggle-box');
+    $toggleBox.find('input').altCheckbox();
+    $toggleBox.find('.alt-checkbox').addClass('checked');
+
+    $('#death-box').prev().click(function() {
+      var time = +$('#amount').text();
+      if ($(this).next().prop('checked')) {
+        mapManager.showDeaths();
+      } else {
+        mapManager.hideDeaths();
+      }
+      mapManager.updateHeroLayers(replayData.snapshots[time].heroData);
+      $map.drawLayers();
+    });
+
+    $('#wards-box').prev().click(function () {
+      var time = +$('#amount').text();
+      if ($(this).next().prop('checked')) {
+        wardManager.showWards();
+      } else {
+        wardManager.hideWards();
+      }
+      wardManager.updateWards(time);
+      $map.drawLayers();
+    });
+
+    $('#creep-box').prev().click(function() {
+      var time = +$('#amount').text();
+      if ($(this).next().prop('checked')) {
+        mapManager.showCreep();
+      } else {
+        mapManager.hideCreep();
+      }
+      mapManager.updateCreep(replayData.snapshots[time].laneCreepData);
+      $map.drawLayers();
+    });
+
+    $('#roshan-box').prev().click(function() {
+      var time = +$('#amount').text();
+      if ($(this).next().prop('checked')) {
+        roshanManager.showRoshan();
+      } else {
+        roshanManager.hideRoshan();
+      }
+      roshanManager.updateRoshan(time);
+      $map.drawLayers();
+    });
+
+    $('#courier-box').prev().click(function() {
+      var time = +$('#amount').text();
+      mapManager.toggleCouriers();
+      var courierData = replayData.snapshots[time].courierData;
+      if (courierData.length) {
+        mapManager.updateCouriers(courierData);
+      }
+      $map.drawLayers();
+    });
+
+    $('#towers-box').prev().click(function() {
+      var time = +$('#amount').text();
+      if ($(this).next().prop('checked')) {
+        buildingManager.showBuildings();
+      } else {
+        buildingManager.hideBuildings();
+      }
+
+      buildingManager.updateBuildings(time);
+      $map.drawLayers();
+    });
+
+    $('#smokes-box').prev().click(function() {
+      var time = +$('#amount').text();
+      mapManager.toggleSmokes();
+
+      mapManager.updateSmokes(replayData.smokeUses, replayData.snapshots[time].time);
+      $map.drawLayers();
+    });
+
+    $('#runes-box').prev().click(function() {
+      var time = +$('#amount').text();
+      if ($(this).next().prop('checked')) {
+        runeManager.showRunes();
+      } else {
+        runeManager.hideRunes();
+      }
+
+      runeManager.updateRunes(replayData.snapshots[time].runeData);
+      $map.drawLayers();
+    });
+  };
+
+  var setupLabel = function() {
+    $('.ui-slider-handle').html('<span class="label">00:00</span>');
+  };
+
+  $(document).ready(function() {
+    setupCheckboxes();
+    loadPlayerData();
+  });
 
 })(jQuery);

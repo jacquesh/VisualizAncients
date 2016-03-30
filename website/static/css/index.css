@@ -41,16 +41,21 @@ header > hr {
 
 #time-container {
     width: 95%;
-    height: 30px;
+    height: 50px;
     margin-left: auto;
     margin-right: auto;
+    padding-bottom: 5px;
+}
+
+#top-events, #bottom-events {
+    height: 15px;
+    width: calc(90% - 4px);
 }
 
 #time {
     width: calc(90% - 4px);
     margin-left: 2px;
     margin-right: 2px;
-    padding-bottom: 10px;
     float: left;
 }
 
@@ -62,6 +67,7 @@ header > hr {
 #time-container > #end-time {
     width: 5%;
     float: left;
+    text-align: right;
 }
 
 #time > #amount {
@@ -70,6 +76,14 @@ header > hr {
 
 #time > #time-slider {
     vertical-align: middle;
+}
+
+#time > #time-slider .label {
+    position: absolute;
+    top: 100%;
+    left: -100%;
+    font-size: 0.7em;
+    color: #000;
 }
 
 #graph-bar-container {
@@ -160,6 +174,36 @@ header > hr {
 #left-column > #toggle-box {
     height: 55%;
     margin-bottom: calc(2% - 2px);
+}
+
+#toggle-box > div.column {
+    float: left;
+    height: 100%;
+    width: 50%;
+}
+
+#toggle-box > div.column > div {
+    width: 100%;
+    height: 20%;
+}
+
+#toggle-box > div.column > div > span {
+    margin-left: 10%;
+    font-size: 0.8em;
+}
+
+#toggle-box > div.column label {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    margin-top: 5%;
+    margin-left: 5%;
+}
+
+#toggle-box > div.column img {
+    width: 32px;
+    height: 32px;
+    vertical-align: middle;
 }
 
 #left-column > #map-presence {
@@ -293,13 +337,23 @@ header > hr {
 
 .team-stats > div {
     height: 23px;
-    position: relative;
 }
 
 .total-xp, .net-worth {
     width: 91%;
     height: 70%;
     display: inline-block;
+    vertical-align: middle;
+}
+
+#radiant .label {
+    position: absolute;
+    left: 11%;
+}
+
+#dire .label {
+    position: absolute;
+    right: 11%;
 }
 
 .total-xp {
@@ -308,12 +362,6 @@ header > hr {
 
 .net-worth {
     background: #ffff00;
-}
-
-.team-stats > p {
-    position: absolute;
-    width: 100%;
-    margin: 0;
 }
 
 #team-graphs > #radiant > .team-stats img {
@@ -394,4 +442,20 @@ footer {
 
 .hidden-text {
     color: transparent;
+}
+
+.alt-checkbox {
+    box-shadow: 0 0 0 1px #9F9F9F;
+}
+
+.alt-checkbox.checked::before {
+    color: #000;
+}
+
+#uparrow {
+    cursor: pointer;
+}
+
+#downarrow {
+    cursor: pointer;
 }
