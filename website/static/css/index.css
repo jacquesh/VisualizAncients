@@ -282,6 +282,7 @@ header > hr {
 }
 
 #left-column > #map-presence > .team-block {
+    margin-top: 12.5%;
     height: 65%;
     float: left;
     width: calc(50% - 2px);
@@ -300,38 +301,18 @@ header > hr {
     margin-top: 50%;
 }
 
-#toggle-presence-label > label {
-    padding-left: 5%;
-    padding-top: 1%;
-    display: inline-block;
-    width: 60%;
-    height: 100%;
-    font-size: 1.5em;
-    vertical-align: middle;
+#right-column > #overlay-select {
+    height: 19%;
+    margin-bottom: 2%;
+}
+
+#right-column > #overlay-select > .heading {
+    display: block;
+    padding-top: 5px;
+    font-size: 1.2em;
     font-weight: bold;
-}
-
-#toggle-presence-label > .input-wrapper {
-    display: inline;
-    margin-left: 5%;
-}
-
-#toggle-presence {
-    vertical-align: middle;
-}
-
-#right-column > #path-toggle {
-    height: 20%;
-    margin-bottom: calc(2% - 2px);
-}
-
-#right-column > #path-toggle > .heading {
     text-align: center;
     padding-bottom: 5px;
-}
-
-#path-toggle > .path-container {
-    width: 40%;
 }
 
 .input-wrapper {
@@ -590,24 +571,6 @@ footer {
 
 #downarrow {
     cursor: pointer;
-}
-
-#heatmap-select label {
-    display: block;
-}
-
-#heatmap-select #heatmap-dropdown-button {
-    margin-bottom: 10px;
-    margin-left: 10px;
-}
-
-#heatmap-select label {
-    margin-top: 10px;
-    margin-left: 10px;
-}
-
-#heatmap-select select {
-    width: 150px;
 }
 
 #big-graph-overlay {

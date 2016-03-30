@@ -108,7 +108,7 @@ The aggregate format for multiple matches consists of a bunch of fields each of 
 ```
 then the positional format is as follows:
 ```
-[ // Has 60*60 + 90 = 3690 elements, one per second
+[ // Has 60*60 + 75 = 3675 elements, one per second
     [ // Has 64*64 = 4096 elements, one per in-game cell (matches each entity's m_cellX/Y
         0, // This is the number of times we've had an event at this time at this location
         ...

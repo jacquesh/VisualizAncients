@@ -1,6 +1,10 @@
 var replayData = undefined;
 var endTime = 0;
 
+var lerp = function(from, to, t) {
+  return from*(1-t) + to*t;
+};
+
 (function ($) {
   'use strict';
 
@@ -20,7 +24,8 @@ var endTime = 0;
     deathsHidden: false,
     creepHidden: false,
     smokeHidden: false,
-    showPresence: true,
+    showPresence: false,
+    showHeatmap: false,
     radiantLinesHidden: false,
     direLinesHidden: false,
     selectedHero: '',
@@ -263,6 +268,108 @@ var endTime = 0;
       }
     },
 
+    drawPresenceMap: function(snapshot) {
+      var $presence = $('#presence');
+      if (this.showPresence) {
+        var pxX = 0;
+        var pxY = 0;
+        var colours = [{r:255, g:255, b:255, a:128},
+                       {},
+                       {r:9, g:127, b:230, a:128},
+                       {r:7, g:101, b:178, a:255},
+                       {r:230, g:86, b:9, a:128},
+                       {r:178, g:64, b:7, a:255}];
+        $presence.setPixels({
+          x:0, y:0,
+          width:420, height:420,
+          fromCenter: false,
+          each: function(px) {
+            var cellX = Math.floor((pxX/420)*64);
+            var cellY = 63 - Math.floor((pxY/420)*64);
+            var cellIndex = cellY*64 + cellX;
+            var presenceVal = snapshot.presenceData.map[cellIndex];
+            px.r = colours[presenceVal].r;
+            px.g = colours[presenceVal].g;
+            px.b = colours[presenceVal].b;
+            px.a = colours[presenceVal].a;
+
+            pxX++;
+            if(pxX >= 420) {
+              pxX = 0;
+              pxY++;
+            }
+          }
+        });
+
+        $presence.find('img').prop('src', $presence.getCanvasImage());
+      }
+    },
+
+    drawHeatmap: function(tick, snapshots) {
+      if (this.showHeatmap) {
+        var rangeEndSnapshot = snapshots[tick];
+        var dataEndIndex = Math.round(rangeEndSnapshot.time - replayData.startTime) + 75;
+
+        var $heatmap = $('#heatmap');
+        var pxX = 0;
+        var pxY = 0;
+        var heatmapAlpha = 255;
+        var dataSource = aggregateData.positionData;
+
+        $heatmap.setPixels({
+          x:0, y:0,
+          width:420, height:420,
+          fromCenter: false,
+          each: function(px) {
+            var cellX = Math.floor((pxX/420)*64);
+            var cellY = 63 - Math.floor((pxY/420)*64);
+            var cellIndex = cellY*64 + cellX;
+            var heatmapVal = dataSource[dataEndIndex][cellIndex];
+
+            px.b = 0;
+            var baseVal = 0;
+            var midpoint = lerp(baseVal, 100, 0.3);
+            var maxPoint = lerp(baseVal, 100, 0.8);
+            if(heatmapVal > baseVal) {
+              px.a = heatmapAlpha;
+              if(heatmapVal > midpoint) {
+                // R=255, G=255->0 as heatmapVal=midpoint->100
+                var t = (heatmapVal - midpoint)/(maxPoint - midpoint);
+                if(t > 1.0) {
+                  t = 1.0;
+                }
+                px.r = 255;
+                px.g = lerp(255, 0, t);
+              }
+              else {
+                // R=255->0, G=255 as heatmapVal=baseVal->midpoint
+                var t = (heatmapVal - baseVal)/(midpoint - baseVal);
+                px.r = lerp(0,255, t);
+                px.g = 255;
+
+                var aScale = lerp(0, 2, 3*t);
+                if(aScale > 1.0) {
+                  aScale = 1.0
+                }
+                px.a = heatmapAlpha*aScale;
+              }
+            }
+            else {
+              px.a = 0;
+            }
+
+            pxX++;
+            if(pxX >= 420) {
+              pxX = 0;
+              pxY++;
+            }
+          }
+        });
+
+        $heatmap.find('img').prop('src', $heatmap.getCanvasImage());
+      }
+    },
+
     drawMapLine: function(points, colour, dashed, group, name) {
       var lineSettings = {
         name: name,
@@ -293,7 +400,7 @@ var endTime = 0;
         var hero = heroData[i];
 
         layer.data.items = hero.items;
-        layer.data.invis = hero.invis;
+        layer.data.invis = hero.invis || hero.smoked;
 
         if (hero.alive) {
           $map.setLayer(layerId, {
@@ -485,48 +592,6 @@ var endTime = 0;
       $map.clearCanvas();
     },
 
-    renderMap: function(snapshot) {
-      var $presence = $('#presence');
-      if (this.showPresence) {
-        var pxX = 0;
-        var pxY = 0;
-        var colours = [{r:255, g:255, b:255, a:128},
-                       {},
-                       {r:9, g:127, b:230, a:128},
-                       {r:7, g:101, b:178, a:255},
-                       {r:230, g:86, b:9, a:128},
-                       {r:178, g:64, b:7, a:255}];
-        $presence.setPixels({
-          x:0, y:0,
-          width:420, height:420,
-          fromCenter: false,
-          each: function(px) {
-            var cellX = Math.floor((pxX/420)*64);
-            var cellY = 63 - Math.floor((pxY/420)*64);
-            var cellIndex = cellY*64 + cellX;
-            var presenceVal = snapshot.presenceData.map[cellIndex];
-            px.r = colours[presenceVal].r;
-            px.g = colours[presenceVal].g;
-            px.b = colours[presenceVal].b;
-            px.a = colours[presenceVal].a;
-
-            pxX++;
-            if(pxX >= 420) {
-              pxX = 0;
-              pxY++;
-            }
-          }
-        });
-
-        $presence.find('img').prop('src', $presence.getCanvasImage());
-      }
-
-      $('#radiant-presence').text(snapshot.presenceData.percentages[0]+"%");
-      $('#dire-presence').text(snapshot.presenceData.percentages[1]+"%");
-
-      $map.drawLayers();
-    },
-
     toggleCouriers: function() {
       this.couriersHidden = !this.couriersHidden;
       $map.setLayerGroup('courier', {visible: !this.couriersHidden});
@@ -544,10 +609,6 @@ var endTime = 0;
 
     toggleSmokes: function() {
       this.smokeHidden = !this.smokeHidden;
-    },
-
-    togglePresenceOverlay: function() {
-      this.showPresence = !this.showPresence;
     },
 
     showDeaths: function() {
@@ -956,6 +1017,9 @@ var endTime = 0;
     mapManager.resetMap();
 
     var snapshot = snapshots[tick];
+
+    mapManager.drawHeatmap(tick, snapshots);
+
     var heroData = snapshot.heroData;
     mapManager.updateHeroLayers(heroData);
 
@@ -977,8 +1041,11 @@ var endTime = 0;
 
     statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
     statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
+    $('#radiant-presence').text(snapshot.presenceData.percentages[0]+"%");
+    $('#dire-presence').text(snapshot.presenceData.percentages[1]+"%");
 
-    mapManager.renderMap(snapshot);
+    mapManager.drawPresenceMap(snapshot);
+    $map.drawLayers();
 
     $timeSlider.find('.label').text(getTime(tick));
   };
@@ -991,9 +1058,8 @@ var endTime = 0;
     var tick0 = ui.values[0];
     var tick1 = ui.values[1];
 
-    singleSlide(ui.values[1]);
-
-    mapManager.drawHeroPaths(ui.values[0], ui.values[1], snapshots);
+    singleSlide(tick1);
+    mapManager.drawHeroPaths(tick0, tick1, snapshots);
 
     $map.drawLayers();
 
@@ -1027,9 +1093,23 @@ var endTime = 0;
     $map.drawImage({
       layer: true,
       name: 'presence',
-      groups: ['presence'],
+      groups: ['overlay'],
       source: presenceImg[0],
       x: 0, y: 0,
+      scale: 1,
+      fromCenter: false
+    });
+
+    var $heatmap = $('#heatmap');
+    var heatmapImg = $heatmap.find('img');
+
+    heatmapImg.prop('src', $presence.getCanvasImage());
+    $map.drawImage({
+      layer: true,
+      name: 'heatmap',
+      groups: ['overlay'],
+      source: heatmapImg[0],
+      x:0, y:0,
       scale: 1,
       fromCenter: false
     });
@@ -1038,11 +1118,8 @@ var endTime = 0;
     mapManager.setupLayers(replayData.playerHeroes);
     roshanManager.setupRoshanEvents(replayData.roshEvents);
     wardManager.setupWards(replayData.wardEvents);
-    runeManager.setupRunes();
-
-    mapManager.renderMap(snapshots[0]);
     mapManager.setupSmokeEvents(replayData.smokeUses);
-
+    runeManager.setupRunes();
     $map.drawLayers();
 
     statsManager.setMaxStats(snapshots[snapshots.length-1].teamStats);
@@ -1063,7 +1140,28 @@ var endTime = 0;
     $timeSlider.hover(sliderHover.hoverOn, sliderHover.hoverOff);
     $timeSlider.mousemove(sliderHover.mouseMove);
 
-    $('#heatmap-dropdown').selectmenu();
+    $('#overlay-dropdown').selectmenu({
+      width: '100%',
+      change: function(event, ui) {
+        var selection = event.target.selectedIndex;
+
+        showHeatmap(false);
+        showPresence(false);
+        showPaths(false);
+
+        mapManager.resetMap();
+
+        if (selection === 1) { // Presence
+          showPresence(true);
+        } else if (selection === 2) { // Paths
+          showPaths(true);
+        } else if (selection === 3) { // Heatmap
+          showHeatmap(true);
+        }
+
+        $map.drawLayers();
+      }
+    });
     $rangeSlider.slider({
       range: true,
       values: [0, 250],
@@ -1116,62 +1214,53 @@ var endTime = 0;
     req.send();
   };
 
+  var showPaths = function(show) {
+    var $timeSlider = $('#time-slider');
+    var $rangeSlider = $('#time-range-slider');
+
+    var value = $timeSlider.slider("option", "value");
+
+    if (show) {
+      $rangeSlider.slider("option", "values", [value, value + 250]);
+
+      $rangeSlider.find('.label.l0').text(getTime(value));
+      $rangeSlider.find('.label.l1').text(getTime(value+250));
+
+      $timeSlider.hide();
+      $rangeSlider.show();
+
+      mapManager.drawHeroPaths(value, value + 250, replayData.snapshots);
+    } else {
+      $map.setLayer('heatmap', {visible: false});
+      $timeSlider.show();
+      $rangeSlider.hide();
+
+      $map.removeLayerGroup('radiant-lines');
+      $map.removeLayerGroup('dire-lines');
+      singleSlide(value);
+    }
+  };
+
+  var showPresence = function(show) {
+    mapManager.showPresence = show;
+    $map.setLayer('presence', {visible: show});
+
+    var value = $('#time-slider').slider("option", "value");
+    singleSlide(value);
+  };
+
+  var showHeatmap = function(show) {
+    mapManager.showHeatmap = show;
+    $map.setLayer('heatmap', {visible: show});
+
+    var value = $('#time-slider').slider("option", "value");
+    singleSlide(value);
+  };
+
   var setupCheckboxes = function () {
     var $toggleBox = $('#toggle-box');
     $toggleBox.find('input').altCheckbox();
     $toggleBox.find('.alt-checkbox').addClass('checked');
-
-    var $pathBox = $('#path-box');
-    $pathBox.altCheckbox();
-
-    $pathBox.prev().click(function() {
-      var $timeSlider = $('#time-slider');
-      var $rangeSlider = $('#time-range-slider');
-
-      if ($('.presence-checkbox').hasClass('checked')) {
-        togglePresence();
-      }
-
-      var value = $timeSlider.slider("option", "value");
-
-      if ($(this).next().prop('checked')) {
-        var startVal = Math.max(value - 250, 0);
-        $rangeSlider.slider("option", "values", [startVal, value]);
-
-        $rangeSlider.find('.label.l0').text(getTime(startVal));
-        $rangeSlider.find('.label.l1').text(getTime(value));
-
-        $('#map-presence').hide();
-        $('#heatmap-select').show();
-
-        $timeSlider.hide();
-        $rangeSlider.show();
-
-        mapManager.drawHeroPaths(startVal, value, replayData.snapshots);
-      } else {
-        $('#heatmap-select').hide();
-        $('#map-presence').show();
-
-        $timeSlider.show();
-        $rangeSlider.hide();
-
-        $map.removeLayerGroup('radiant-lines');
-        $map.removeLayerGroup('dire-lines');
-        singleSlide(value);
-      }
-      $map.drawLayers();
-    });
-
-    var $presenceBox = $('#toggle-presence');
-    $presenceBox.altCheckbox();
-    $presenceBox.parent().find('.alt-checkbox').addClass('checked presence-checkbox');
-
-    var togglePresence = function() {
-      mapManager.togglePresenceOverlay();
-      $map.setLayer('presence', {visible: mapManager.showPresence});
-      $map.drawLayers();
-    };
-    $presenceBox.prev().click(togglePresence);
 
     $('#death-box').prev().click(function() {
       var time = +$('#amount').text();
@@ -1182,7 +1271,7 @@ var endTime = 0;
       }
       var snapshot = replayData.snapshots[time];
       mapManager.updateHeroLayers(snapshot.heroData);
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
 
     $('#wards-box').prev().click(function () {
@@ -1194,7 +1283,7 @@ var endTime = 0;
       }
       var snapshot = replayData.snapshots[time];
       wardManager.updateWards(snapshot.time);
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
 
     $('#creep-box').prev().click(function() {
@@ -1206,7 +1295,7 @@ var endTime = 0;
       }
       var snapshot = replayData.snapshots[time];
       mapManager.updateCreep(snapshot.laneCreepData);
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
 
     $('#roshan-box').prev().click(function() {
@@ -1218,7 +1307,7 @@ var endTime = 0;
       }
       var snapshot = replayData.snapshots[time];
       roshanManager.updateRoshan(snapshot.time);
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
 
     $('#courier-box').prev().click(function() {
@@ -1228,8 +1317,7 @@ var endTime = 0;
       if (courierData.length) {
         mapManager.updateCouriers(courierData);
       }
-      var snapshot = replayData.snapshots[time];
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
 
     $('#dire-path-box').prev().click(function() {
@@ -1251,7 +1339,7 @@ var endTime = 0;
       }
       var snapshot = replayData.snapshots[time];
       buildingManager.updateBuildings(snapshot.time);
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
 
     $('#smokes-box').prev().click(function() {
@@ -1260,7 +1348,7 @@ var endTime = 0;
 
       var snapshot = replayData.snapshots[time];
       mapManager.updateSmokes(replayData.smokeUses, snapshot.time);
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
 
     $('#runes-box').prev().click(function() {
@@ -1272,16 +1360,17 @@ var endTime = 0;
       }
       var snapshot = replayData.snapshots[time];
       runeManager.updateRunes(snapshot.runeData);
-      mapManager.renderMap(snapshot);
+      $map.drawLayers();
     });
   };
 
   var setupLabel = function() {
-    $('#time-slider').find('.ui-slider-handle').html('<span class="label">00:00</span>');
-    $('#time').append('<span id="hover-label" class="label">00:00</span>');
+    var time = getTime(0);
+    $('#time-slider').find('.ui-slider-handle').html('<span class="label">' + time + '</span>');
+    $('#time').append('<span id="hover-label" class="label">' + time + '</span>');
     $('#hover-label').hide();
     $('#time-range-slider').find('.ui-slider-handle').each(function(i) {
-      $(this).html('<span class="label l' + i +'">00:00</span>');
+      $(this).html('<span class="label l' + i +'">' + time + '</span>');
     });
   };
 

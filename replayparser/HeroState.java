@@ -7,6 +7,7 @@ class HeroState
     public float x;
     public float y;
     public boolean invisible;
+    public boolean smoked;
     public String[] items;
 
     public HeroState()
@@ -20,6 +21,7 @@ class HeroState
         out.write("\"alive\":"+alive+",");
         out.write("\"x\":"+String.format("%.2f",x)+",\"y\":"+String.format("%.2f,",y));
         out.write("\"invis\":"+invisible+",");
+        out.write("\"smoked\":"+smoked+",");
         out.write("\"items\":[");
         for(int i=0; i<6; ++i)
         {

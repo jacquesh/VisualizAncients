@@ -4,9 +4,13 @@ import java.io.IOException;
 
 public class Snapshot
 {
+    private final float[][] FOUNTAIN_POSITIONS = {
+        {69.750000f, 73.796875f},
+        {186.375000f, 182.000000f}
+    };
     private final float[][][] BARRACKS_POSITIONS = {
-        {{80.375244f, 142.366455f},{80.000244f, 121.491455f},{76.250244f, 101.999268f},{115.348145f, 116.250000f},{100.566895f, 106.304688f},{92.004395f, 96.000000f},{166.492432f, 80.482178f},{123.639893f, 80.366699f},{97.749268f, 80.249512f},{83.629395f, 89.875000f},{85.879395f, 87.625000f}},
-        {{91.000000f, 174.999756f},{128.000000f, 174.999756f},{155.375000f, 173.124756f},{135.999756f, 130.499756f},{147.500000f, 144.499756f},{161.000000f, 156.991943f},{176.500000f, 114.999756f},{177.000000f, 130.999756f},{177.031250f, 151.312256f},{166.765625f, 165.374756f},{169.250000f, 162.624756f}}
+        {{94.937500f, 78.281006f},{94.945068f, 82.241943f},{91.375000f, 92.632568f},{88.593750f, 95.390381f},{78.250000f, 99.015625f},{74.281250f, 99.007568f}},
+        {{179.062256f, 154.125000f},{174.937500f, 153.999756f},{161.499756f, 160.304443f},{164.359375f, 157.500000f},{158.078125f, 171.062256f},{158.046875f, 175.195068f}}
     };
     private final float[][][] TOWER_POSITIONS = {
         {{80.375244f, 142.366455f},{80.000244f, 121.491455f},{76.250244f, 101.999268f},{115.348145f, 116.250000f},{100.566895f, 106.304688f},{92.004395f, 96.000000f},{166.492432f, 80.482178f},{123.639893f, 80.366699f},{97.749268f, 80.249512f},{83.629395f, 89.875000f},{85.879395f, 87.625000f}},
@@ -77,13 +81,27 @@ public class Snapshot
         float[] presenceVals = new float[64*64];
         int teamMultiplier;
 
+        float fountainPresence = 20.0f;
+        int fountainPresenceRadius = 6;
+        for(int i=0; i<2; ++i)
+        {
+            teamMultiplier = (-2*i) + 1;
+            int fountainX = (int)Math.round((FOUNTAIN_POSITIONS[i][0] - 64.0f)/2.0f);
+            int fountainY = (int)Math.round((FOUNTAIN_POSITIONS[i][1] - 64.0f)/2.0f);
+            applyPresence(presenceVals, fountainX, fountainY,
+                    fountainPresence, fountainPresenceRadius, teamMultiplier);
+        }
+
         float heroPresence = 10.0f;
-        int heroPresenceRadius = 16;
+        int heroPresenceRadius = 12;
         teamMultiplier = 1;
         for(int heroIndex=0; heroIndex<10; ++heroIndex)
         {
             if(heroIndex == 5)
                 teamMultiplier = -1;
+
+            if(!heroes[heroIndex].alive)
+                continue;
             int heroX = (int)Math.round((heroes[heroIndex].x - 64.0f)/2.0f);
             int heroY = (int)Math.round((heroes[heroIndex].y - 64.0f)/2.0f);
             applyPresence(presenceVals, heroX, heroY,
@@ -91,7 +109,7 @@ public class Snapshot
         }
 
         float creepPresence = 5.0f;
-        int creepPresenceRadius = 8;
+        int creepPresenceRadius = 6;
         for(int creepIndex=0; creepIndex<laneCreeps.size(); ++creepIndex)
         {
             LaneCreepData creep = laneCreeps.get(creepIndex);
@@ -116,20 +134,32 @@ public class Snapshot
         }
 
         float towerPresence = 15.0f;
-        int towerPresenceRadius = 16;
+        int towerPresenceRadius = 12;
+        float barracksPresence = 7.0f;
+        int barracksPresenceRadius = 6;
+        float buildingPresence = 0.0f;
+        int buildingPresenceRadius = 0;
         int teamIndex = 0;
         for(TowerEvent tower : activeTowers)
         {
             float[][][] positions;
             if(tower.isBarracks)
+            {
                 positions = BARRACKS_POSITIONS;
+                buildingPresence = barracksPresence;
+                buildingPresenceRadius = barracksPresenceRadius;
+            }
             else
+            {
                 positions = TOWER_POSITIONS;
+                buildingPresence = towerPresence;
+                buildingPresenceRadius = towerPresenceRadius;
+            }
             teamMultiplier = 1 - (tower.teamIndex*2);
             int towerX = (int)Math.round((positions[tower.teamIndex][tower.towerIndex][0] - 64.0f)/2);
             int towerY = (int)Math.round((positions[tower.teamIndex][tower.towerIndex][1] - 64.0f)/2);
             applyPresence(presenceVals, towerX, towerY,
-                    towerPresence, towerPresenceRadius, teamMultiplier);
+                    buildingPresence, buildingPresenceRadius, teamMultiplier);
         }
 
         /*
@@ -167,15 +197,24 @@ public class Snapshot
             if(val == 0)
                 continue; // No borders for neutral regions
 
+            // We need to bound the x-offset here so that we don't check across horizontal
+            // map edges (IE wrap from the end of one row to the start of the next)
+            int xOffMin = -1;
+            int xOffMax = 1;
+            if(i%64 == 0)
+                xOffMin = 0;
+            else if(i%64 == 63)
+                xOffMax = 0;
+
             for(int yOff=-1; yOff<=1; ++yOff)
             {
-                for(int xOff=-1; xOff<=1; ++xOff)
+                for(int xOff=xOffMin; xOff<=xOffMax; ++xOff)
                 {
                     if((xOff == 0) && (yOff == 0))
-                        continue;
+                        continue; // Don't compare to yourself
                     int tempIndex = i + (64*yOff + xOff);
                     if((tempIndex < 0) || (tempIndex >= 4096))
-                        continue;
+                        continue; // Don't run off the map
                     int tempVal = presence[tempIndex];
                     if((tempVal & val) == 0)
                     {
@@ -246,7 +285,6 @@ public class Snapshot
             out.write(""+presence[i]);
         }
         out.write("]}");
-
 
         out.write("}");
     }
