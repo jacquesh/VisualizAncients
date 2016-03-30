@@ -502,7 +502,7 @@ var lerp = function(from, to, t) {
     setupSmokeEvents: function(smokeData) {
       for (var i = 0; i < smokeData.length; i++) {
         var smoke = smokeData[i];
-        addEvent(false, 'smoke-' + i, 'smoke', smoke.time);
+        addEvent(false, 'smoke-' + i, 'smoke', smoke.time, 'Smoke used at ' + ('' + (smoke.time  - replayData.snapshots[0].time)).toHHMMSS());
       }
     },
 
@@ -723,7 +723,7 @@ var lerp = function(from, to, t) {
         } else {
           this.roshanEvents[eventIndex].end = event.time;
           eventIndex += 1;
-          addEvent(false, 'rosh'+ eventIndex, 'roshan', event.time);
+          addEvent(false, 'rosh'+ eventIndex, 'roshan', event.time, 'Roshan killed at ' + ('' + (event.time  - replayData.snapshots[0].time)).toHHMMSS());
         }
       }
     },
@@ -814,11 +814,13 @@ var lerp = function(from, to, t) {
     }
   };
 
-  var addEvent = function(top, eventId, eventClass, time) {
+  var addEvent = function(top, eventId, eventClass, time, tooltip) {
     var place = top ? '#top-events' : '#bottom-events';
     $(place).append(
       '<div id="' + eventId + '" class="event ' + eventClass + '"></div>'
     );
+
+    html5tooltips({contentText: tooltip, targetSelector: '#' + eventId});
 
     var startTime = replayData.snapshots[0].time;
     var endTime = replayData.snapshots[replayData.snapshots.length-1].time;
@@ -889,15 +891,15 @@ var lerp = function(from, to, t) {
 
       for (var i=0; i < towerEvents.length; i++) {
         var event = towerEvents[i];
-        var team = event.teamIndex == 0 ? 'radiant' : 'dire';
+        var team = event.teamIndex == 0 ? 'Radiant' : 'Dire';
         var type = event.isBarracks ? 'barracks' : 'tower';
 
-        var eventId = team + '-' + event.towerIndex + '-' + type + '-' + i;
-        var eventClass = team + ' ' + type;
+        var eventId = team.toLowerCase() + '-' + event.towerIndex + '-' + type + '-' + i;
+        var eventClass = team.toLowerCase() + ' ' + type;
 
-        addEvent(true, eventId, eventClass, event.time);
+        addEvent(true, eventId, eventClass, event.time, team + ' ' + type + ' destroyed at ' + ('' + (event.time  - replayData.snapshots[0].time)).toHHMMSS());
 
-        var layerName = team + '-' + event.towerIndex + '-' + type;
+        var layerName = team.toLowerCase() + '-' + event.towerIndex + '-' + type;
         $map.getLayer(layerName).data.deadTime = event.time;
       }
     },
