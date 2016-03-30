@@ -187,7 +187,6 @@ public class Reparser
             if(i == 5)
                 teamIndex += 1;
 
-            // TODO: This net worth is VERY wrong
             String playerKillsName = "m_vecPlayerTeamData." + int4Str[i] + ".m_iKills";
             String netWorthName = "m_iNetWorth." + int4Str[i];
             int playerKills = playerResource.getProperty(playerKillsName);
@@ -230,8 +229,6 @@ public class Reparser
                 float subCellX = hero.getProperty("CBodyComponent.m_vecX");
                 float subCellY = hero.getProperty("CBodyComponent.m_vecY");
 
-                // TODO: Check that this is correct from:
-                //       https://github.com/skadistats/skadi/wiki/DT_DOTA_BaseNPC
                 long unitState = hero.getProperty("m_nUnitState64");
                 boolean isInvis = ((unitState & (1 << 8)) != 0);
 
