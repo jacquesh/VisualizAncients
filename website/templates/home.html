@@ -375,6 +375,18 @@
 				  gameplay this is largely inevitable. However, we have endeavoured to optimise this process as much as possible.
 				   Although the user may need to wait to start using the visualization, they only needs to wait around 30 seconds.
 				</p>
+            <p>
+                On top of the large amounts of required data having performance implications, there is also the problem of acquiring enough
+                data points to construct a compelling and useful visualization. This issue becomes a real concern when trying to generate heatmaps
+                for rare events such as killing Roshan or placing a ward, because the number of games that need to be analysed in order to
+                properly fill the heatmap (such that you do not only have one or two points visible) is exceptionally large. We have an
+                automated process by which we can collect match replays and analyze them, aggregating the results of many matches into the
+                data used to show the heatmaps, however the server which hosts the replays gives a hard limit on the number of downloads
+                that are permitted per day. This rate-limiting combined with the time required to actually download and process the files means
+                that the heatmaps shown in our final design, are made up from only 242 distinct games. From looking at the heatmaps for this data,
+                it is clear that having complete heatmaps for all of the categories we initially specified, would likely require upwards of 1000
+                replays and so we have elected to only provide heatmaps for the positions of heroes around the maps.
+                </p>
 			<p>
 				Another more visual issue we encountered was the tendency of events displayed in the timeline slider to occlude one
 				another. This is a natural effect of events tending to naturally clump together when one team builds up some short-term
