@@ -49,9 +49,11 @@ var lerp = function(from, to, t) {
       };
 
       $('#entity-name').text(layer.data.entityName).removeClass('hidden-text');
-      var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
+      if(!(layer.name === 'roshan')) {
+        var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
+        $('#player-info').addClass(team);
+      }
 
-      $('#player-info').addClass(team);
       if(layer.data.hasOwnProperty('items')) {
         $('#status-bar').css('opacity', 1);
         $items.css("visibility", "visible");
