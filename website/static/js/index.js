@@ -133,7 +133,7 @@ var lerp = function(from, to, t) {
     },
 
     setupLayers: function(playerHeroes) {
-      $map.click(function () {
+      var deselectHero = function () {
         if (mapManager.selectedHero) {
           var old = $map.getLayer(mapManager.selectedHero);
           old.fillStyle = old.data.color;
@@ -147,8 +147,11 @@ var lerp = function(from, to, t) {
 
           mapManager.selectedHero = '';
           mapManager.resetPlayerInfoPanel();
+
+          mapManager.handleHoverOff(old);
         }
-      });
+      };
+      $map.click(deselectHero);
 
       for(var i=0; i<10; i++) {
         var layerName = this.layers[i];
@@ -258,16 +261,34 @@ var lerp = function(from, to, t) {
           points.push([hero.x, hero.y]);
         }
 
+        var colour = '';
+        var dashed = true;
+        var group = '-lines';
+        var name = this.layers[i] + '-line';
+        var draw = false;
+        var layer = 11;
+
         if (i < 5) {
-          if (!this.radiantLinesHidden) {
-            this.drawMapLine(points, '#097FE6', true, 'radiant-lines', this.layers[i] + '-line');
-            $map.moveLayer(this.layers[i] + '-line', 11);
-          }
+          colour = '#097FE6';
+          group = 'radiant' + group;
+          draw = !this.radiantLinesHidden;
         } else {
-          if (!this.direLinesHidden) {
-            this.drawMapLine(points, '#E65609', false, 'dire-lines', this.layers[i] + '-line');
-            $map.moveLayer(this.layers[i] + '-line', 11);
-          }
+          colour = '#E65609';
+          group = 'dire' + group;
+          dashed = false;
+          draw = !this.direLinesHidden;
+        }
+
+        if (mapManager.selectedHero === this.layers[i]) {
+          colour = '#FFFF00';
+          layer = 21;
+        } else if (mapManager.selectedHero) {
+          colour = 'rgba(0, 0, 0, 0.8)'
+        }
+
+        if (draw) {
+          this.drawMapLine(points, colour, dashed, group, name);
+          $map.moveLayer(name, layer);
         }
       }
     },
