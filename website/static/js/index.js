@@ -24,8 +24,8 @@ var lerp = function(from, to, t) {
     deathsHidden: false,
     creepHidden: false,
     smokeHidden: false,
-    showPresence: true,
-    heatmapType: 0,
+    showPresence: false,
+    showHeatmap: false,
     radiantLinesHidden: false,
     direLinesHidden: false,
     selectedHero: '',
@@ -306,30 +306,17 @@ var lerp = function(from, to, t) {
       }
     },
 
-    drawHeatmap: function(t0, t1, snapshots) {
-      if(this.heatmapType > 0) {
-        var rangeStartSnapshot = replayData.snapshots[t0];
-        var rangeEndSnapshot = replayData.snapshots[t1];
-        var dataStartIndex = Math.round(rangeStartSnapshot.time - replayData.startTime) + 75;
+    drawHeatmap: function(tick, snapshots) {
+      if (this.showHeatmap) {
+        var rangeEndSnapshot = snapshots[tick];
         var dataEndIndex = Math.round(rangeEndSnapshot.time - replayData.startTime) + 75;
-        var dataIndexRange = dataEndIndex - dataStartIndex;
 
         var $heatmap = $('#heatmap');
         var pxX = 0;
         var pxY = 0;
         var heatmapAlpha = 255;
-        var dataSource = {};
-        if(this.heatmapType == 1) {
-          dataSource = aggregateData.positionData;
-        } else if(this.heatmapType == 2) {
-          dataSource = aggregateData.deathData;
-        } else if(this.heatmapType == 3) {
-          dataSource = aggregateData.wardData;
-        } else if(this.heatmapType == 4) {
-          dataSource = aggregateData.sentryData;
-        } else if(this.heatmapType == 5) {
-          dataSource = aggregateData.smokeData;
-        }
+        var dataSource = aggregateData.positionData;
+
         $heatmap.setPixels({
           x:0, y:0,
           width:420, height:420,
@@ -338,7 +325,7 @@ var lerp = function(from, to, t) {
             var cellX = Math.floor((pxX/420)*64);
             var cellY = 63 - Math.floor((pxY/420)*64);
             var cellIndex = cellY*64 + cellX;
-            var heatmapVal = (dataSource[dataEndIndex][cellIndex] - dataSource[dataStartIndex][cellIndex])/1;
+            var heatmapVal = dataSource[dataEndIndex][cellIndex];
 
             px.b = 0;
             var baseVal = 0;
@@ -623,10 +610,6 @@ var lerp = function(from, to, t) {
 
     toggleSmokes: function() {
       this.smokeHidden = !this.smokeHidden;
-    },
-
-    togglePresenceOverlay: function() {
-      this.showPresence = !this.showPresence;
     },
 
     showDeaths: function() {
@@ -1035,6 +1018,9 @@ var lerp = function(from, to, t) {
     mapManager.resetMap();
 
     var snapshot = snapshots[tick];
+
+    mapManager.drawHeatmap(tick, snapshots);
+
     var heroData = snapshot.heroData;
     mapManager.updateHeroLayers(heroData);
 
@@ -1075,7 +1061,6 @@ var lerp = function(from, to, t) {
 
     singleSlide(tick1);
     mapManager.drawHeroPaths(tick0, tick1, snapshots);
-    mapManager.drawHeatmap(tick0, tick1, snapshots);
 
     $map.drawLayers();
 
@@ -1106,7 +1091,7 @@ var lerp = function(from, to, t) {
     $map.drawImage({
       layer: true,
       name: 'presence',
-      groups: ['presence'],
+      groups: ['overlay'],
       source: presenceImg[0],
       x: 0, y: 0,
       scale: 1,
@@ -1115,11 +1100,12 @@ var lerp = function(from, to, t) {
 
     var $heatmap = $('#heatmap');
     var heatmapImg = $heatmap.find('img');
+
     heatmapImg.prop('src', $presence.getCanvasImage());
     $map.drawImage({
       layer: true,
       name: 'heatmap',
-      groups: ['heatmap'],
+      groups: ['overlay'],
       source: heatmapImg[0],
       x:0, y:0,
       scale: 1,
@@ -1152,21 +1138,25 @@ var lerp = function(from, to, t) {
     $timeSlider.hover(sliderHover.hoverOn, sliderHover.hoverOff);
     $timeSlider.mousemove(sliderHover.mouseMove);
 
-    $('#heatmap-dropdown').selectmenu({
+    $('#overlay-dropdown').selectmenu({
+      width: '100%',
       change: function(event, ui) {
         var selection = event.target.selectedIndex;
-        mapManager.heatmapType = selection;
-        if(selection == 0) {
-          $heatmap.setPixels({
-            x:0, y:0,
-            width:420, height:420,
-            fromCenter: false,
-            each: function(px) {
-              px.a = 0;
-            }
-          });
-          $heatmap.find('img').prop('src', $heatmap.getCanvasImage());
+
+        showHeatmap(false);
+        showPresence(false);
+        showPaths(false);
+
+        mapManager.resetMap();
+
+        if (selection === 1) { // Presence
+          showPresence(true);
+        } else if (selection === 2) { // Paths
+          showPaths(true);
+        } else if (selection === 3) { // Heatmap
+          showHeatmap(true);
         }
+
         $map.drawLayers();
       }
     });
@@ -1220,63 +1210,54 @@ var lerp = function(from, to, t) {
     req.send();
   };
 
+  var showPaths = function(show) {
+    var $timeSlider = $('#time-slider');
+    var $rangeSlider = $('#time-range-slider');
+
+    var value = $timeSlider.slider("option", "value");
+
+    if (show) {
+      $rangeSlider.slider("option", "values", [value, value + 250]);
+
+      $rangeSlider.find('.label.l0').text(getTime(value));
+      $rangeSlider.find('.label.l1').text(getTime(value+250));
+
+      $timeSlider.hide();
+      $rangeSlider.show();
+
+      mapManager.drawHeroPaths(value, value + 250, replayData.snapshots);
+    } else {
+      $map.setLayer('heatmap', {visible: false});
+
+      $timeSlider.show();
+      $rangeSlider.hide();
+
+      $map.removeLayerGroup('radiant-lines');
+      $map.removeLayerGroup('dire-lines');
+      singleSlide(value);
+    }
+  };
+
+  var showPresence = function(show) {
+    mapManager.showPresence = show;
+    $map.setLayer('presence', {visible: show});
+
+    var value = $('#time-slider').slider("option", "value");
+    singleSlide(value);
+  };
+
+  var showHeatmap = function(show) {
+    mapManager.showHeatmap = show;
+    $map.setLayer('heatmap', {visible: show});
+
+    var value = $('#time-slider').slider("option", "value");
+    singleSlide(value);
+  };
+
   var setupCheckboxes = function () {
     var $toggleBox = $('#toggle-box');
     $toggleBox.find('input').altCheckbox();
     $toggleBox.find('.alt-checkbox').addClass('checked');
-
-    var $pathBox = $('#path-box');
-    $pathBox.altCheckbox();
-
-    $pathBox.prev().click(function() {
-      var $timeSlider = $('#time-slider');
-      var $rangeSlider = $('#time-range-slider');
-
-      if ($('.presence-checkbox').hasClass('checked')) {
-        togglePresence();
-      }
-
-      var value = $timeSlider.slider("option", "value");
-
-      if ($(this).next().prop('checked')) {
-        $rangeSlider.slider("option", "values", [value, value + 250]);
-
-        $rangeSlider.find('.label.l0').text(getTime(value));
-        $rangeSlider.find('.label.l1').text(getTime(value+250));
-
-        $('#map-presence').hide();
-        $('#heatmap-select').show();
-        $map.setLayer('heatmap', {visible: true});
-
-        $timeSlider.hide();
-        $rangeSlider.show();
-
-        mapManager.drawHeroPaths(value, value + 250, replayData.snapshots);
-      } else {
-        $map.setLayer('heatmap', {visible: false});
-        $('#heatmap-select').hide();
-        $('#map-presence').show();
-
-        $timeSlider.show();
-        $rangeSlider.hide();
-
-        $map.removeLayerGroup('radiant-lines');
-        $map.removeLayerGroup('dire-lines');
-        singleSlide(value);
-      }
-      $map.drawLayers();
-    });
-
-    var $presenceBox = $('#toggle-presence');
-    $presenceBox.altCheckbox();
-    $presenceBox.parent().find('.alt-checkbox').addClass('checked presence-checkbox');
-
-    var togglePresence = function() {
-      mapManager.togglePresenceOverlay();
-      $map.setLayer('presence', {visible: mapManager.showPresence});
-      $map.drawLayers();
-    };
-    $presenceBox.prev().click(togglePresence);
 
     $('#death-box').prev().click(function() {
       var time = +$('#amount').text();
@@ -1381,11 +1362,12 @@ var lerp = function(from, to, t) {
   };
 
   var setupLabel = function() {
-    $('#time-slider').find('.ui-slider-handle').html('<span class="label">00:00</span>');
-    $('#time').append('<span id="hover-label" class="label">00:00</span>');
+    var time = getTime(0);
+    $('#time-slider').find('.ui-slider-handle').html('<span class="label">' + time + '</span>');
+    $('#time').append('<span id="hover-label" class="label">' + time + '</span>');
     $('#hover-label').hide();
     $('#time-range-slider').find('.ui-slider-handle').each(function(i) {
-      $(this).html('<span class="label l' + i +'">00:00</span>');
+      $(this).html('<span class="label l' + i +'">' + time + '</span>');
     });
   };
 

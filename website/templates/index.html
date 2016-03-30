@@ -114,23 +114,6 @@
                     <div id="dire-control" class="dire team-block colour-container border-white">
                         <h1 id="dire-presence" class="bottom">0%</h1>
                     </div>
-                    <div id="toggle-presence-label">
-                        <label for="toggle-presence">Show Map Presence</label>
-                        <span class="input-wrapper">
-                            <input type="checkbox" id="toggle-presence">
-                        </span>
-                    </div>
-                </div>
-                <div id="heatmap-select" class="side-bar colour-container hug-right" style="display:none;">
-                    <label for="heatmap-dropdown">Select a heatmap</label>
-                    <select name="heatmap-dropdown" id="heatmap-dropdown">
-                        <option selected="selected">None</option>
-                        <option>Positions</option>
-                        <option>Deaths</option>
-                        <option>Wards</option>
-                        <option>Sentries</option>
-                        <option>Smoke</option>
-                    </select>
                 </div>
             </div>
 
@@ -139,14 +122,14 @@
             </div>
 
             <div id="right-column" class="column">
-                <div id="path-toggle" class="side-bar hug-left drop-shadow colour-container">
-                    <h4 class="heading">Toggle Paths</h4>
-                    <div class="path-container center-block">
-                        <span class="input-wrapper">
-                            <input type="checkbox" id="path-box">
-                            <label for="path-box"><img src="/static/img/icons/paths.png"></label>
-                        </span>
-                    </div>
+                <div id="overlay-select" class="side-bar hug-left drop-shadow colour-container">
+                    <label class="heading" for="overlay-dropdown">Select An Overlay</label>
+                    <select name="overlay-dropdown" id="overlay-dropdown" class="overlay-container">
+                        <option selected="selected">None</option>
+                        <option>Presence</option>
+                        <option>Hero Paths</option>
+                        <option>Heatmap</option>
+                    </select>
                 </div>
                 <div id="player-info" class="side-bar hug-left drop-shadow colour-container">
                     <h1 id="entity-name" class="hidden-text">Entity Name</h1>
