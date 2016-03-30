@@ -20,6 +20,8 @@ p {
 	font-family: "Verdana", sans-serif;
 }
 #contents-bar {
+	position: fixed;
+	background-color: Lavender;
 	padding: 0px;
 	line-height:30px;
     height:330px;
