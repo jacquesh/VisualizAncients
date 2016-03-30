@@ -159,6 +159,11 @@ public class Reparser
     public void onTickStart(Context ctx, boolean synthetic)
     {
         Snapshot newSnapshot = new Snapshot(courierList.size());
+        for(int i=0; i<10; ++i)
+        {
+            newSnapshot.heroes[i].smoked = currentSnapshot.heroes[i].smoked;
+        }
+
         currentSnapshot = newSnapshot;
 
         if((playerResource == null) || (gameRules == null) || (dataSpectator == null)
@@ -187,7 +192,6 @@ public class Reparser
             if(i == 5)
                 teamIndex += 1;
 
-            // TODO: This net worth is VERY wrong
             String playerKillsName = "m_vecPlayerTeamData." + int4Str[i] + ".m_iKills";
             String netWorthName = "m_iNetWorth." + int4Str[i];
             int playerKills = playerResource.getProperty(playerKillsName);
@@ -230,8 +234,6 @@ public class Reparser
                 float subCellX = hero.getProperty("CBodyComponent.m_vecX");
                 float subCellY = hero.getProperty("CBodyComponent.m_vecY");
 
-                // TODO: Check that this is correct from:
-                //       https://github.com/skadistats/skadi/wiki/DT_DOTA_BaseNPC
                 long unitState = hero.getProperty("m_nUnitState64");
                 boolean isInvis = ((unitState & (1 << 8)) != 0);
 
@@ -555,6 +557,38 @@ public class Reparser
                 evt.x = currentSnapshot.heroes[playerIndex].x;
                 evt.y = currentSnapshot.heroes[playerIndex].y;
                 smokeUses.add(evt);
+            }
+        }
+        else if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_MODIFIER_ADD)
+        {
+            String inflictorName = entry.getInflictorName();
+            if(inflictorName.equals("modifier_smoke_of_deceit"))
+            {
+                String targetName = entry.getTargetName();
+                for(int i=0; i<10; ++i)
+                {
+                    if(heroes[i].heroName.equals(targetName))
+                    {
+                        currentSnapshot.heroes[i].smoked = true;
+                        break;
+                    }
+                }
+            }
+        }
+        else if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_MODIFIER_REMOVE)
+        {
+            String inflictorName = entry.getInflictorName();
+            if(inflictorName.equals("modifier_smoke_of_deceit"))
+            {
+                String targetName = entry.getTargetName();
+                for(int i=0; i<10; ++i)
+                {
+                    if(heroes[i].heroName.equals(targetName))
+                    {
+                        currentSnapshot.heroes[i].smoked = false;
+                        break;
+                    }
+                }
             }
         }
         else if(entry.getType() == DotaUserMessages.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_TEAM_BUILDING_KILL)
