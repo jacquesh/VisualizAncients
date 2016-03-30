@@ -11,6 +11,7 @@
             "y": float,
             "entityHandle": int,
             "isSentry": bool,
+            "isDire": bool,
             "died": bool
         },
         ...
