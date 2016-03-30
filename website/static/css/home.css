@@ -5,6 +5,7 @@ html, body {
     height:100%;
 }
 header {
+	padding-left: 190px;
 	background-color:SteelBlue;
     color:white;
     padding-top: 3px;
@@ -20,11 +21,13 @@ p {
 	font-family: "Verdana", sans-serif;
 }
 #contents-bar {
+	top: 0;
+	z-index:1;
 	position: fixed;
-	background-color: Lavender;
-	padding: 0px;
+	background-color:#f1f1f1;
+	padding-top: 200px;
 	line-height:30px;
-    height:330px;
+    height:100%;
     text-align: left;
     width:190px;
     font-size: 15px;
@@ -43,8 +46,8 @@ figure > img {
 	padding-top: 55px;
 	padding-bottom: 10px;
 	display: block;
-	height: auto;
-	width: auto;
+	height: 400px;
+	width: 400px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -52,7 +55,7 @@ figure > img {
 	padding-top: 50px;
 	display: inline;
     position: absolute;
-    
+    padding-left: 190px;
 }
 .segment {
 	float: left;
@@ -124,7 +127,10 @@ a {
     color:white;
 } 
 
-
+a {
+	padding:0 4px 0 0;
+	display:block;
+}
 
 a:link {
 	text-decoration: none;
@@ -132,7 +138,8 @@ a:link {
 }
 
 a:hover {
-	color: SlateGray;
+	background-color: #555;
+    color: White;
 }
 a:visited {
     color: DimGray;
@@ -140,4 +147,5 @@ a:visited {
 
 a:active {
 	font-weight: bold;
+		
 }
