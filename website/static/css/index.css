@@ -281,8 +281,17 @@ header > hr {
     height: 43%;
 }
 
+#map-presence .heading {
+    display: block;
+    font-weight: bold;
+    padding-top: 10px;
+    padding-left: 10px;
+    font-size: 1.5em;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
 #left-column > #map-presence > .team-block {
-    margin-top: 12.5%;
     height: 65%;
     float: left;
     width: calc(50% - 2px);
