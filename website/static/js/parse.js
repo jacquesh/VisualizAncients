@@ -70,7 +70,7 @@ var bigGraphs = function ($) {
       datasets: [
         {
           label: "Sentries Placed",
-          fillColor: "ForestGreen",
+          fillColor: "LimeGreen",
           strokeColor: "rgba(220,220,220,0.8)",
           highlightFill: "rgba(220,220,220,0.75)",
           highlightStroke: "rgba(220,220,220,1)",
