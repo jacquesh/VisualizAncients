@@ -991,7 +991,7 @@ var lerp = function(from, to, t) {
 
       var diffG = Math.abs(teamStats[0].netWorth - teamStats[1].netWorth);
       var diffXp = Math.abs(teamStats[0].totalXp - teamStats[1].totalXp);
-      var biggestVal = Math.max(diffG, diffXp);
+      var biggestVal = Math.max(diffG, diffXp, 500);
 
       if (teamStats[0].netWorth > teamStats[1].netWorth) {
         this.$radiantWorthLabel.text('+' + diffG.toLocaleString() + ' Gold');
