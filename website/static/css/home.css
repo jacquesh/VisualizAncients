@@ -142,9 +142,41 @@ a {
 	background-color:SteelBlue;
     color:white;
 } 
-.floated_img
+.floated_img {
+	display:inline-block;
+		
+}
+.middle{
+ margin: auto;
+}
+
+
+.floated_img > figure 
 {
+	padding-left: 20px;
+	padding-right: 20px;
+	margin-right: 10;
     float: left;
+}
+#heat > img {
+	padding-top: 55px;
+	padding-bottom: 10px;
+	display: block;
+	height: 500px;
+	
+	width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+#heat > img {
+	padding-top: 55px;
+	padding-bottom: 10px;
+	display: block;
+	height: 500px;
+	
+	width: 900px;
+    margin-left: auto;
+    margin-right: auto;
 }
 a {
 	padding:0 4px 0 0;
