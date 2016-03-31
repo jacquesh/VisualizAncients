@@ -53,7 +53,15 @@ var lerp = function(from, to, t) {
       $('#entity-name').text(layer.data.entityName).removeClass('hidden-text');
       if(!(layer.name === 'roshan')) {
         var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
-        $('#player-info').addClass(team);
+        var $playerInfo = $('#player-info');
+        if (team === 'radiant') {
+          $playerInfo.addClass(team);
+          $playerInfo.removeClass('dire');
+        } else {
+          $playerInfo.removeClass('radiant');
+          $playerInfo.addClass(team);
+        }
+
       }
 
       if(layer.data.hasOwnProperty('items')) {
@@ -167,6 +175,10 @@ var lerp = function(from, to, t) {
             } else if (mapManager.selectedHero) {
               mapManager.deselectHero();
             }
+
+            if (mapManager.hoverHero && (mapManager.hoverHero === layer.name)) {
+              mapManager.handleHoverOn(layer);
+            }
           },
           data: {
             color: col,
@@ -200,6 +212,11 @@ var lerp = function(from, to, t) {
             } else if (mapManager.selectedHero) {
               mapManager.deselectHero();
             }
+
+            if (mapManager.hoverHero && (mapManager.hoverHero === heroName)) {
+              mapManager.handleHoverOn($map.getLayer(heroName));
+            }
+
             $map.drawLayer(layer);
           },
           visible: false,
