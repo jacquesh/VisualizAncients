@@ -5,7 +5,7 @@ html, body {
     height:100%;
 }
 header {
-	padding-left: 190px;
+	padding-left: 210px;
 	background-color:SteelBlue;
     color:white;
     padding-top: 3px;
@@ -25,13 +25,20 @@ p {
 	z-index:1;
 	position: fixed;
 	background-color:#f1f1f1;
-	padding-top: 200px;
+	padding-top: 0px;
 	line-height:30px;
     height:100%;
     text-align: left;
-    width:190px;
+    width:210px;
     font-size: 15px;
 	float: left;
+}
+#contents-bar >img
+{
+	top: 50;
+	left: 50;
+	width: 90%;
+	
 }
 ul {
 	list-style:none;
@@ -55,7 +62,7 @@ figure > img {
 	padding-top: 50px;
 	display: inline;
     position: absolute;
-    padding-left: 190px;
+    padding-left: 210px;
 }
 .segment {
 	float: left;
@@ -137,7 +144,7 @@ a:link {
 	color: DimGray;
 }
 
-a:hover {
+#contents-bar a:hover {
 	background-color: #555;
     color: White;
 }
