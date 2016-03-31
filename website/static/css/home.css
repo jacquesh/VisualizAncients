@@ -142,7 +142,10 @@ a {
 	background-color:SteelBlue;
     color:white;
 } 
-
+.floated_img
+{
+    float: left;
+}
 a {
 	padding:0 4px 0 0;
 	display:block;
