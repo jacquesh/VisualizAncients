@@ -238,7 +238,7 @@ var lerp = function(from, to, t) {
       var team = old.name[0] === 'r' ? 'radiant' : 'dire';
       var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
       $map.setLayer(layerName, {
-        source: '/static/img/icons/' + team + '_death.png'
+        source: 'static/img/icons/' + team + '_death.png'
       });
 
       mapManager.selectedHero = '';

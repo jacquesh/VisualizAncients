@@ -427,7 +427,7 @@ header > hr {
     position: relative;
     height: 100px;
     width: 174px;
-    background-image: url('/static/img/heroes/default.jpg');
+    background-image: url('../img/heroes/default.jpg');
     background-size: cover;
     overflow: hidden;
 }
@@ -469,7 +469,7 @@ header > hr {
     width: calc(33% - 1px);
     height: 40px;
     max-width: 88px;
-    background: #222222 url('/static/img/items/emptyitembg.jpg');
+    background: #222222 url('../img/items/emptyitembg.jpg');
     border-top: 1px solid white;
     border-right: 1px solid white;
     border-bottom: 1px solid white;
@@ -493,15 +493,15 @@ header > hr {
 
 #map-container > canvas#dota-map {
     background-size: cover;
-    background-image: url("/static/img/dota2-map.jpg");
+    background-image: url("../img/dota2-map.jpg");
 }
 
 .radiant.team-block {
-    background-image: url("/static/img/icons/radiant.png");
+    background-image: url("../img/icons/radiant.png");
 }
 
 .dire.team-block {
-    background-image: url("/static/img/icons/dire.png");
+    background-image: url("../img/icons/dire.png");
 }
 
 .team-block {
