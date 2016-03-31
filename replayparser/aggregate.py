@@ -36,7 +36,7 @@ def parseMatchData(aggregate, matchFileName):
             locIndex = yIndex*64 + xIndex
             aggregate["positionData"][timeIndex][locIndex] += 1
             if died:
-                aggregate["deathData"][timeIndex][locIndex] += 1
+                #aggregate["deathData"][timeIndex][locIndex] += 1
                 minuteIndex = 0
                 if tick["time"] >= startTime:
                     minuteIndex = int(tick["time"] - startTime)//60 + 1
@@ -54,7 +54,7 @@ def parseMatchData(aggregate, matchFileName):
         yIndex = (int(ward["y"]) - 64)//2
         locIndex = yIndex*64+ xIndex
         wardType = "sentryData" if ward["isSentry"] else "wardData"
-        aggregate[wardType][timeIndex][locIndex] += 1
+        #aggregate[wardType][timeIndex][locIndex] += 1
 
         minuteIndex = 0
         if ward["time"] >= startTime:
@@ -72,6 +72,7 @@ def parseMatchData(aggregate, matchFileName):
             continue
         aggregate["roshCounts"][minuteIndex] += 1
 
+    """
     for smoke in match["smokeUses"]:
         timeIndex = int(smoke["time"] - startTime) + PRE_CREEP_TIME
         if (timeIndex < 0) or (timeIndex >= 3600 + PRE_CREEP_TIME):
@@ -80,6 +81,7 @@ def parseMatchData(aggregate, matchFileName):
         yIndex = (int(smoke["y"]) - 64)//2
         locIndex = yIndex*64 + xIndex
         aggregate["smokeData"][timeIndex][locIndex] += 1
+    """
 
 def normalizeTimeBuckets(timeBucketList):
     for timeBucket in timeBucketList:
@@ -96,10 +98,10 @@ def run(dirName):
     spatialBuckets = 64*64 # This is the resolution of m_cellX/Y
     temporalBuckets = (60*60) + PRE_CREEP_TIME
     aggregate["positionData"] = [[0]*spatialBuckets for i in range(temporalBuckets)]
-    aggregate["deathData"] = [[0]*spatialBuckets for i in range(temporalBuckets)]
-    aggregate["wardData"] = [[0]*spatialBuckets for i in range(temporalBuckets)]
-    aggregate["sentryData"] = [[0]*spatialBuckets for i in range(temporalBuckets)]
-    aggregate["smokeData"] = [[0]*spatialBuckets for i in range(temporalBuckets)]
+    #aggregate["deathData"] = [[0]*spatialBuckets for i in range(temporalBuckets)]
+    #aggregate["wardData"] = [[0]*spatialBuckets for i in range(temporalBuckets)]
+    #aggregate["sentryData"] = [[0]*spatialBuckets for i in range(temporalBuckets)]
+    #aggregate["smokeData"] = [[0]*spatialBuckets for i in range(temporalBuckets)]
 
     graphBuckets = 60 + 1 # Put all the pre-creep events in a single bucket, and then 1 bucket/minute
     aggregate["roshCounts"] = [0]*graphBuckets
@@ -114,10 +116,10 @@ def run(dirName):
 
     # NOTE: Now that we've got all the data, we need to normalize it so that we always have a percentage value that lies in the range [0,100]
     normalizeTimeBuckets(aggregate["positionData"])
-    normalizeTimeBuckets(aggregate["deathData"])
-    normalizeTimeBuckets(aggregate["wardData"])
-    normalizeTimeBuckets(aggregate["sentryData"])
-    normalizeTimeBuckets(aggregate["smokeData"])
+    #normalizeTimeBuckets(aggregate["deathData"])
+    #normalizeTimeBuckets(aggregate["wardData"])
+    #normalizeTimeBuckets(aggregate["sentryData"])
+    #normalizeTimeBuckets(aggregate["smokeData"])
 
     outputString = json.dumps(aggregate).encode("ascii")
     outputBytes = zlib.compress(outputString)

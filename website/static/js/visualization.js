@@ -44,16 +44,18 @@ var lerp = function(from, to, t) {
     handleHoverOn: function(layer) {
       var $items = $('#items');
       var assignImage = function(selector, prefix, name) {
-        var imgLink = '/static/img/' + prefix + '/' + name + '.jpg';
+        var imgLink = 'static/img/' + prefix + '/' + name + '.jpg';
         var $img = $(selector).children('img');
         $img.prop('src', imgLink);
         $img.show();
       };
 
       $('#entity-name').text(layer.data.entityName).removeClass('hidden-text');
-      var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
+      if(!(layer.name === 'roshan')) {
+        var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
+        $('#player-info').addClass(team);
+      }
 
-      $('#player-info').addClass(team);
       if(layer.data.hasOwnProperty('items')) {
         $('#status-bar').css('opacity', 1);
         $items.css("visibility", "visible");
@@ -176,7 +178,7 @@ var lerp = function(from, to, t) {
           }
         });
 
-        var path = '/static/img/icons/' + team + '_death.png';
+        var path = 'static/img/icons/' + team + '_death.png';
         var deathName = layerName + '-dead';
         this.drawMapIcon(0, 0, 0.7, path, team, deathName);
         $map.setLayer(deathName, {
@@ -193,7 +195,7 @@ var lerp = function(from, to, t) {
             mapManager.selectedHero = heroName;
 
             $map.setLayer(heroName, {fillStyle: '#FFFF00'});
-            $map.setLayer(layer, {source: '/static/img/icons/selected_death.png'});
+            $map.setLayer(layer, {source: 'static/img/icons/selected_death.png'});
 
             mapManager.updateSelected();
             $map.drawLayer(layer);
@@ -209,7 +211,7 @@ var lerp = function(from, to, t) {
         }).moveLayer(deathName, deadLayer);
       }
 
-      var courierPath = '/static/img/courier.png';
+      var courierPath = 'static/img/courier.png';
       this.drawMapIcon(0, 0, 0.6, courierPath, 'courier', 'rad-courier');
       this.drawMapIcon(0, 0, 0.6, courierPath, 'courier', 'dir-courier');
     },
@@ -286,11 +288,11 @@ var lerp = function(from, to, t) {
       if (this.showPresence) {
         var pxX = 0;
         var pxY = 0;
-        var colours = [{r:255, g:255, b:255, a:128},
+        var colours = [{r:255, g:255, b:255, a:100},
                        {},
-                       {r:9, g:127, b:230, a:128},
+                       {r:9, g:127, b:230, a:100},
                        {r:7, g:101, b:178, a:255},
-                       {r:230, g:86, b:9, a:128},
+                       {r:230, g:86, b:9, a:100},
                        {r:178, g:64, b:7, a:255}];
         $presence.setPixels({
           x:0, y:0,
@@ -320,14 +322,11 @@ var lerp = function(from, to, t) {
 
     drawHeatmap: function(tick, snapshots) {
       if (this.showHeatmap) {
-        var rangeEndSnapshot = snapshots[tick];
-        var dataEndIndex = Math.round(rangeEndSnapshot.time - replayData.startTime) + 75;
-
         var $heatmap = $('#heatmap');
         var pxX = 0;
         var pxY = 0;
-        var heatmapAlpha = 255;
-        var dataSource = aggregateData.positionData;
+        var heatmapAlpha = 168;
+        var dataIndex = Math.round(snapshots[tick].time - replayData.startTime) + 75;
 
         $heatmap.setPixels({
           x:0, y:0,
@@ -337,7 +336,7 @@ var lerp = function(from, to, t) {
             var cellX = Math.floor((pxX/420)*64);
             var cellY = 63 - Math.floor((pxY/420)*64);
             var cellIndex = cellY*64 + cellX;
-            var heatmapVal = dataSource[dataEndIndex][cellIndex];
+            var heatmapVal = aggregateData.positionData[dataIndex][cellIndex];
 
             px.b = 0;
             var baseVal = 0;
@@ -443,7 +442,7 @@ var lerp = function(from, to, t) {
             data: layer.data
           });
 
-          var selectedDead = '/static/img/icons/selected_death.png';
+          var selectedDead = 'static/img/icons/selected_death.png';
           var opts = {
             x: this.getX(hero.x), y: this.getY(hero.y),
             visible: true,
@@ -683,7 +682,7 @@ var lerp = function(from, to, t) {
 
     addWard: function(x, y, team, handle) {
       var wardType = this.wards[handle].sentry ? 'sentry' : 'ward';
-      var iconPath = '/static/img/icons/' + team + '_' + wardType + '.png';
+      var iconPath = 'static/img/icons/' + team + '_' + wardType + '.png';
       mapManager.drawMapIcon(x, y, 0.5, iconPath, team + '-wards', handle);
     },
 
@@ -707,7 +706,7 @@ var lerp = function(from, to, t) {
     hidden: false,
 
     setupRoshanEvents: function(roshanData) {
-      var roshanPath = '/static/img/icons/roshan.png';
+      var roshanPath = 'static/img/icons/roshan.png';
       mapManager.drawMapIcon(160, 113, 0.75, roshanPath, 'roshan', 'roshan');
       $map.setLayer('roshan', {
           visible: false,
@@ -774,7 +773,7 @@ var lerp = function(from, to, t) {
     },
 
     addRuneSpot: function(x, y, scale, name) {
-      var runeBasePath = '/static/img/icons/runes/';
+      var runeBasePath = 'static/img/icons/runes/';
 
       mapManager.drawMapIcon(x, y, scale, '', 'runes', name);
       $map.setLayer(name, {
@@ -935,7 +934,7 @@ var lerp = function(from, to, t) {
 
     addBuilding: function(x, y, team, barracks, group, name) {
       var type = barracks ? 'barracks.png' : 'tower.png';
-      var path = '/static/img/icons/' + type;
+      var path = 'static/img/icons/' + type;
       mapManager.drawMapIcon(x, y, 0.25, path, group, name);
     },
 
@@ -1097,6 +1096,9 @@ var lerp = function(from, to, t) {
     $('#dire-presence').text(snapshot.presenceData.percentages[1]+"%");
 
     mapManager.drawPresenceMap(snapshot);
+
+    $map.moveLayer('presence', 0);
+    $map.moveLayer('heatmap', 0);
     $map.drawLayers();
 
     $timeSlider.find('.label').text(getTime(tick));
@@ -1251,6 +1253,8 @@ var lerp = function(from, to, t) {
     // LOADING UPDATE
     $('#generate-map').removeClass('fa-cog fa-spin').addClass('fa-check');
     smallGraphs($);
+
+    singleSlide(0);
   };
 
   String.prototype.toHHMMSS = function () {
@@ -1270,7 +1274,7 @@ var lerp = function(from, to, t) {
 
   var loadPlayerData = function() {
     var req = new XMLHttpRequest();
-    req.open("GET", "/static/data.zjson", true);
+    req.open("GET", "static/data.zjson", true);
     req.responseType = "arraybuffer";
     req.onload = function(event) {
       var bytes = new Uint8Array(req.response);

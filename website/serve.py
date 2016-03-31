@@ -6,9 +6,9 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
-@app.route("/graphs")
-def graphs():
-    return render_template("graphs.html")
+@app.route("/visualization")
+def visualization():
+	return render_template("visualization.html")
 
 if __name__ == "__main__":
     app.run()
