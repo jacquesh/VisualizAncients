@@ -14,7 +14,7 @@
     <div id="contents-bar">
         <img src="static/img/logo.png">
         <ul>
-            <li><a href="visualization" style="font-weight: bold; ">Our visualization</a></li>
+            <li><a href="visualization" target="_blank" style="font-weight: bold; ">Our visualization</a></li>
             <li><a href="#intro" class="active">Introduction</a></li>
             <li><a href="#other-work" class="active">Related Work</a></li>
             <li><a href="#concept" class="active">Concept</a></li>
@@ -30,8 +30,8 @@
     </header>   
     <div id="content">
         <div class="segment" id="intro">
-            <div id="sub-header">Introduction</div>
-            <div id="sub-sub-header">What is Dota 2?</div>
+            <div class="sub-header">Introduction</div>
+            <div class="sub-sub-header">What is Dota 2?</div>
             <p>
             DotA 2 (Defense of the Ancients 2) is a Multiplayer Online Battle Arena [MOBA] game for the PC.
             It is one of the world's most popular video games on any platform; Valve, Dota2's developer, estimates
@@ -51,7 +51,7 @@
             protect a team's base). To hide their location, or reveal the location of enemy heroes, players may deploy smoke
             or wards respectively.
             </p>
-            <div id="sub-sub-header">Why did we choose Dota 2?</div>
+            <div class="sub-sub-header">Why did we choose Dota 2?</div>
             <p>
             Aside from Alan, our team are regular players of DotA 2. Given the game's massive playerbase and thriving competitive
             scene, there exists a wealth of data on tournament games as well as casual games. Players are able to download replays
@@ -66,32 +66,34 @@
             that displayed such data would yield valuable insight on the impact and importance of location in DotA 2. 
             </p>
             <figure>
-                <img src="static/img/dota2-minimap.jpg" alt="The DotA 2 Game Map">
+                <a href="static/img/dota2-minimap.jpg" target="_blank"><img src="static/img/dota2-minimap.jpg" alt="The DotA 2 Game Map"></a>
                 <figcaption>The DotA 2 Game (Mini)Map</figcaption>
             </figure>
         </div>
         <div class="segment" id="other-work">
-            <div id="sub-header">Related Work</div>
-            <div id="sub-sub-header">DotA 2 and other MOBA Visualizations</div>
+            <div class="sub-header">Related Work</div>
+            <div class="sub-sub-header">DotA 2 and other MOBA Visualizations</div>
             <p>
                 As mentioned previously, the vast majority of DotA 2 visualizations are combat-focused. These visualizations 
                 aim to inform the viewer of game combat statistics. These statistics include total player and team deaths and kills,
                 average player lifespan and player overall score.  Interestingly, this trend of combat-focused visualizations can be
                 found in other MOBA games such as League of Legends (LoL).
             </p>
-            <div class="floated_img">
-            <figure>
-                <img src="static/img/dota_vis.png" alt="steenhuisen" >
-                <figcaption>DotA 2 Endgame Kill Score Visualization</figcaption>
-            </figure>
+            <div class="img-block">
+                <div class="floated_img">
+                <figure>
+                    <a href="static/img/dota_vis.png" target="_blank"><img src="static/img/dota_vis.png" alt="steenhuisen" ></a>
+                    <figcaption>DotA 2 Endgame Kill Score Visualization</figcaption>
+                </figure>
+                </div>
+                <div class="floated_img">
+                <figure>
+                    <a href="static/img/lol_graphs.jpg" target="_blank"><img src="static/img/lol_graphs.jpg" alt="Lol" ></a>
+                    <figcaption>LoL match breakdown Visualization</figcaption>
+                </figure>
+                </div>
             </div>
-            <div class="floated_img">
-            <figure>
-                <img src="static/img/lol_graphs.jpg" alt="Lol" >
-                <figcaption>LoL match breakdown Visualization</figcaption>
-            </figure>
-            </div>
-            <div id="ef" style="clear:both;"></div>
+            <div style="clear:both;"></div>
             <p>
                 While these visualizations are on the whole informative and useful, they are nevertheless homogenous. Moreover, the
                 visualizations often use ineffective colour codes that are devoid of significance (such as the above DotA 2 visualization)
@@ -103,7 +105,7 @@
                 one's team has performed to a certain standard over a whole game. Through these visualizations, one is not able to 
                 gain insights into strategies, effective and innefective choices nor make any non-combat-focused inferences.
             </p>
-            <div id="sub-sub-header">MOBA Location Visualizations</div>
+            <div class="sub-sub-header">MOBA Location Visualizations</div>
             <p>
                 Current MOBA location visualizations “provide no meaningful statistics to an individual and show too little
                 information”. While not many exist, most of the MOBA visualizations that focus on locational data use, are heatmaps
@@ -116,24 +118,24 @@
                 throughout. 
             </p>
             <figure>
-                <div id="heat"><img src="static/img/heatmap.jpg" alt="lolheat" ></div>
+                <div id="heat"><a href="static/img/heatmap.jpg" target="_blank"><img src="static/img/heatmap.jpg" alt="lolheat" ></a></div>
                 <figcaption>LoL early, middle and late-game Heat Map visualization</figcaption>
             </figure>
             
-            <div id="sub-sub-header">Other Location Visualizations</div>
+            <div class="sub-sub-header">Other Location Visualizations</div>
             <p>
                 In our research of related work, the team decided to research other fields' work in visualising location-based data.
                 This was not only due to the lack of location-based DotA 2 and other MOBA visualizations, but also so as to better equip
                 the team to produce an effective and informative visualization. The team researched the location visualizations of two
                 fields where location is incredibly important: sports and the military.
             </p>
-            <div id="sub-sub-sub-header">Sports Location Visualizations</div>
+            <div class="sub-sub-sub-header">Sports Location Visualizations</div>
             <p>
                 Many of the location-based sports visualizations involved heatmaps. However, some used innovative and appropriate spins 
                 on the traditional heatmap, such as a visualization displaying the location of NBA shots from the 2007-2008 season:  
             </p>
             <figure>
-                <img src="static/img/bball.jpg" alt="nba" >
+                <a href="static/img/bball.jpg" target="_blank"><img src="static/img/bball.jpg" alt="nba" ></a>
                 <figcaption>Position of all NBA shots from the 2007-2008 season</figcaption>
             </figure>
             <p>
@@ -152,10 +154,10 @@
                 ease of identification of theme and data.
             </p>
             <figure>
-                <img src="static/img/nfl2.png" alt="nfl" >
+                <a href="static/img/nfl2.png" target="_blank"><img src="static/img/nfl2.png" alt="nfl" ></a>
                 <figcaption>Final plays during the fourth quarter of the 2010 Superbowl</figcaption>
             </figure>
-            <div id="sub-sub-sub-header">Military Location Visualizations</div>
+            <div class="sub-sub-sub-header">Military Location Visualizations</div>
             <p>
                 Of the military location visualizations we found, the most effective and helpful is Minard's famous map
                 of Napoleon's march to Moscow. The map shows locations and their significance in an innovative, effective and clear way.
@@ -165,7 +167,7 @@
             </p>
         </div>
         <div class="segment" id="concept">
-            <div id="sub-header">Our idea</div>
+            <div class="sub-header">Our idea</div>
             <p>
                 Our idea for the visualization was one showing aggregated DotA 2 positional and locational data.
                 As mentioned previously, this is an area of the game that has thus far been largely neglected in
@@ -193,8 +195,8 @@
                 </p>
         </div>
         <div class="segment" id="queries">
-            <div id="sub-header">Visual Queries</div>
-            <div id="sub-sub-header">Our initial visual queries</div>
+            <div class="sub-header">Visual Queries</div>
+            <div class="sub-sub-header">Our initial visual queries</div>
             <ul>
                 <li>Which team has better control of the map at any given time?</li>
                 <li>How closely does the hero-traffic in this area resemble how often/well it gets warded?</li>
@@ -203,7 +205,7 @@
                 <li>What are some of the common locations for teams to smoke from?</li>
                 <li>Is there any relationship between Roshan being alive and the placement of wards (particularly around where Roshan spawns)?</li>
             </ul>
-            <div id="sub-sub-sub-header">Initial visual queries feedback</div>
+            <div class="sub-sub-sub-header">Initial visual queries feedback</div>
             <p>
                 The team received very helpful feedback on our visual queries, which needed much revision. It was felt that our
                 visual queries were too high-level. Additionally, some of our visual queries used ambiguous/relative language such
@@ -216,8 +218,8 @@
                 Data-Based. Though we have many visual queries, we believe they are all questions DotA 2 players would want to be 
                 able to answer from a DotA 2 visualization, and we believe the majority of them are quickly and correctly answerable.
             </p>
-            <div id="sub-sub-header">Revised Visual Queries</div><br>
-            <div id="sub-sub-sub-header">General Visual Queries</div>
+            <div class="sub-sub-header">Revised Visual Queries</div><br>
+            <div class="sub-sub-sub-header">General Visual Queries</div>
             <ul>
                 <li>Where are all players at any point in the game?</li>
                 <li>Is a player dead or alive?</li>
@@ -235,14 +237,14 @@
                 <li>How long was the game?</li>
                 <li>What moment/ window of the game is currently being shown?</li>
             </ul>
-            <div id="sub-sub-sub-header">Team-Based Visual Queries</div>
+            <div class="sub-sub-sub-header">Team-Based Visual Queries</div>
             <ul>
                 <li>Which team is more present on which part of the map at any given time?</li>
                 <li>Which team has more presence on the map at any given time?</li>
                 <li>How much gold, XP and kills has a team gained/made in total at any point in the game?</li>
                 <li>How much gold, XP and kills has a team gained/made in a certain time window?</li>
             </ul>
-            <div id="sub-sub-sub-header">Historical Data-Based Visual Queries</div>
+            <div class="sub-sub-sub-header">Historical Data-Based Visual Queries</div>
             <ul>
                 <li>How often are Roshan/Towers/Players killed over the course of a game?</li>
                 <li>How do these trends compare to each other as well as to events in the game being reviewed?</li>
@@ -253,8 +255,8 @@
             </ul>
         </div>
         <div class="segment" id="iterations">
-            <div id="sub-header">Design Iterations</div>
-            <div id="sub-sub-header">Our first design</div>
+            <div class="sub-header">Design Iterations</div>
+            <div class="sub-sub-header">Our first design</div>
             <p>
                 Our first design was a webpage with two pages. The first and main page consisted of a time slider
                 representing the related DotA 2 game. The slider featured circles representing events at a particular moment of
@@ -281,32 +283,36 @@
                 miniature graph collection, was the expanded, full-size version of those graphs. To the left of each differently-
                 coloured graph was the corresponding game icon/symbol, such as the game's icon for Roshan.
             </p>
-            <div class="floated_img">
-            <figure>
-                <img src="static/img/design1_1.jpg">
-                <figcaption>Team Map Control [First page]</figcaption>
-            </figure>
+            <div class="img-block first-page">
+                <div class="floated_img">
+                <figure>
+                    <a href="static/img/design1_1.jpg" target="_blank"><img src="static/img/design1_1.jpg"></a>
+                    <figcaption>Team Map Control [First page]</figcaption>
+                </figure>
+                </div>
+                <div class="floated_img">
+                <figure>
+                    <a href="static/img/design1_2.jpg" target="_blank"><img src="static/img/design1_2.jpg"></a>
+                    <figcaption>Player Movement [First page]</figcaption>
+                </figure>
+                </div>
+                <div class="floated_img">
+                <figure>
+                    <a href="static/img/design1_3.jpg" target="_blank"><img src="static/img/design1_3.jpg"></a>
+                    <figcaption>Hero Position Heatmap [First page]</figcaption>
+                </figure>
+                </div>
             </div>
-            <div class="floated_img">
-            <figure>
-                <img src="static/img/design1_2.jpg">
-                <figcaption>Player Movement [First page]</figcaption>
-            </figure>
+            <div class="img-block second-page">
+                <div class="floated_img">
+                <figure>
+                    <a href="static/img/design1_4.png" target="_blank"><img src="static/img/design1_4.png"></a>
+                    <figcaption>Roshan, Wards, Kills and Teleports Charts [Second page]</figcaption>
+                </figure>
+                </div>
             </div>
-            <div class="floated_img">
-            <figure>
-                <img src="static/img/design1_3.jpg">
-                <figcaption>Hero Position Heatmap [First page]</figcaption>
-            </figure>
-            </div>
-            <div class="floated_img">
-            <figure>
-                <img src="static/img/design1_4.png">
-                <figcaption>Roshan, Wards, Kills and Teleports Charts [Second page]</figcaption>
-            </figure>
-            </div>
-            <div id="ef" style="clear:both;"></div>
-            <div id="sub-sub-header">Feedback and Changes</div>
+            <div style="clear:both;"></div>
+            <div class="sub-sub-header">Feedback and Changes</div>
             <p>
                 The feedback from our initial design shown above was mostly positive. However, our background image was too
                  detailed and textured, which was found to distract the viewer from the data being displayed. Some of our icons
@@ -342,26 +348,28 @@
                 of ward-like objects: Wards and Sentries. Given that these objects are similar, we decided to give them similar
                 colours. 
                 </p>
-            <div id="sub-sub-header">Our second design</div>
-            <div class="floated_img">
-            <figure>
-                <img src="static/img/design2_1.jpg">
-                <figcaption>Team Map Control [First page]</figcaption>
-            </figure>
+            <div class="sub-sub-header">Our second design</div>
+            <div class="img-block first-page">
+                <div class="floated_img">
+                <figure>
+                    <a href="static/img/design2_1.jpg" target="_blank"><img src="static/img/design2_1.jpg"></a>
+                    <figcaption>Team Map Control [First page]</figcaption>
+                </figure>
+                </div>
+                <div class="floated_img">
+                <figure>
+                    <a href="static/img/design2_2.png" target="_blank"><img src="static/img/design2_2.png"></a>
+                    <figcaption>Player Movement [First page]</figcaption>
+                </figure>
+                </div>
+                <div class="floated_img">
+                <figure>
+                    <a href="static/img/design2_3.png" target="_blank"><img src="static/img/design2_3.png"></a>
+                    <figcaption>Hero Position Heatmap [First page]</figcaption>
+                </figure>
+                </div>
             </div>
-            <div class="floated_img">
-            <figure>
-                <img src="static/img/design2_2.png">
-                <figcaption>Player Movement [First page]</figcaption>
-            </figure>
-            </div>          
-            <div class="middle">
-            <figure>
-                <img src="static/img/design2_3.png">
-                <figcaption>Hero Position Heatmap [First page]</figcaption>
-            </figure>
-            </div>
-            <div id="sub-sub-header">Interactive Visualization</div>
+            <div class="sub-sub-header">Interactive Visualization</div>
             <p>
                 Our interactive visualization incorporates the design elements laid out in previous mock ups, as well as some changes
                 with a fully interactive interface. Some of the more important dsign changes we made from the second iteration include:
@@ -388,8 +396,8 @@
                 
         </div>
         <div class="segment" id="strengths-weaknesses">
-            <div id="sub-header">Strengths and Weaknesses</div>
-            <div id="sub-sub-header">Strengths</div>
+            <div class="sub-header">Strengths and Weaknesses</div>
+            <div class="sub-sub-header">Strengths</div>
             <p>
                 We feel that our final design is strong in number of areas. We manage to show a very large number of data 
                 dimensions in a single graphic. This allows for many visual queries to be answered efficiently and quickly. This 
@@ -416,7 +424,7 @@
                  in the future. Consequently, the team was invested in creating the not only the best design we could, but the most
                  practically useful and complete product we could create.
                 </p>
-            <div id="sub-sub-header">Weaknesses</div>
+            <div class="sub-sub-header">Weaknesses</div>
             <p>
                 Unfortunately, our design is not perfect. Arguably the biggest issue that arises from our interactive version is the
                  time it takes to load a game for analysis. This loading is a fairly lengthy process as it requires us to decompress
@@ -445,7 +453,7 @@
                 </p>
         </div>
         <div class="segment" id="conclusion">
-            <div id="sub-header">Conclusion</div>
+            <div class="sub-header">Conclusion</div>
             <p>
                 We believe that we have effectively achieved our original goal of creating a way for players to analyse their 
                 positional and other non-combat match data in a easy and meaningful way. While there remains room 
@@ -483,8 +491,8 @@
                 </p>
         </div>
         <div class="segment" id="teamwork">
-            <div id="sub-header">The Team</div>
-            <div id="sub-sub-header">Team Dynamics</div>
+            <div class="sub-header">The Team</div>
+            <div class="sub-sub-header">Team Dynamics</div>
             <p>
                 The team worked well together. Aspects of the design, implementation and presentations were delegated amongst members,
                 allowing for parallelized development of the implemented design. As tasks were compartmentalised and distributed,
@@ -493,7 +501,7 @@
                 After a team discussion, the team collectively decided to instead display the graphs as a pop-up. This improved our
                 design, which was iteratively changed by contributions and feedback from all members of the team. 
             </p>
-            <div id="sub-sub-header">Team Member Contributions</div>
+            <div class="sub-sub-header">Team Member Contributions</div>
             <p>
                 <ul>
                     <li>Jethro Muller:<br>

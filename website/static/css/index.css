@@ -35,28 +35,34 @@ p {
 }
 #contents-bar >img
 {
-    top: 50;
-    left: 50;
+    top: 50%;
+    left: 50%;
     width: 90%;
     
 }
+
+#contents-bar ul li a {
+    padding-left: 10px;
+}
+
 ul {
     list-style:none;
     padding-left:2px;
 }
+
+figure {
+    text-align: center;
+}
+
 figure > figcaption {
     text-align:center;
     font-size: 12px;
     font-family: "Verdana", sans-serif;
 }
-figure > img {
+figure img {
     padding-top: 55px;
     padding-bottom: 10px;
-    display: block;
     height: 400px;
-    width: 400px;
-    margin-left: auto;
-    margin-right: auto;
 }
 #content {
     padding-top: 50px;
@@ -70,7 +76,7 @@ figure > img {
     padding-bottom: 50px;
 }
 
-#sub-header {
+.sub-header {
     font-weight: bold;
     font-size: 35px;
     font-family: "Verdana", sans-serif;
@@ -79,14 +85,14 @@ figure > img {
     padding-bottom: 20px;   
 }
 
-#sub-sub-header {
+.sub-sub-header {
     font-weight: bold;
     font-size: 20px;
     font-family: "Verdana", sans-serif;
     padding-left: 45px;
     color: Gray;
 }
-#sub-sub-sub-header {
+.sub-sub-sub-header {
     font-weight: bold;
     font-size: 18px;
     font-family: "Verdana", sans-serif;
@@ -144,21 +150,22 @@ a {
 } 
 .floated_img {
     display:inline-block;
-        
 }
+
 .middle{
  margin: auto;
 }
 
 
-.floated_img > figure 
+.floated_img figure
 {
+    text-align: center;
     padding-left: 20px;
     padding-right: 20px;
-    margin-right: 10;
+    margin-right: 10px;
     float: left;
 }
-#heat > img {
+#heat img {
     padding-top: 55px;
     padding-bottom: 10px;
     display: block;
@@ -168,7 +175,7 @@ a {
     margin-left: auto;
     margin-right: auto;
 }
-#heat > img {
+#heat img {
     padding-top: 55px;
     padding-bottom: 10px;
     display: block;
@@ -178,12 +185,12 @@ a {
     margin-left: auto;
     margin-right: auto;
 }
-a {
+#contents-bar a {
     padding:0 4px 0 0;
     display:block;
 }
 
-a:link {
+#contents-bar a:link {
     text-decoration: none;
     color: DimGray;
 }
@@ -200,4 +207,35 @@ a:visited {
 a:active {
     font-weight: bold;
         
+}
+
+.img-block {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#other-work .img-block {
+    width: 70%;
+}
+
+#iterations .img-block.first-page {
+    width: 100%;
+}
+
+#iterations .img-block.first-page .floated_img {
+    width: 30%;
+    padding-left: 3%;
+}
+
+#iterations .img-block.first-page .floated_img figure, #iterations .img-block.first-page .floated_img img {
+    margin: 0;
+    padding: 0;
+    height: auto;
+    width: 100%;
+}
+
+
+#iterations .img-block.second-page {
+    width: 50%;
 }
