@@ -115,6 +115,15 @@ a {
 	font-size: 14px;
 	font-family: "Verdana", sans-serif;
 }
+#iterations > ul 
+{
+	margin-right: 80px;
+	padding-left: 80px;
+	list-style-type: circle;
+	text-align: justify;
+	font-size: 14px;
+	font-family: "Verdana", sans-serif;
+}
 #teamwork > ul 
 {
 	padding-left: 80px;
