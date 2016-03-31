@@ -14,10 +14,87 @@ header {
     padding-top: 10px;
 }
 
+header h1 {
+    display: inline;
+    vertical-align: middle;
+}
+
+header .logo {
+    height: 50px;
+    vertical-align: middle;
+}
+
+header #help {
+    color: #0042AF;
+    text-decoration: none;
+    font-size: 2em;
+    vertical-align: middle;
+    float: right;
+    margin-right: 2%;
+    margin-top: 0.5%;
+}
+
 header > hr {
     background-color: #666666;
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+#help-box {
+    z-index: 99;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+#help-box-container {
+    border-radius: 10px;
+    position: relative;
+    margin-top: 3%;
+    z-index: 100;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    background: rgba(233, 233, 233, 0.9);
+    padding-bottom: 45px;
+}
+
+#help-box-container * {
+    padding-top: 5px;
+    padding-left: 10px;
+}
+
+#help-box-container .close-button {
+    position: absolute;
+    bottom: 0;
+    border-radius: 0 7px 0 7px;
+}
+
+#help-box-container .close-button span:after {
+    top: 4px;
+}
+
+#help-box-container h2 {
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-bottom: 5px;
+}
+
+#help-box-container ul {
+    margin-left: 14px;
+}
+
+#help-box-container li {
+    padding-left: 0;
+    padding-right: 10px;
+}
+
+#help-box-container p {
+    padding-right: 5px;
+    padding-bottom: 10px;
 }
 
 .clear-fix {
@@ -49,7 +126,7 @@ header > hr {
 
 #top-events, #time, #bottom-events {
     position: relative;
-    height: 17px;
+    height: 18px;
     width: 90%;
 }
 
@@ -111,7 +188,7 @@ header > hr {
 #time .label {
     position: absolute;
     background-color: rgba(233, 233, 233, 0.6);
-    top: 100%;
+    top: 80%;
     left: -100%;
     font-size: 0.6em;
     font-weight: bold;
@@ -281,20 +358,33 @@ header > hr {
     height: 43%;
 }
 
+#map-presence .heading {
+    display: block;
+    font-weight: bold;
+    padding-top: 10px;
+    padding-left: 10px;
+    font-size: 1.5em;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
 #left-column > #map-presence > .team-block {
-    margin-top: 12.5%;
     height: 65%;
     float: left;
     width: calc(50% - 2px);
 }
 
 #map-presence > .team-block > h1 {
-    margin-top: 30%;
+    margin-top: 20%;
     font-size: 2em;
     vertical-align: middle;
     text-align: center;
     background: rgba(17, 17, 17, 0.8);
     color: #f5f5f5;
+}
+
+#map-presence > .team-block > h1.bottom {
+    margin-top: 50%;
 }
 
 #right-column > #overlay-select {
@@ -337,7 +427,7 @@ header > hr {
     position: relative;
     height: 100px;
     width: 174px;
-    background-image: url('../img/heroes/default.jpg');
+    background-image: url('/static/img/heroes/default.jpg');
     background-size: cover;
     overflow: hidden;
 }
@@ -379,7 +469,7 @@ header > hr {
     width: calc(33% - 1px);
     height: 40px;
     max-width: 88px;
-    background: #222222 url('../img/items/emptyitembg.jpg');
+    background: #222222 url('/static/img/items/emptyitembg.jpg');
     border-top: 1px solid white;
     border-right: 1px solid white;
     border-bottom: 1px solid white;
@@ -403,15 +493,15 @@ header > hr {
 
 #map-container > canvas#dota-map {
     background-size: cover;
-    background-image: url("../img/dota2-map.jpg");
+    background-image: url("/static/img/dota2-map.jpg");
 }
 
 .radiant.team-block {
-    background-image: url("../img/icons/radiant.png");
+    background-image: url("/static/img/icons/radiant.png");
 }
 
 .dire.team-block {
-    background-image: url("../img/icons/dire.png");
+    background-image: url("/static/img/icons/dire.png");
 }
 
 .team-block {
@@ -428,13 +518,13 @@ header > hr {
 }
 
 #team-graphs {
-    width: 85%;
+    width: 60%;
     height: 55px;
     margin-top: 10px;
 }
 
 #team-graphs > .score-box {
-    width: 40%;
+    width: calc(50% - 1px);
     height: 100%;
 }
 
@@ -453,45 +543,63 @@ header > hr {
 }
 
 .team-stats > div {
+    position: relative;
     height: 23px;
 }
 
 .total-xp, .net-worth {
-    width: 91%;
-    height: 70%;
+    width: 55%;
+    height: 80%;
     display: inline-block;
     vertical-align: middle;
 }
 
+#radiant {
+    border-right: black 1px solid;
+}
+
+#dire {
+    border-left: black 1px solid;
+}
+
+#radiant .label, #dire .label {
+    background-color: rgba(233, 233, 233, 0.6);
+    font-weight: bold;
+}
+
 #radiant .label {
-    position: absolute;
-    left: 11%;
+    margin-right: 0.6em;
 }
 
 #dire .label {
-    position: absolute;
-    right: 11%;
+    margin-left: 0.6em;
 }
 
 .total-xp {
-    background: #59CBD8;
+    background: #71C2CC;
 }
 
 .net-worth {
-    background: #ffff00;
+    background: #DADA6F;
 }
 
 #team-graphs > #radiant > .team-stats img {
-    padding-right: 1%;
+    position: absolute;
+    right: -13px;
+    z-index: 10;
 }
 
-#team-graphs > #dire > .team-stats img {
-    padding-left: 1%;
+#radiant > .team-stats > div > span {
+    float: right;
+}
+
+#dire > .team-stats > div > span {
+    float: left;
 }
 
 .kills {
     font-size: 1.2em;
-    padding-top: 1%;
+    padding-top: 2%;
     width: 11%;
     text-align: center;
 }
@@ -501,13 +609,12 @@ header > hr {
 }
 
 #team-graphs > #radiant > .kills {
-    float: right;
-    padding-right: 2%;
+    float: left;
+    padding-left: 2%;
 }
 
 #team-graphs > #radiant > .team-stats {
-    float: left;
-    padding-left: 1%;
+    float: right;
 }
 
 #team-graphs > #dire {
@@ -515,13 +622,12 @@ header > hr {
 }
 
 #team-graphs > #dire > .kills {
-    padding-left: 2%;
+    float: right;
+    padding-right: 2%;
 }
 
 #team-graphs > #dire > .team-stats {
-    float: right;
-    text-align: right;
-    padding-right: 1%;
+    float: left;
 }
 
 footer {

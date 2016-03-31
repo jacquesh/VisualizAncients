@@ -31,7 +31,9 @@
     </section>
     <main id="content-container" style="visibility: hidden">
         <header>
+            <img class="logo" src="static/img/logo.png">
             <h1>VisualizAncients</h1>
+            <a id="help" href="#"><i class="fa fa-question-circle"></i></a>
             <hr>
         </header>
         <section id="content">
@@ -125,6 +127,7 @@
                     </div>
                 </div>
                 <div id="map-presence" class="side-bar colour-container drop-shadow hug-right">
+                    <span class="heading">Map Presence</span>
                     <div id="radiant-control" class="radiant team-block colour-container border-white">
                         <h1 id="radiant-presence">0%</h1>
                     </div>
@@ -179,15 +182,15 @@
             <div id="team-graphs" class="center-block">
                 <div id="radiant" class="radiant score-box drop-shadow colour-container">
                     <div class="team-stats">
-                        <div><img src="static/img/icons/gold.png"><span class="net-worth"><span class="label">0</span></span></div>
-                        <div><img src="static/img/icons/xp.png"><span class="total-xp"><span class="label">0</span></span></div>
+                        <div><img src="static/img/icons/gold.png"><span class="net-worth"></span><span class="label gold">+0 Gold</span></div>
+                        <div><img src="static/img/icons/xp.png"><span class="total-xp"></span><span class="label xp">+0 XP</span></div>
                     </div>
                     <div class="kills">Kills <span class="count">0</span></div>
                 </div>
                 <div id="dire" class="dire score-box drop-shadow colour-container">
                     <div class="team-stats">
-                        <div><span class="net-worth"><span class="label">0</span></span><img src="static/img/icons/gold.png"></div>
-                        <div><span class="total-xp"><span class="label">0</span></span><img src="static/img/icons/xp.png"></div>
+                        <div><span class="net-worth"></span><span class="label gold">+0 Gold</span></div>
+                        <div><span class="total-xp"></span><span class="label xp">+0 XP</span></div>
                     </div>
                     <div class="kills">Kills <span class="count">0</span></div>
                 </div>
@@ -198,6 +201,24 @@
             All trademarks and artwork are property of Valve Corporation.
         </footer>
     </main>
+    <div id="help-box" style="display: none">
+        <div id="help-box-container">
+            <button id="help-close-button" class="close-button"><span>Back</span></button>
+            <h2>Help</h2>
+            <p>
+                Our interactive visualization includes the following interactive elements (From top down):
+            </p>
+            <ul>
+                <li>A timeline with slider that the player can use to select a specific point in the game; can be used with a mouse or arrow keys when selected</li>
+                <li>A number of graphs showing aggregate data from many previous games, these can be switched between using the arrows provided on the left</li>
+                <li>A graph icon to the right that brings up a window showing all the graphs simultaneously and in more detail</li>
+                <li>A set of checkboxes allowing the user to filter which elements they wish to be displayed on the map</li>
+                <li>The game map where the user can select specific players to view their details on the left of the visualization</li>
+                <li>A drop down menu allowing the user to switch between map overlay options</li>
+                <li> When showing the hero path overlay the time slider splits in two allowing the user to select a time window rather than a specific point in time</li>
+            </ul>
+        </div>
+    </div>
     <div id="big-graph-overlay" style="display: none">
         <div id="big-graph-container">
             <button id="close-button" class="close-button"><span>Back</span></button>
@@ -256,8 +277,11 @@
 
       $('#close-button').click(function() {
           $('#big-graph-overlay').toggle();
+      });
+
+      $('#help').add('#help-close-button').click(function() {
+        $('#help-box').toggle();
       })
     });
 </script>
-
 </html>

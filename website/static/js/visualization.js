@@ -14,6 +14,8 @@ var lerp = function(from, to, t) {
     mouseover: 'pointer',
     mouseup: 'pointer'
   };
+  var lineLayerNo = -1;
+  var deadLayer = -1;
 
   var mapManager = {
     width: $map.width(),
@@ -93,7 +95,7 @@ var lerp = function(from, to, t) {
         }).setLayer(lineLayer, {
           strokeStyle: '#FFF500'
         });
-        $map.moveLayer(lineLayer, 21);
+        $map.moveLayer(lineLayer, lineLayerNo + 10);
         $map.drawLayers();
       }
     },
@@ -105,8 +107,7 @@ var lerp = function(from, to, t) {
         mapManager.resetPlayerInfoPanel();
 
         if ($('#time-range-slider').is(':visible')) {
-          $map.setLayerGroup('radiant-lines', {strokeStyle: '#097FE6'});
-          $map.setLayerGroup('dire-lines', {strokeStyle: '#E65609'});
+          mapManager.resetHeroPaths();
           $map.drawLayers();
         }
       }
@@ -135,23 +136,8 @@ var lerp = function(from, to, t) {
     },
 
     setupLayers: function(playerHeroes) {
-      $map.click(function () {
-        if (mapManager.selectedHero) {
-          var old = $map.getLayer(mapManager.selectedHero);
-          old.fillStyle = old.data.color;
-
-          var team = old.name[0] === 'r' ? 'radiant' : 'dire';
-          var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
-
-          $map.setLayer(layerName, {
-            source: 'static/img/icons/' + team + '_death.png'
-          });
-
-          mapManager.selectedHero = '';
-          mapManager.resetPlayerInfoPanel();
-        }
-      });
-
+      deadLayer = $map.getLayers().length;
+      lineLayerNo = deadLayer + 10;
       for(var i=0; i<10; i++) {
         var layerName = this.layers[i];
         var col = '';
@@ -171,25 +157,16 @@ var lerp = function(from, to, t) {
           mouseover: this.handleHoverOn,
           mouseout: this.handleHoverOff,
           click: function(layer) {
-            layer.event.stopPropagation();
-
-            if (mapManager.selectedHero) {
-              var old = $map.getLayer(mapManager.selectedHero);
-              if (old.data.alive) {
-                old.fillStyle = old.data.color;
-              } else {
-                var team = old.name[0] === 'r' ? 'radiant' : 'dire';
-                var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
-
-                $map.setLayer(layerName, {
-                  source: 'static/img/icons/' + team + '_death.png'
-                });
+            if (mapManager.selectedHero !== layer.name) {
+              if (mapManager.selectedHero) {
+                mapManager.deselectHero();
               }
+              mapManager.selectedHero = layer.name;
+              layer.fillStyle = '#FFFF00';
+              mapManager.updateSelected();
+            } else if (mapManager.selectedHero) {
+              mapManager.deselectHero();
             }
-
-            mapManager.selectedHero = layer.name;
-            layer.fillStyle = '#FFFF00';
-            mapManager.updateSelected();
           },
           data: {
             color: col,
@@ -211,17 +188,7 @@ var lerp = function(from, to, t) {
             layer.event.stopPropagation();
 
             if (mapManager.selectedHero) {
-              var old = $map.getLayer(mapManager.selectedHero);
-              if (old.data.alive) {
-                old.fillStyle = old.data.color;
-              } else {
-                var team = old.name[0] === 'r' ? 'radiant' : 'dire';
-                var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
-
-                $map.setLayer(layerName, {
-                  source: 'static/img/icons/' + team + '_death.png'
-                });
-              }
+              mapManager.deselectHero();
             }
 
             var heroName = layer.name.replace('-dead', '');
@@ -241,12 +208,36 @@ var lerp = function(from, to, t) {
             alive: false,
             invis: false
           }
-        }).moveLayer(deathName, 1);
+        }).moveLayer(deathName, deadLayer);
       }
 
       var courierPath = 'static/img/courier.png';
       this.drawMapIcon(0, 0, 0.6, courierPath, 'courier', 'rad-courier');
       this.drawMapIcon(0, 0, 0.6, courierPath, 'courier', 'dir-courier');
+    },
+
+    deselectHero: function() {
+      var old = $map.getLayer(mapManager.selectedHero);
+      old.fillStyle = old.data.color;
+
+      var team = old.name[0] === 'r' ? 'radiant' : 'dire';
+      var layerName = (old.name.endsWith('-dead')) ? old.name : old.name + '-dead';
+      $map.setLayer(layerName, {
+        source: '/static/img/icons/' + team + '_death.png'
+      });
+
+      mapManager.selectedHero = '';
+      mapManager.resetPlayerInfoPanel();
+
+      if ($('#time-range-slider').is(':visible')) {
+        mapManager.resetHeroPaths();
+        $map.drawLayers();
+      }
+    },
+
+    resetHeroPaths: function() {
+      $map.setLayerGroup('radiant-lines', {strokeStyle: '#097FE6'});
+      $map.setLayerGroup('dire-lines', {strokeStyle: '#E65609'});
     },
 
     drawHeroPaths: function(t0, t1, snapshots) {
@@ -260,16 +251,34 @@ var lerp = function(from, to, t) {
           points.push([hero.x, hero.y]);
         }
 
+        var colour = '';
+        var dashed = true;
+        var group = '-lines';
+        var name = this.layers[i] + '-line';
+        var draw = false;
+        var layer = lineLayerNo;
+
         if (i < 5) {
-          if (!this.radiantLinesHidden) {
-            this.drawMapLine(points, '#097FE6', true, 'radiant-lines', this.layers[i] + '-line');
-            $map.moveLayer(this.layers[i] + '-line', 11);
-          }
+          colour = '#097FE6';
+          group = 'radiant' + group;
+          draw = !this.radiantLinesHidden;
         } else {
-          if (!this.direLinesHidden) {
-            this.drawMapLine(points, '#E65609', false, 'dire-lines', this.layers[i] + '-line');
-            $map.moveLayer(this.layers[i] + '-line', 11);
-          }
+          colour = '#E65609';
+          group = 'dire' + group;
+          dashed = false;
+          draw = !this.direLinesHidden;
+        }
+
+        if (mapManager.selectedHero === this.layers[i]) {
+          colour = '#FFFF00';
+          layer = lineLayerNo + 10;
+        } else if (mapManager.selectedHero) {
+          colour = 'rgba(0, 0, 0, 0.8)'
+        }
+
+        if (draw) {
+          this.drawMapLine(points, colour, dashed, group, name);
+          $map.moveLayer(name, layer);
         }
       }
     },
@@ -484,7 +493,7 @@ var lerp = function(from, to, t) {
           var teamName = group.isDire ? 'dire' : 'radiant';
           var layerName = teamName + '-creep-' + i;
           this.drawMapPolygon(group.x, group.y, colour, 'creep', layerName, 3 + Math.round(group.creepCount / 2));
-          $map.moveLayer(layerName, 1);
+          $map.moveLayer(layerName, 3);
           $map.setLayer(layerName, {
             mouseover: mapManager.handleHoverOn,
             mouseout: mapManager.handleHoverOff,
@@ -649,7 +658,7 @@ var lerp = function(from, to, t) {
 
           var team = event.isDire ? 'dire' : 'radiant';
           this.addWard(event.x, event.y, team, handle);
-          $map.setLayer(handle, {visible: false}).moveLayer(handle, 1);
+          $map.setLayer(handle, {visible: false}).moveLayer(handle, 3);
         } else {
           this.wards[handle].end = event.time;
         }
@@ -819,7 +828,11 @@ var lerp = function(from, to, t) {
       '<div id="' + eventId + '" class="event ' + eventClass + '"></div>'
     );
 
-    html5tooltips({contentText: tooltip, targetSelector: '#' + eventId});
+    html5tooltips({
+      contentText: tooltip,
+      targetSelector: '#' + eventId,
+      stickTo: (top ? 'top' : 'bottom')
+    });
 
     var startTime = replayData.snapshots[0].time;
     var endTime = replayData.snapshots[replayData.snapshots.length-1].time;
@@ -937,27 +950,57 @@ var lerp = function(from, to, t) {
   };
 
   var statsManager = {
-    biggestVal: 0,
     runTime: 0,
 
-    setMaxStats: function(stats) {
-      var maxGold = Math.max(stats[0].netWorth, stats[1].netWorth);
-      var maxXP = Math.max(stats[0].totalXp, stats[1].totalXp);
-      this.biggestVal = Math.max(maxGold, maxXP);
+    setupStatManager: function() {
+      this.$radiant = $('#radiant');
+      this.$dire = $('#dire');
+
+      this.$radiantKills = this.$radiant.find('.kills').find('.count');
+      this.$direKills = this.$dire.find('.kills').find('.count');
+
+      this.$radiantWorthBar = this.$radiant.find('.net-worth');
+      this.$radiantWorthLabel = this.$radiant.find('.gold');
+      this.$direWorthBar = this.$dire.find('.net-worth');
+      this.$direWorthLabel = this.$dire.find('.gold');
+
+      this.$radiantXpBar = this.$radiant.find('.total-xp');
+      this.$radiantXpLabel = this.$radiant.find('.xp');
+      this.$direXpBar = this.$dire.find('.total-xp');
+      this.$direXpLabel = this.$dire.find('.xp');
     },
 
-    updateTeamScores: function(team, stats) {
-      var $team = $(team);
-      $team.find('.kills').find('.count').text(stats.score);
-      var $teamStats = $team.find('.team-stats');
-      var $netWorth = $teamStats.find('.net-worth');
-      var $totalXp = $teamStats.find('.total-xp');
+    updateTeamScores: function(teamStats) {
+     this.$radiantKills.text(teamStats[0].score);
+      this.$direKills.text(teamStats[1].score);
 
-      $netWorth.find('span').text(stats.netWorth);
-      $netWorth.width('calc('+ (stats.netWorth/this.biggestVal) * 100 +'% - 9%)');
+      var diffG = Math.abs(teamStats[0].netWorth - teamStats[1].netWorth);
+      var diffXp = Math.abs(teamStats[0].totalXp - teamStats[1].totalXp);
+      var biggestVal = Math.max(diffG, diffXp);
 
-      $totalXp.find('span').text(stats.totalXp);
-      $totalXp.width('calc('+ (stats.totalXp/this.biggestVal) * 100 +'% - 9%)');
+      if (teamStats[0].netWorth > teamStats[1].netWorth) {
+        this.$radiantWorthLabel.text('+' + diffG.toLocaleString() + ' Gold');
+        this.$radiantWorthBar.width('calc('+ (diffG/biggestVal) * 100 +'% - 45%)');
+        this.$direWorthLabel.text('');
+        this.$direWorthBar.width('0');
+      } else {
+        this.$radiantWorthLabel.text('');
+        this.$radiantWorthBar.width('0');
+        this.$direWorthLabel.text('+' + diffG.toLocaleString() + ' Gold');
+        this.$direWorthBar.width('calc('+ (diffG/biggestVal) * 100 +'% - 45%)');
+      }
+
+      if (teamStats[0].totalXp > teamStats[1].totalXp) {
+        this.$radiantXpLabel.text('+' + diffXp.toLocaleString() + ' XP');
+        this.$radiantXpBar.width('calc('+ (diffXp/biggestVal) * 100 +'% - 45%)');
+        this.$direXpLabel.text('');
+        this.$direXpBar.width('0');
+      } else {
+        this.$radiantXpLabel.text('');
+        this.$radiantXpBar.width('0');
+        this.$direXpLabel.text('+' + diffXp.toLocaleString() + ' XP');
+        this.$direXpBar.width('calc('+ (diffXp/biggestVal) * 100 +'% - 45%)');
+      }
     }
   };
 
@@ -971,6 +1014,9 @@ var lerp = function(from, to, t) {
   };
 
   var getTime = function(tick) {
+    if ((tick < 0) || (tick > replayData.snapshots.length)) {
+      tick = Math.max(Math.min(tick, replayData.snapshots.length - 1), 0);
+    }
     var snapshot = replayData.snapshots[tick];
     var gameTime = snapshot.time - replayData.startTime;
 
@@ -1044,8 +1090,8 @@ var lerp = function(from, to, t) {
       mapManager.handleHoverOn($map.getLayer(mapManager.hoverHero));
     }
 
-    statsManager.updateTeamScores('#radiant', snapshot.teamStats[0]);
-    statsManager.updateTeamScores('#dire', snapshot.teamStats[1]);
+
+    statsManager.updateTeamScores(snapshot.teamStats);
     $('#radiant-presence').text(snapshot.presenceData.percentages[0]+"%");
     $('#dire-presence').text(snapshot.presenceData.percentages[1]+"%");
 
@@ -1122,15 +1168,29 @@ var lerp = function(from, to, t) {
       fromCenter: false
     });
 
+    $map.drawRect({
+      layer: true,
+      fillStyle: 'rgba(0, 0, 0, 0)',
+      name: 'deselect',
+      x: 0, y:0,
+      width: 420, height: 420,
+      fromCenter: false,
+      click: function() {
+        if (mapManager.selectedHero) {
+          mapManager.deselectHero();
+        }
+      }
+    });
+
     buildingManager.setupBuildings(replayData.towerDeaths);
-    mapManager.setupLayers(replayData.playerHeroes);
     roshanManager.setupRoshanEvents(replayData.roshEvents);
     wardManager.setupWards(replayData.wardEvents);
     mapManager.setupSmokeEvents(replayData.smokeUses);
     runeManager.setupRunes();
+    mapManager.setupLayers(replayData.playerHeroes);
     $map.drawLayers();
 
-    statsManager.setMaxStats(snapshots[snapshots.length-1].teamStats);
+    statsManager.setupStatManager();
 
     var $timeSlider = $('#time-slider');
     var $rangeSlider = $('#time-range-slider');
