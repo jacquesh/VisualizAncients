@@ -995,26 +995,26 @@ var lerp = function(from, to, t) {
 
       if (teamStats[0].netWorth > teamStats[1].netWorth) {
         this.$radiantWorthLabel.text('+' + diffG.toLocaleString() + ' Gold');
-        this.$radiantWorthBar.width('calc('+ (diffG/biggestVal) * 100 +'% - 45%)');
+        this.$radiantWorthBar.width('calc('+ (diffG/biggestVal) * 55 +'%)');
         this.$direWorthLabel.text('');
         this.$direWorthBar.width('0');
       } else {
         this.$radiantWorthLabel.text('');
         this.$radiantWorthBar.width('0');
         this.$direWorthLabel.text('+' + diffG.toLocaleString() + ' Gold');
-        this.$direWorthBar.width('calc('+ (diffG/biggestVal) * 100 +'% - 45%)');
+        this.$direWorthBar.width('calc('+ (diffG/biggestVal) * 55 +'%)');
       }
 
       if (teamStats[0].totalXp > teamStats[1].totalXp) {
         this.$radiantXpLabel.text('+' + diffXp.toLocaleString() + ' XP');
-        this.$radiantXpBar.width('calc('+ (diffXp/biggestVal) * 100 +'% - 45%)');
+        this.$radiantXpBar.width('calc('+ (diffXp/biggestVal) * 55 +'%)');
         this.$direXpLabel.text('');
         this.$direXpBar.width('0');
       } else {
         this.$radiantXpLabel.text('');
         this.$radiantXpBar.width('0');
         this.$direXpLabel.text('+' + diffXp.toLocaleString() + ' XP');
-        this.$direXpBar.width('calc('+ (diffXp/biggestVal) * 100 +'% - 45%)');
+        this.$direXpBar.width('calc('+ (diffXp/biggestVal) * 55 +'%)');
       }
     }
   };
