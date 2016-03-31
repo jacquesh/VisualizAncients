@@ -50,18 +50,14 @@ var lerp = function(from, to, t) {
         $img.show();
       };
 
+      var $playerInfo = $('#player-info');
+      $playerInfo.removeClass('radiant');
+      $playerInfo.removeClass('dire');
       $('#entity-name').text(layer.data.entityName).removeClass('hidden-text');
+
       if(!(layer.name === 'roshan')) {
         var team = layer.name[0] === 'r' ? 'radiant' : 'dire';
-        var $playerInfo = $('#player-info');
-        if (team === 'radiant') {
-          $playerInfo.addClass(team);
-          $playerInfo.removeClass('dire');
-        } else {
-          $playerInfo.removeClass('radiant');
-          $playerInfo.addClass(team);
-        }
-
+        $playerInfo.addClass(team);
       }
 
       if(layer.data.hasOwnProperty('items')) {
