@@ -187,17 +187,19 @@ var lerp = function(from, to, t) {
           click: function(layer) {
             layer.event.stopPropagation();
 
-            if (mapManager.selectedHero) {
+            var heroName = layer.name.replace('-dead', '');
+
+            if (mapManager.selectedHero !== heroName) {
+              if (mapManager.selectedHero) {
+                mapManager.deselectHero();
+              }
+              mapManager.selectedHero = heroName;
+              $map.setLayer(heroName, {fillStyle: '#FFFF00'});
+              $map.setLayer(layer, {source: 'static/img/icons/selected_death.png'});
+              mapManager.updateSelected();
+            } else if (mapManager.selectedHero) {
               mapManager.deselectHero();
             }
-
-            var heroName = layer.name.replace('-dead', '');
-            mapManager.selectedHero = heroName;
-
-            $map.setLayer(heroName, {fillStyle: '#FFFF00'});
-            $map.setLayer(layer, {source: 'static/img/icons/selected_death.png'});
-
-            mapManager.updateSelected();
             $map.drawLayer(layer);
           },
           visible: false,
