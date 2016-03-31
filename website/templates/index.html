@@ -33,6 +33,7 @@
         <header>
             <img class="logo" src="/static/img/logo.png">
             <h1>VisualizAncients</h1>
+            <a id="help" href="#"><i class="fa fa-question-circle"></i></a>
             <hr>
         </header>
         <section id="content">
@@ -199,6 +200,24 @@
             Made by: Alan Berman, Jacques Heunis, Jethro Muller, and Timothy Gwynn.
         </footer>
     </main>
+    <div id="help-box" style="display: none">
+        <div id="help-box-container">
+            <button id="help-close-button" class="close-button"><span>Back</span></button>
+            <h2>Help</h2>
+            <p>
+                Our interactive visualization includes the following interactive elements (From top down):
+            </p>
+            <ul>
+                <li>A timeline with slider that the player can use to select a specific point in the game; can be used with a mouse or arrow keys when selected</li>
+                <li>A number of graphs showing aggregate data from many previous games, these can be switched between using the arrows provided on the left</li>
+                <li>A graph icon to the right that brings up a window showing all the graphs simultaneously and in more detail</li>
+                <li>A set of checkboxes allowing the user to filter which elements they wish to be displayed on the map</li>
+                <li>The game map where the user can select specific players to view their details on the left of the visualization</li>
+                <li>A drop down menu allowing the user to switch between map overlay options</li>
+                <li> When showing the hero path overlay the time slider splits in two allowing the user to select a time window rather than a specific point in time</li>
+            </ul>
+        </div>
+    </div>
     <div id="big-graph-overlay" style="display: none">
         <div id="big-graph-container">
             <button id="close-button" class="close-button"><span>Back</span></button>
@@ -257,6 +276,10 @@
 
       $('#close-button').click(function() {
           $('#big-graph-overlay').toggle();
+      });
+
+      $('#help').add('#help-close-button').click(function() {
+        $('#help-box').toggle();
       })
     });
 </script>
